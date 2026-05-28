@@ -1,5 +1,5 @@
-#ifndef NET_MINECRAFT_CLIENT_GUI_SCREENS_CRAFT_StonecutterScreen_H__
-#define NET_MINECRAFT_CLIENT_GUI_SCREENS_CRAFT_StonecutterScreen_H__
+#ifndef NET_MINECRAFT_CLIENT_GUI_SCREENS_CRAFTING__StonecutterScreen_H__
+#define NET_MINECRAFT_CLIENT_GUI_SCREENS_CRAFTING__StonecutterScreen_H__
 
 #include "PaneCraftingScreen.h"
 
@@ -8,10 +8,9 @@ class StonecutterScreen: public PaneCraftingScreen
 	typedef PaneCraftingScreen super;
 public:
     StonecutterScreen();
-	~StonecutterScreen();
-
-private:
-	bool filterRecipe(const Recipe& r);
+protected:
+	void onShow() override;
+	void onHide() override;
 };
 
-#endif /*NET_MINECRAFT_CLIENT_GUI_SCREENS_CRAFT_StonecutterScreen_H__*/
+#endif /*NET_MINECRAFT_CLIENT_GUI_SCREENS_CRAFTING__StonecutterScreen_H__*/

@@ -1,17 +1,20 @@
 #include "StonecutterScreen.h"
-#include "CraftingFilters.h"
-#include "../../../../world/level/material/Material.h"
-#include "../../../../world/item/ItemCategory.h"
+#include "../../../item/crafting/Recipes.h"
+#include "../../components/InventoryPane.h"
+#include "../../components/ItemPane.h"
+#include "../../components/RolledSelectionList.h"
 
 StonecutterScreen::StonecutterScreen()
-:	super(Recipe::SIZE_3X3)
+:   super(Recipes::getInstance()->stoneCutterRecipes)
 {
-	setSingleCategoryAndIcon(ItemCategory::Structures, 5);
 }
 
-StonecutterScreen::~StonecutterScreen() {
+void StonecutterScreen::onShow()
+{
+    super::onShow();
 }
 
-bool StonecutterScreen::filterRecipe(const Recipe& r) {
-	return CraftingFilters::isStonecutterItem(r.getResultItem());
+void StonecutterScreen::onHide()
+{
+    super::onHide();
 }
