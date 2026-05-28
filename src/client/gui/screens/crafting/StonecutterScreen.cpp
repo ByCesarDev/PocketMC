@@ -2,7 +2,7 @@
 #include "../../../../world/item/crafting/Recipes.h"
 #include "../../components/InventoryPane.h"
 #include "../../components/ItemPane.h"
-#include "../../components/RolledSelectionList.h"
+#include "../../components/ScrolledSelectionList.h"
 
 StonecutterScreen::StonecutterScreen()
 :   super(Recipes::getInstance()->stoneCutterRecipes)
