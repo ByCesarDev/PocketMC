@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/world/level/tile/StoneTile.h"
+#include "StoneTile.h"
 
 class PolishedDeepslateTile : public StoneTile {
 public:

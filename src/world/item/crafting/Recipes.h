@@ -47,6 +47,7 @@ public:
 	void addShapedRecipe(const ItemInstance& result, const RowList& rows, const TypeList& types);
 
 	void addShapelessRecipe(const ItemInstance& result, const TypeList& types);
+    void addStoneCutterRecipe(int outputId, int outputAux, int inputId);
 
 	Recipe* getRecipeFor(const ItemInstance& result);
 private:
