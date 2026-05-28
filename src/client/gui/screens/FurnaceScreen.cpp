@@ -495,7 +495,7 @@ ItemInstance FurnaceScreen::moveOver(const ItemInstance* item, int maxCount) {
 
 	ItemInstance removed(item->id, wantedCount, item->getAuxValue());
 	int oldSize = minecraft->player->inventory->getNumEmptySlots();
-	if (minecraft->player->inventory->removeResource(removed)) {
+	if (minecraft->player->inventory->removeResource(removed, false)) {
 		int newSize = minecraft->player->inventory->getNumEmptySlots();
 		setIfNotSet(doRecreatePane, newSize != oldSize);
 		return removed;
