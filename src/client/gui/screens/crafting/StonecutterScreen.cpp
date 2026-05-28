@@ -1,5 +1,5 @@
 #include "StonecutterScreen.h"
-#include "../../../item/crafting/Recipes.h"
+#include "../../../../item/crafting/Recipes.h"
 #include "../../components/InventoryPane.h"
 #include "../../components/ItemPane.h"
 #include "../../components/RolledSelectionList.h"
@@ -9,12 +9,7 @@ StonecutterScreen::StonecutterScreen()
 {
 }
 
-void StonecutterScreen::onShow()
+bool StonecutterScreen::filterRecipe(const Recipe& recipe)
 {
-    super::onShow();
-}
-
-void StonecutterScreen::onHide()
-{
-    super::onHide();
+    return true;
 }

@@ -8,9 +8,8 @@ class StonecutterScreen: public PaneCraftingScreen
 	typedef PaneCraftingScreen super;
 public:
     StonecutterScreen();
-protected:
-	void onShow() override;
-	void onHide() override;
+
+    bool filterRecipe(const Recipe& recipe) override;
 };
 
 #endif /*NET_MINECRAFT_CLIENT_GUI_SCREENS_CRAFTING__StonecutterScreen_H__*/
