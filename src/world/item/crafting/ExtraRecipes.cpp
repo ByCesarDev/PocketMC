@@ -1,5 +1,6 @@
 #include "ExtraRecipes.h"
 #include "Recipes.h"
+#include "FurnaceRecipes.h"
 #include "../../item/Item.h"
 #include "../../level/tile/Tile.h"
 
@@ -43,4 +44,33 @@ void ExtraRecipes::addRecipes(Recipes* r)
     // Fence Gates (2 planks + 4 sticks -> 1 gate)
     r->addShapedRecipe(ItemInstance(Tile::fenceGateSpruce, 1), "#P#", "#P#", definition('P', Tile::sprucePlanks, '#', Item::stick));
     r->addShapedRecipe(ItemInstance(Tile::fenceGateBirch, 1), "#P#", "#P#", definition('P', Tile::birchPlanks, '#', Item::stick));
+
+    // Smelting Recipes
+    FurnaceRecipes::getInstance()->addFurnaceRecipe(Tile::deepslateIronOre->id, ItemInstance(Item::ironIngot->id, 1, 0));
+    FurnaceRecipes::getInstance()->addFurnaceRecipe(Tile::deepslateGoldOre->id, ItemInstance(Item::goldIngot->id, 1, 0));
+
+    // Stonecutter-like Crafting Recipes (4x4 pattern for variants)
+    // 4 cobbled deepslate > 4 polished deepslate
+    r->addShapedRecipe(ItemInstance(Tile::deepslatePolished, 4), 
+        "##", 
+        "##", 
+        definition('#', Tile::cobbledDeepslate));
+
+    // 4 polished deepslate > 4 Deepslate Tiles
+    r->addShapedRecipe(ItemInstance(Tile::deepslateTiles, 4), 
+        "##", 
+        "##", 
+        definition('#', Tile::deepslatePolished));
+
+    // 4 cobbled deepslate > 4 deepslate
+    r->addShapedRecipe(ItemInstance(Tile::deepslate, 4), 
+        "##", 
+        "##", 
+        definition('#', Tile::cobbledDeepslate));
+
+    // 4 deepslate > 4 deepslate bricks
+    r->addShapedRecipe(ItemInstance(Tile::deepslateBricks, 4), 
+        "##", 
+        "##", 
+        definition('#', Tile::deepslate));
 }

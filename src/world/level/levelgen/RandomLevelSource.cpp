@@ -113,7 +113,18 @@ void RandomLevelSource::prepareHeights(int xOffs, int zOffs, unsigned char* bloc
                                 }
                             }
                             if (val > 0) {
-                                tileId = Tile::rock->id;
+                                int absoluteY = yc * CHUNK_HEIGHT + y;
+                                if (absoluteY < 18) {
+                                    tileId = Tile::deepslate->id;
+                                } else if (absoluteY < 26) {
+                                    // Transición suave: mayor probabilidad de Deepslate cuanto más profundo
+                                    if (this->random.nextInt(8) > (absoluteY - 18))
+                                        tileId = Tile::deepslate->id;
+                                    else
+                                        tileId = Tile::rock->id;
+                                } else {
+                                    tileId = Tile::rock->id;
+                                }
                             } else {
                             }
 
@@ -166,11 +177,11 @@ void RandomLevelSource::buildSurfaces(int xOffs, int zOffs, unsigned char* block
 
                     if (old == 0) {
                         run = -1;
-                    } else if (old == Tile::rock->id) {
+                    } else if (old == Tile::rock->id || old == Tile::deepslate->id) {
                         if (run == -1) {
                             if (runDepth <= 0) {
                                 top = 0;
-                                material = (char) Tile::rock->id;
+                                material = (char) old; // Preservar Deepslate o Stone original
                             } else if (y >= waterHeight - 4 && y <= waterHeight + 1) {
                                 top = b->topMaterial;
 								material = b->material;

@@ -1,5 +1,3 @@
-#if 0
-
 #include "CanyonFeature.h"
 
 #include "../Level.h"
@@ -119,9 +117,17 @@ void CanyonFeature::addTunnel( int xOffs, int zOffs, unsigned char* blocks, floa
 				for (int yy = y1 - 1; yy >= y0; yy--) {
 					float yd = (yy + 0.5 - yCave) / yRad;
 					if (yd > -0.7 && xd * xd + yd * yd + zd * zd < 1) {
-						int block = blocks[p];
-						if (block == Tile::grass->id) hasGrass = true;
-						if (block == Tile::rock->id || block == Tile::dirt->id || block == Tile::grass->id) {
+						unsigned char block = blocks[p];
+						if (block == (unsigned char)Tile::grass->id) hasGrass = true;
+						
+						// Comprobamos si el bloque es piedra, deepslate o algún mineral de deepslate para poder excavar el cañón
+						bool isReplaceable = (block == Tile::rock->id || block == Tile::deepslate->id || 
+											  block == Tile::dirt->id || block == Tile::grass->id ||
+											  block == Tile::deepslateIronOre->id || block == Tile::deepslateGoldOre->id ||
+											  block == Tile::deepslateRedstoneOre->id || block == Tile::deepslateLapisOre->id ||
+											  block == Tile::deepslateDiamondOre->id);
+
+						if (isReplaceable) {
 							if (yy < 10) {
 								blocks[p] = (unsigned char) Tile::lava->id;
 							} else {
@@ -138,7 +144,7 @@ void CanyonFeature::addTunnel( int xOffs, int zOffs, unsigned char* blocks, floa
 	}
 }
 
-void CanyonFeature::addFeature( Level level, int x, int z, int xOffs, int zOffs, char* blocks )
+void CanyonFeature::addFeature( Level level, int x, int z, int xOffs, int zOffs, unsigned char* blocks )
 {
 	if (random.nextInt(15) != 0) return;
 
@@ -164,5 +170,3 @@ void CanyonFeature::addFeature( Level level, int x, int z, int xOffs, int zOffs,
         for (int x = xOffs - r; x <= xOffs + r; x++) {
             for (int z = zOffs - r; z <= zOffs + r; z++) {
                 random.setSeed((x * xScale + z * zScale) ^ level.seed);*/
-
-#endif

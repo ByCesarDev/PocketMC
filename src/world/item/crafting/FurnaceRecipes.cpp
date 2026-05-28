@@ -6,7 +6,7 @@
 /*static*/
 FurnaceRecipes* FurnaceRecipes::instance = NULL;
 
-const FurnaceRecipes* FurnaceRecipes::getInstance()
+FurnaceRecipes* FurnaceRecipes::getInstance()
 {
 	if (!instance) instance = new FurnaceRecipes();
 	return instance;

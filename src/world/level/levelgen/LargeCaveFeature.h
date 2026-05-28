@@ -132,7 +132,7 @@ protected:
                             if (yd > -0.7 && xd * xd + yd * yd + zd * zd < 1) {
                                 int block = blocks[p];
                                 if (block == Tile::grass->id) hasGrass = true;
-                                if (block == Tile::rock->id || block == Tile::dirt->id || block == Tile::grass->id) {
+                                if (block == Tile::rock->id || block == Tile::deepslate->id || block == Tile::dirt->id || block == Tile::grass->id) {
                                     if (yy < 10) {
                                         blocks[p] = (unsigned char) Tile::lava->id;
                                     } else {

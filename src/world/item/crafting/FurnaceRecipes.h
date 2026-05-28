@@ -12,18 +12,17 @@ public:
     typedef std::map<int, ItemInstance> Map;
 
 	static void teardownFurnaceRecipes();
-    static const FurnaceRecipes* getInstance();
+    static FurnaceRecipes* getInstance();
 
     bool isFurnaceItem(int itemId) const;
 
 	ItemInstance getResult(int itemId) const;
 
     const Map& getRecipes() const;
+	void addFurnaceRecipe(int itemId, const ItemInstance& result);
 
 private:
     FurnaceRecipes();
-
-	void addFurnaceRecipe(int itemId, const ItemInstance& result);
 
     static FurnaceRecipes* instance;
 

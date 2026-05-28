@@ -1,5 +1,7 @@
 #include "TileInclude.h"
 #include "ExtraTiles.h"
+#include "FlowerTile.h"
+#include "DeepslateTile.h"
 // AncientDebrisTile removed
 #include "../Level.h"
 #include "../../entity/player/Player.h"
@@ -96,6 +98,8 @@ Tile* Tile::stoneSlabHalf=NULL;
 Tile* Tile::cloth       = NULL;
 Tile* Tile::flower      = NULL;
 Tile* Tile::rose        = NULL;
+Tile* Tile::dandelion   = nullptr;
+Tile* Tile::cornflower  = nullptr;
 Tile* Tile::mushroom1   = NULL;
 Tile* Tile::mushroom2   = NULL;
 Tile* Tile::topSnow     = NULL;
@@ -172,6 +176,19 @@ Tile* Tile::stairs_sandStone   = NULL;
 Tile* Tile::quartzBlock   = NULL;
 Tile* Tile::stairs_quartz   = NULL;
 
+Tile* Tile::deepslate = NULL;
+Tile* Tile::cobbledDeepslate = NULL;
+Tile* Tile::deepslateCoalOre = NULL;
+Tile* Tile::deepslateIronOre = NULL;
+Tile* Tile::deepslateGoldOre = NULL;
+Tile* Tile::deepslateDiamondOre = NULL;
+Tile* Tile::deepslateLapisOre = NULL;
+Tile* Tile::deepslateRedstoneOre = NULL;
+Tile* Tile::deepslateRedstoneOre_lit = NULL;
+Tile* Tile::deepslatePolished = NULL;
+Tile* Tile::deepslateTiles = NULL;
+Tile* Tile::deepslateBricks = NULL;
+
 /*static*/
 void Tile::initTiles() {
 	rock        = (new StoneTile(1, 1))->init()->setDestroyTime(1.5f)->setExplodeable(10)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("stone");
@@ -195,8 +212,6 @@ void Tile::initTiles() {
 	birchTrunk  = (new TreeTile(19))->init()->setDestroyTime(2.0f)->setSoundType(SOUND_WOOD)->setCategory(ItemCategory::Structures)->setDescriptionId("logBirch");
 	spruceTrunk = (new TreeTile(23))->init()->setDestroyTime(2.0f)->setSoundType(SOUND_WOOD)->setCategory(ItemCategory::Structures)->setDescriptionId("logSpruce");
 
-	// Initialize extra/community tiles (planks, etc.) from a separate translation unit
-    	Tile::initExtraTiles();
 	leaves      = (LeafTile*) (new LeafTile(18, 4 + 3 * 16))->init()->setDestroyTime(0.2f)->setLightBlock(1)->setSoundType(SOUND_GRASS)->setCategory(ItemCategory::Structures)->setDescriptionId("leaves");
 
 	glass       = (new GlassTile(20, 49, Material::glass, false))->init()->setDestroyTime(0.3f)->setSoundType(SOUND_GLASS)->setCategory(ItemCategory::Structures)->setDescriptionId("glass");
@@ -208,8 +223,12 @@ void Tile::initTiles() {
 	tallgrass   = (new TallGrass(31, 2 * 16 + 7))->init()->setDestroyTime(0.0f)->setSoundType(SOUND_GRASS)->setCategory(ItemCategory::Decorations)->setDescriptionId("tallgrass");
 	cloth       = (new ClothTile(35))->init()->setDestroyTime(0.8f)->setSoundType(SOUND_CLOTH)->setCategory(ItemCategory::Structures)->setDescriptionId("cloth");
 
-	flower      = (new Bush(37, 13))->init()->setDestroyTime(0.0f)->setSoundType(SOUND_GRASS)->setCategory(ItemCategory::Decorations)->setDescriptionId("flower");
-	rose        = (new Bush(38, 12))->init()->setDestroyTime(0.0f)->setSoundType(SOUND_GRASS)->setCategory(ItemCategory::Decorations)->setDescriptionId("rose");
+	// IDs nuevas 179 y 180 para evitar la corrupción de las IDs 37/38
+	dandelion   = (new FlowerTile(179, 13))->init()->setCategory(ItemCategory::Decorations)->setDescriptionId("flower");
+	cornflower  = (new FlowerTile(180, 12))->init()->setCategory(ItemCategory::Decorations)->setDescriptionId("rose");
+	flower = dandelion; // Redirigir puntero original para compatibilidad con generadores
+	rose = cornflower;
+
 	mushroom1   = (new Mushroom(39, 13 + 16))->init()->setDestroyTime(0.0f)->setSoundType(SOUND_GRASS)->setLightEmission(2 / 16.0f)->setCategory(ItemCategory::Decorations)->setDescriptionId("mushroom");
 	mushroom2   = (new Mushroom(40, 12 + 16))->init()->setDestroyTime(0.0f)->setSoundType(SOUND_GRASS)->setCategory(ItemCategory::Decorations)->setDescriptionId("mushroom");
 	goldBlock   = (new MetalTile(41, 39 - 16))->init()->setDestroyTime(3.0f)->setExplodeable(10)->setSoundType(SOUND_METAL)->setCategory(ItemCategory::Decorations)->setDescriptionId("blockGold");
@@ -295,6 +314,9 @@ void Tile::initTiles() {
     fire     = (FireTile*) (new FireTile(51, 1 * 16 + 15))->init()->setDestroyTime(0.0f)->setLightEmission(1.0f)->setSoundType(SOUND_WOOD)->setCategory(ItemCategory::Structures)->setDescriptionId("fire");
 
 	//
+	// Initialize extra/community tiles (planks, deepslate, etc.)
+	Tile::initExtraTiles();
+
     // Special case for certain items since they can have different icons
 	// @note: Make sure those different items are handled in ItemInHandRenderer::renderItem
 	//
@@ -367,6 +389,22 @@ void Tile::initExtraTiles()
 	// Fence Gates
 	fenceGateSpruce = (new FenceGateTile(166, 4 | Tile::TEXTURE_ALT_FLAG))->init()->setDestroyTime(2.0f)->setExplodeable(5)->setSoundType(SOUND_WOOD)->setCategory(ItemCategory::Structures)->setDescriptionId("fenceGateSpruce");
 	fenceGateBirch  = (new FenceGateTile(165, 5 | Tile::TEXTURE_ALT_FLAG))->init()->setDestroyTime(2.0f)->setExplodeable(5)->setSoundType(SOUND_WOOD)->setCategory(ItemCategory::Structures)->setDescriptionId("fenceGateBirch");
+
+	// Deepslate blocks (IDs 170-177)
+	deepslate            = ((DeepslateTile*)(new DeepslateTile(170, 6 | Tile::TEXTURE_ALT_FLAG))->init())->setResource(171)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslate");
+	cobbledDeepslate     = (new DeepslateTile(171, 7 | Tile::TEXTURE_ALT_FLAG))->init()->setCategory(ItemCategory::Structures)->setDescriptionId("deepslateCobbled");
+	deepslateCoalOre     = (new OreTile(172, 8 | Tile::TEXTURE_ALT_FLAG))->init()->setDestroyTime(3.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslateOreCoal");
+	deepslateDiamondOre  = (new OreTile(173, 9 | Tile::TEXTURE_ALT_FLAG))->init()->setDestroyTime(3.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslateOreDiamond");
+	deepslateGoldOre     = (new OreTile(174, 10 | Tile::TEXTURE_ALT_FLAG))->init()->setDestroyTime(3.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslateOreGold");
+	deepslateIronOre     = (new OreTile(175, 11 | Tile::TEXTURE_ALT_FLAG))->init()->setDestroyTime(3.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslateOreIron");
+	deepslateLapisOre    = (new OreTile(176, 12 | Tile::TEXTURE_ALT_FLAG))->init()->setDestroyTime(3.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslateOreLapis");
+	deepslateRedstoneOre = (new RedStoneOreTile(177, 13 | Tile::TEXTURE_ALT_FLAG, false))->init()->setDestroyTime(3.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Mechanisms)->setDescriptionId("deepslateOreRedstone");
+	deepslateRedstoneOre_lit = (new RedStoneOreTile(178, 13 | Tile::TEXTURE_ALT_FLAG, true))->init()->setDestroyTime(3.0f)->setLightEmission(10 / 16.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Mechanisms)->setDescriptionId("deepslateOreRedstone");
+
+	// New Deepslate variants (IDs 181-183)
+	deepslatePolished    = (new Tile(181, 18 | Tile::TEXTURE_ALT_FLAG, Material::stone))->init()->setDestroyTime(1.5f)->setExplodeable(6.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslatePolished");
+	deepslateTiles       = (new Tile(182, 19 | Tile::TEXTURE_ALT_FLAG, Material::stone))->init()->setDestroyTime(1.5f)->setExplodeable(6.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslateTiles");
+	deepslateBricks      = (new Tile(183, 20 | Tile::TEXTURE_ALT_FLAG, Material::stone))->init()->setDestroyTime(1.5f)->setExplodeable(6.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("deepslateBricks");
 }
 
 int Tile::transformToValidBlockId( int blockId ) {
@@ -383,6 +421,21 @@ int Tile::transformToValidBlockId( int blockId, int x, int y, int z ) {
 	return blockId;
 }
 
+int Tile::getOreVariant(int oreTileId, int replacedTileId) {
+	if (replacedTileId != Tile::deepslate->id) {
+		return oreTileId;
+	}
+    
+    // Si estamos reemplazando Deepslate, devolvemos la variante de Deepslate del mineral
+	if (oreTileId == Tile::coalOre->id) return Tile::deepslateCoalOre->id;
+	if (oreTileId == Tile::ironOre->id) return Tile::deepslateIronOre->id;
+	if (oreTileId == Tile::goldOre->id) return Tile::deepslateGoldOre->id;
+	if (oreTileId == Tile::emeraldOre->id) return Tile::deepslateDiamondOre->id; // En este motor EmeraldOre se usa para Diamond
+	if (oreTileId == Tile::lapisOre->id) return Tile::deepslateLapisOre->id;
+	if (oreTileId == Tile::redStoneOre->id) return Tile::deepslateRedstoneOre->id;
+
+	return oreTileId;
+}
 
 Tile::Tile(int id, const Material* material)
 :	id(id),
@@ -446,7 +499,9 @@ bool Tile::isFaceVisible(Level* level, int x, int y, int z, int f) {
 Tile* Tile::init() {
     Tile::tiles[id] = this;
 	setShape(xx0, yy0, zz0, xx1, yy1, zz1); // @attn
-	solid[id] = isSolidRender();
+	// Forzamos que las plantas no sean sólidas en el array global para evitar fondos opacos
+	bool isPlant = (id == 179 || id == 180 || id == 6 || id == 31 || id == 39 || id == 40);
+	solid[id] = isPlant ? false : isSolidRender();
 	lightBlock[id] = isSolidRender() ? 255 : 0;
 	translucent[id] = !material->blocksLight();
 	return this;
@@ -560,11 +615,15 @@ void Tile::destroy( Level* level, int x, int y, int z, int data )
 
 bool Tile::isCubeShaped()
 {
+	// Las flores y plantas no deben ser tratadas como cubos para evitar problemas de oclusión
+	if (id == 179 || id == 180 || id == 6 || id == 31 || id == 39 || id == 40) return false;
 	return true;
 }
 
 int Tile::getRenderShape()
 {
+	// Forzamos el renderizado en forma de cruz para las flores
+	if (id == 179 || id == 180 || id == 6 || id == 31 || id == 39 || id == 40) return SHAPE_CROSS_TEXTURE;
 	return SHAPE_BLOCK;
 }
 
@@ -607,6 +666,10 @@ int Tile::getTexture( int face, int data )
 
 int Tile::getTexture( int face )
 {
+	// SOLUCIÓN DEFINITIVA: Forzamos la limpieza del flag de atlas alternativo (0x1000)
+	// para los IDs de las flores. Esto evita que el motor use terrain2.png
+	// incluso si los índices 12/13 están siendo usados por otros bloques allí.
+	if (id == 179 || id == 180) return tex & 0xfff;
 	return tex;
 }
 
@@ -620,6 +683,11 @@ void Tile::addAABBs( Level* level, int x, int y, int z, const AABB* box, std::ve
 
 AABB* Tile::getAABB( Level* level, int x, int y, int z )
 {
+	// Las flores (179, 180) no deben tener caja de colisión para que el jugador pase a través
+	if (id == 179 || id == 180) {
+		return NULL;
+	}
+
 	tmpBB.x0 = x + xx0;
 	tmpBB.y0 = y + yy0;
 	tmpBB.z0 = z + zz0;
@@ -631,6 +699,8 @@ AABB* Tile::getAABB( Level* level, int x, int y, int z )
 
 bool Tile::isSolidRender()
 {
+	// Las plantas nunca deben considerarse renderizado sólido para evitar que se dibujen caras de cubo opacas
+	if (id == 179 || id == 180 || id == 6 || id == 31 || id == 39 || id == 40) return false;
 	return xx0 <= 0.0f && yy0 <= 0.0f && zz0 <= 0.0f && xx1 >= 1.0f && yy1 >= 1.0f && zz1 >= 1.0f;
 }
 
@@ -666,6 +736,8 @@ float Tile::getExplosionResistance( Entity* source )
 
 int Tile::getRenderLayer()
 {
+	// Forzamos que las flores usen la capa de AlphaTest para descartar el fondo sólido
+	if (id == 179 || id == 180 || id == 6 || id == 31 || id == 39 || id == 40) return Tile::RENDERLAYER_ALPHATEST;
 	return Tile::RENDERLAYER_OPAQUE;
 }
 
@@ -800,7 +872,9 @@ void Tile::setShape(float x0, float y0, float z0, float x1, float y1, float z1) 
 	this->xx1 = x1;
 	this->yy1 = y1;
 	this->zz1 = z1;
-	solid[id] = isSolidRender();
+	// Mantener consistencia con el array de solidez
+	bool isPlant = (id == 179 || id == 180 || id == 6 || id == 31 || id == 39 || id == 40);
+	solid[id] = isPlant ? false : isSolidRender();
 	lightBlock[id] = isSolidRender() ? 255 : 0;
 }
 
@@ -811,5 +885,7 @@ bool Tile::mayPlace(Level* level, int x, int y, int z, unsigned char face) {
 
 bool Tile::mayPlace( Level* level, int x, int y, int z ) {
 	int t = level->getTile(x, y, z);
-	return t == 0 || !Tile::solid[t];
+	bool replaceable = (t == 0 || !Tile::solid[t]);
+	if (id == 179 || id == 180) return replaceable && canSurvive(level, x, y, z);
+	return replaceable;
 }

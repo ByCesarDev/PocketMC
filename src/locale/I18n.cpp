@@ -47,6 +47,7 @@ std::string I18n::get( const std::string& id )
 	if (lowId == "tile.fencebirch.name") return "Birch Fence";
 	if (lowId == "tile.logspruce.name") return "Spruce Log";
 	if (lowId == "tile.logbirch.name") return "Birch Log";
+	if (lowId == "tile.chest.name") return "Chest";
 
 	return id + '<';//lang.getElement(id);
 }

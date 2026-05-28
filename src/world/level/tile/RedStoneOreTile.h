@@ -44,20 +44,24 @@ public:
 
     /*private*/ void interact(Level* level, int x, int y, int z) {
         poofParticles(level, x, y, z);
-        if (id == Tile::redStoneOre->id) {
+        if (this->id == Tile::redStoneOre->id) {
             level->setTile(x, y, z, Tile::redStoneOre_lit->id);
+        } else if (id == Tile::deepslateRedstoneOre->id) {
+            level->setTile(x, y, z, Tile::deepslateRedstoneOre_lit->id);
         }
     }
 
     void tick(Level* level, int x, int y, int z, Random* random) {
         if (id == Tile::redStoneOre_lit->id) {
             level->setTile(x, y, z, Tile::redStoneOre->id);
+        } else if (id == Tile::deepslateRedstoneOre_lit->id) {
+            level->setTile(x, y, z, Tile::deepslateRedstoneOre->id);
         }
     }
 
     int getResource(int data, Random* random) {
-        //return Item.redStone.id;
-		return 0;
+        // 331 es el ID estándar del polvo de redstone
+		return 331;
     }
 
     int getResourceCount(Random* random) {

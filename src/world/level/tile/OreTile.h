@@ -18,22 +18,23 @@ public:
     }
 
     int getResource(int data, Random* random) {
-        if (id == Tile::coalOre->id) return Item::coal->id;
-        if (id == Tile::emeraldOre->id) return Item::emerald->id;
-        if (id == Tile::lapisOre->id) return Item::dye_powder->id;
+        // Aseguramos que los minerales de deepslate suelten el ítem correcto (Carbón, Diamante, Lapis)
+        if (id == Tile::coalOre->id || id == Tile::deepslateCoalOre->id) return Item::coal->id;
+        if (id == Tile::emeraldOre->id || id == Tile::deepslateDiamondOre->id) return Item::emerald->id; // Emerald = Diamond Item
+        if (id == Tile::lapisOre->id || id == Tile::deepslateLapisOre->id) return Item::dye_powder->id;
         return id;
     }
 
     int getResourceCount(Random* random) {
-        if (id == Tile::lapisOre->id) return 4 + random->nextInt(5);
-        return 1;
+        if (id == Tile::lapisOre->id || id == Tile::deepslateLapisOre->id) return 4 + random->nextInt(5);
+        return Tile::getResourceCount(random);
     }
 
 protected:
     //@Override
     int getSpawnResourcesAuxValue(int data) {
         // lapis spawns blue dye
-        if (id == Tile::lapisOre->id) return DyePowderItem::BLUE;
+        if (id == Tile::lapisOre->id || id == Tile::deepslateLapisOre->id) return DyePowderItem::BLUE;
         return 0;
     }
 };

@@ -19,16 +19,21 @@ public:
     }
 
     bool place(Level* level, Random* random, int x, int y, int z) {
-        if (level->getTile(x, y + 1, z) != Tile::rock->id) return false;
-        if (level->getTile(x, y - 1, z) != Tile::rock->id) return false;
+        int tileAbove = level->getTile(x, y + 1, z);
+        if (tileAbove != Tile::rock->id && tileAbove != Tile::deepslate->id) return false;
+        
+        int tileBelow = level->getTile(x, y - 1, z);
+        if (tileBelow != Tile::rock->id && tileBelow != Tile::deepslate->id) return false;
 
-        if (level->getTile(x, y, z) != 0 && level->getTile(x, y, z) != Tile::rock->id) return false;
+        int currentTile = level->getTile(x, y, z);
+        if (currentTile != 0 && currentTile != Tile::rock->id && currentTile != Tile::deepslate->id) return false;
 
         int rockCount = 0;
-        if (level->getTile(x - 1, y, z) == Tile::rock->id) rockCount++;
-        if (level->getTile(x + 1, y, z) == Tile::rock->id) rockCount++;
-        if (level->getTile(x, y, z - 1) == Tile::rock->id) rockCount++;
-        if (level->getTile(x, y, z + 1) == Tile::rock->id) rockCount++;
+        int t;
+        t = level->getTile(x - 1, y, z); if (t == Tile::rock->id || t == Tile::deepslate->id) rockCount++;
+        t = level->getTile(x + 1, y, z); if (t == Tile::rock->id || t == Tile::deepslate->id) rockCount++;
+        t = level->getTile(x, y, z - 1); if (t == Tile::rock->id || t == Tile::deepslate->id) rockCount++;
+        t = level->getTile(x, y, z + 1); if (t == Tile::rock->id || t == Tile::deepslate->id) rockCount++;
 
         int holeCount = 0;
         if (level->isEmptyTile(x - 1, y, z)) holeCount++;

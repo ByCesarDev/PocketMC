@@ -6,7 +6,7 @@
 #include "../../../../util/Random.h"
 #include "../../Level.h"
 
-#include "../../tile/Bush.h"
+#include "../../tile/Tile.h"
 #include "Feature.h"
 
 class FlowerFeature: public Feature {
@@ -23,7 +23,7 @@ public:
             int y2 = y + random->nextInt(4) - random->nextInt(4);
             int z2 = z + random->nextInt(8) - random->nextInt(8);
             if (level->isEmptyTile(x2, y2, z2)) {
-                if (((Bush*) Tile::tiles[tile])->canSurvive(level, x2, y2, z2)) {
+                if (Tile::tiles[tile]->canSurvive(level, x2, y2, z2)) {
                     level->setTileNoUpdate(x2, y2, z2, tile);
                 }
             }

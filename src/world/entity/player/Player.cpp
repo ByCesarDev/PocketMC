@@ -809,6 +809,14 @@ Player* Player::asPlayer( Entity* e ) {
 
 void Player::openContainer(ChestTileEntity* container)
 {
+    // Asignamos el menú del contenedor. 
+    // Si el contenedor es nulo o el cofre está bloqueado (gatos/bloques encima), no abrir.
+    
+    // En un sistema real aquí harías:
+    // if (this->containerMenu) delete this->containerMenu;
+    // this->containerMenu = new ChestMenu(this->inventory, container);
+    
+    // logic para abrir la UI en el cliente...
 }
 
 void Player::tileEntityDestroyed( int tileEntityId ) {

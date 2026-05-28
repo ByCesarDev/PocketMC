@@ -304,6 +304,13 @@ bool TileRenderer::tesselateLadderInWorld( Tile* tt, int x, int y, int z )
 
 bool TileRenderer::tesselateCrossInWorld( Tile* tt, int x, int y, int z )
 {
+	int data = level->getData(x, y, z);
+	int tex = fixedTexture >= 0 ? fixedTexture : tt->getTexture(0, data);
+	bool isAlt = (tex & Tile::TEXTURE_ALT_FLAG) != 0;
+	if (atlasFilter != -1 && ((atlasFilter == 0 && isAlt) || (atlasFilter == 1 && !isAlt))) {
+		return false;
+	}
+
 	Tesselator& t = Tesselator::instance;
 
 	float br = tt->getBrightness(level, x, y, z);
@@ -326,7 +333,7 @@ bool TileRenderer::tesselateCrossInWorld( Tile* tt, int x, int y, int z )
 		zt += ((((seed >> 24) & 0xf) / 15.0f) - 0.5f) * 0.5f;
 	}
 
-	tesselateCrossTexture(tt, level->getData(x, y, z), xt, yt, zt);
+	tesselateCrossTexture(tt, data, xt, yt, zt);
 	return true;
 	//return true;
 	/*Tesselator& t = Tesselator::instance;

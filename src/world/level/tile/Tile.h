@@ -19,6 +19,7 @@ class Bush;
 class GrassTile;
 class LeafTile;
 class FireTile;
+class FlowerTile;
 
 // @Note: Got a memory leak in initTiles? You probably didn't call
 //        Tile::init after constructing the tile!
@@ -103,7 +104,7 @@ public:
 	static const int NUM_BLOCK_TYPES = 256;
 
     // Flag OR'ed into texture indices to indicate the texture is in the
-    // secondary atlas (terrain2.png) instead of the main terrain.png atlas.
+    // secondary atlas (terrain2.png) instead of the main terrain.png atlas. (Index >= 4096)
     static const int TEXTURE_ALT_FLAG = 0x1000;
 
     static Tile* tiles[NUM_BLOCK_TYPES];
@@ -171,6 +172,8 @@ public:
 	static Tile* cloth;
 	static Tile* flower;
 	static Tile* rose;
+	static Tile* dandelion;
+	static Tile* cornflower;
 	static Tile* mushroom1;
 	static Tile* mushroom2;
     static Tile* goldBlock;
@@ -247,6 +250,19 @@ public:
 	static Tile* quartzBlock;
 	static Tile* stairs_quartz;
 
+	static Tile* deepslate;
+	static Tile* cobbledDeepslate;
+	static Tile* deepslateCoalOre;
+	static Tile* deepslateIronOre;
+	static Tile* deepslateGoldOre;
+	static Tile* deepslateDiamondOre;
+	static Tile* deepslateLapisOre;
+	static Tile* deepslateRedstoneOre;
+	static Tile* deepslateRedstoneOre_lit;
+	static Tile* deepslatePolished;
+	static Tile* deepslateTiles;
+	static Tile* deepslateBricks;
+
 	// invisible bedrock is used to block off empty chunks (i.e. prevent player movement)
 	static Tile* invisible_bedrock;
 	static Tile* info_updateGame1;
@@ -257,6 +273,7 @@ public:
 	static void teardownTiles();
     static void initExtraTiles();
 
+	static int getOreVariant(int oreTileId, int replacedTileId);
 	static int transformToValidBlockId(int blockId);
 	static int transformToValidBlockId(int blockId, int x, int y, int z);
 
