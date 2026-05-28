@@ -49,6 +49,8 @@ public:
 	void addShapelessRecipe(const ItemInstance& result, const TypeList& types);
     void addStoneCutterRecipe(int outputId, int outputAux, int inputId);
 
+	void initStoneCutterRecipes();
+
 	Recipe* getRecipeFor(const ItemInstance& result);
 private:
     Recipes();

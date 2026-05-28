@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../item/crafting/Recipes.h"
-#include "../../ui/screens/crafting/StonecutterScreen.h"
+#include "../../../client/screens/StonecutterScreen.h"
 #include "../../../client/gui/ScreenChooser.h"
 #include "Tile.h"
 
