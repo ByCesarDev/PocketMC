@@ -1,6 +1,7 @@
 #include "RandomLevelSource.h"
 
 #include "feature/FeatureInclude.h"
+#include "feature/OreFeature.h"
 #include "../Level.h"
 #include "../ChunkPos.h"
 #include "../MobSpawner.h"
