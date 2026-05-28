@@ -5,6 +5,7 @@
 #include "../../../client/gui/screens/ScreenChooser.h"
 #include "Tile.h"
 #include "../../entity/player/Player.h"
+#include "../../../client/Minecraft.h"
 
 class StonecutterTile : public Tile {
 public:
@@ -26,7 +27,7 @@ public:
     virtual bool use(Level* level, int x, int y, int z, Player* player) {
         if (level->isClientSide) {
             Recipes::getInstance()->initStoneCutterRecipes();
-            player->getScreenChooser()->pushStonecutterScreen(x, y, z);
+            Minecraft::getInstance()->setScreen(new StonecutterScreen(x, y, z));
         }
         return true;
     }
