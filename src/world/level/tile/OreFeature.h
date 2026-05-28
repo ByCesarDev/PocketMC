@@ -1,7 +1,7 @@
 #ifndef NET_MINECRAFT_WORLD_LEVEL_LEVELGEN_FEATURE__OreFeature_H__
 #define NET_MINECRAFT_WORLD_LEVEL_LEVELGEN_FEATURE__OreFeature_H__
 
-#include "Feature.h"
+#include "../levelgen/feature/Feature.h"
 
 class OreFeature : public Feature {
 public:

@@ -7,7 +7,11 @@ StonecutterRecipe::StonecutterRecipe(ItemInstance output, ItemInstance input)
 }
 
 bool StonecutterRecipe::matches(CraftingContainer* craftSlots) {
-    return craftSlots->getItem(0).id == input.id;
+    ItemInstance* item = craftSlots->getItem(0);
+    if (item) {
+        return item->id == input.id;
+    }
+    return false;
 }
 
 ItemInstance StonecutterRecipe::assemble(CraftingContainer* craftSlots) {
