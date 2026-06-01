@@ -112,6 +112,6 @@ bool Recipe::isAnyAuxValue( int id )
 void Recipe::consumeCraftingIngredients(Inventory* inventory) {
     std::vector<ItemInstance> items = getItemPack().getItemInstances();
     for (size_t i = 0; i < items.size(); ++i) {
-        inventory->removeResource(items[i]);
+        inventory->removeResource(items[i], Recipe::isAnyAuxValue(&items[i]) || items[i].getAuxValue() == Recipe::ANY_AUX_VALUE);
     }
 }

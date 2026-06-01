@@ -66,6 +66,20 @@ private:
 	int InventoryRows;
 	int InventorySize;
 	int InventoryColumns;
+
+	// Category tabs variables
+	int currentCategory;
+	int numCategories;
+	std::vector<int> categoryBitmasks;
+	std::vector<int> categoryIcons;
+	std::vector<ImageButton*> _categoryButtons;
+	ImageButton* selectedCategoryButton;
+
+	// Nine-patches for styling
+	NinePatchLayer* guiBackground;
+	NinePatchLayer* guiSlotCategory;
+	NinePatchLayer* guiSlotCategorySelected;
+	NinePatchLayer* guiPaneFrame;
 };
 
 }

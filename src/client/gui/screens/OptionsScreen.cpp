@@ -228,7 +228,9 @@ void OptionsScreen::generateOptionScreens() {
 		.addOptionItem(OPTIONS_ANAGLYPH_3D, minecraft)
 		.addOptionItem(OPTIONS_VIEW_BOBBING, minecraft)
 		.addOptionItem(OPTIONS_AMBIENT_OCCLUSION, minecraft)
-		.addOptionItem(OPTIONS_SMOOTH_LIGHTNING, minecraft);
+		.addOptionItem(OPTIONS_SMOOTH_LIGHTNING, minecraft)
+		.addOptionItem(OPTIONS_FOV, minecraft)
+		.addOptionItem(OPTIONS_BRIGHTNESS, minecraft);
 	
 	optionPanes[4]->addOptionItem(OPTIONS_ALLOW_SPRINT, minecraft)
 		.addOptionItem(OPTIONS_BAR_ON_TOP, minecraft)

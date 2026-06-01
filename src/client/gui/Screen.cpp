@@ -3,6 +3,7 @@
 #include "components/TextBox.h"
 #include "../Minecraft.h"
 #include "../renderer/Tesselator.h"
+#include "../renderer/gles.h"
 #include "../sound/SoundEngine.h"
 #include "../../platform/input/Keyboard.h"
 #include "../../platform/input/Mouse.h"
@@ -31,6 +32,44 @@ void Screen::render( int xm, int ym, float a )
 		TextBox* textbox = textBoxes[i];
 		textbox->render(minecraft, xm, ym);
 	}
+}
+
+void Screen::renderTooltip(const std::string& text, int xm, int ym) {
+	if (text.empty()) return;
+
+	Font* font = minecraft->font;
+	int textWidth = font->width(text);
+	int w = textWidth + 12;
+	int h = 18;
+
+	int tx = xm + 12;
+	int ty = ym - 12;
+
+	if (tx + w > width) {
+		tx = xm - w - 12;
+	}
+	if (ty < 0) {
+		ty = ym + 12;
+	}
+	if (ty + h > height) {
+		ty = height - h;
+	}
+
+	glDisable2(GL_DEPTH_TEST);
+	glEnable2(GL_BLEND);
+	glBlendFunc2(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	minecraft->textures->loadAndBindTexture("gui/gui.png");
+	glColor4f2(1, 1, 1, 1);
+
+	int v = 66; // standard button texture
+	blit(tx, ty, 0, v, w / 2, h, 0, 20);
+	blit(tx + w / 2, ty, 200 - w / 2, v, w - w / 2, h, 0, 20);
+
+	// Draw the text inside the tooltip
+	drawString(font, text, tx + 6, ty + (h - 8) / 2, 0xffffffff);
+	glDisable2(GL_BLEND);
+	glEnable2(GL_DEPTH_TEST);
 }
 
 void Screen::init( Minecraft* minecraft, int width, int height )

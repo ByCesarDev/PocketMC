@@ -32,6 +32,16 @@ void WeaponRecipes::addRecipes( Recipes* r )
 		}
 	}
 
+	int extraWoodIds[] = {Tile::sprucePlanks->id, Tile::birchPlanks->id};
+	for (int m = 0; m < 2; m++) {
+		int mId = extraWoodIds[m];
+		for (int t = 0; t < NumRecipes; t++) {
+			Item* target = (Item*) map[t][0];
+			r->addShapedRecipe( ItemInstance(target), shapes[t],
+				definition('#', Item::stick, 'X', Tile::tiles[mId]) );
+		}
+	}
+
 	r->addShapedRecipe(ItemInstance(Item::bow, 1), //
 		" #X", //
 		"# X", //

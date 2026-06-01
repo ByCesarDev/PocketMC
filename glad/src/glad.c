@@ -819,6 +819,13 @@ int GLAD_GL_EXT_EGL_image_storage = 0;
 int GLAD_GL_EXT_EGL_sync = 0;
 PFNGLEGLIMAGETARGETTEXSTORAGEEXTPROC glad_glEGLImageTargetTexStorageEXT = NULL;
 PFNGLEGLIMAGETARGETTEXTURESTORAGEEXTPROC glad_glEGLImageTargetTextureStorageEXT = NULL;
+static PFNGLSHADEMODELPROC real_glShadeModel = NULL;
+static void APIENTRY custom_glShadeModel(GLenum mode) {
+	if (real_glShadeModel) {
+		real_glShadeModel(0x1D01); // Force GL_SMOOTH
+	}
+}
+
 static void load_GL_VERSION_1_0(GLADloadproc load) {
 	if(!GLAD_GL_VERSION_1_0) return;
 	glad_glCullFace = (PFNGLCULLFACEPROC)load("glCullFace");
@@ -1039,7 +1046,8 @@ static void load_GL_VERSION_1_0(GLADloadproc load) {
 	glad_glMateriali = (PFNGLMATERIALIPROC)load("glMateriali");
 	glad_glMaterialiv = (PFNGLMATERIALIVPROC)load("glMaterialiv");
 	glad_glPolygonStipple = (PFNGLPOLYGONSTIPPLEPROC)load("glPolygonStipple");
-	glad_glShadeModel = (PFNGLSHADEMODELPROC)load("glShadeModel");
+	real_glShadeModel = (PFNGLSHADEMODELPROC)load("glShadeModel");
+	glad_glShadeModel = custom_glShadeModel;
 	glad_glTexEnvf = (PFNGLTEXENVFPROC)load("glTexEnvf");
 	glad_glTexEnvfv = (PFNGLTEXENVFVPROC)load("glTexEnvfv");
 	glad_glTexEnvi = (PFNGLTEXENVIPROC)load("glTexEnvi");

@@ -181,7 +181,7 @@ void ModelPart::translateTo( float scale )
 
 void ModelPart::compile( float scale )
 {
-#ifndef OPENGL_ES
+#if !defined(USE_VBO) && !defined(OPENGL_ES)
 	list = glGenLists(1);
 	// FIX NORMAL BUG HERE
 	glNewList(list, GL_COMPILE);
@@ -194,7 +194,7 @@ void ModelPart::compile( float scale )
 			cubes[i]->compile(t, scale);
 	}
 	t.end(true, vboId);
-#ifndef OPENGL_ES
+#if !defined(USE_VBO) && !defined(OPENGL_ES)
 	glEndList();
 #endif
 	compiled = true;
@@ -202,8 +202,8 @@ void ModelPart::compile( float scale )
 
 void ModelPart::draw()
 {
-#ifdef OPENGL_ES
-	drawArrayVT_NoState(vboId, cubes.size() * 2 * 3 * 6, 24);
+#if defined(USE_VBO) || defined(OPENGL_ES)
+	drawArrayVT_NoState(vboId, cubes.size() * 2 * 3 * 6, sizeof(VERTEX));
 #else
 	glCallList(list);
 #endif

@@ -49,28 +49,5 @@ void ExtraRecipes::addRecipes(Recipes* r)
     FurnaceRecipes::getInstance()->addFurnaceRecipe(Tile::deepslateIronOre->id, ItemInstance(Item::ironIngot->id, 1, 0));
     FurnaceRecipes::getInstance()->addFurnaceRecipe(Tile::deepslateGoldOre->id, ItemInstance(Item::goldIngot->id, 1, 0));
 
-    // Stonecutter-like Crafting Recipes (4x4 pattern for variants)
-    // 4 cobbled deepslate > 4 polished deepslate
-    r->addShapedRecipe(ItemInstance(Tile::deepslatePolished, 4), 
-        "##", 
-        "##", 
-        definition('#', Tile::cobbledDeepslate));
-
-    // 4 polished deepslate > 4 Deepslate Tiles
-    r->addShapedRecipe(ItemInstance(Tile::deepslateTiles, 4), 
-        "##", 
-        "##", 
-        definition('#', Tile::deepslatePolished));
-
-    // 4 cobbled deepslate > 4 deepslate
-    r->addShapedRecipe(ItemInstance(Tile::deepslate, 4), 
-        "##", 
-        "##", 
-        definition('#', Tile::cobbledDeepslate));
-
-    // 4 deepslate > 4 deepslate bricks
-    r->addShapedRecipe(ItemInstance(Tile::deepslateBricks, 4), 
-        "##", 
-        "##", 
-        definition('#', Tile::deepslate));
+    // Stonecutter recipes are registered in Recipes::initStoneCutterRecipes
 }

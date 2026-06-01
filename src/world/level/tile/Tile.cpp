@@ -2,7 +2,11 @@
 #include "ExtraTiles.h"
 #include "FlowerTile.h"
 #include "DeepslateTile.h"
+#include "NetherQuartzOreTile.h"
+#include "SoulSandTile.h"
 // AncientDebrisTile removed
+#include "NetherPortalTile.h"
+#include "entity/NetherReactorTileEntity.h"
 #include "../Level.h"
 #include "../../entity/player/Player.h"
 #include "../../entity/item/ItemEntity.h"
@@ -165,6 +169,8 @@ Tile* Tile::info_reserved6   = NULL;
 Tile* Tile::grass_carried    = NULL;
 LeafTile* Tile::leaves_carried   = NULL;
 
+Tile* Tile::netherPortal = NULL;
+
 Tile* Tile::netherReactor = NULL;
 Tile* Tile::glowingObsidian = NULL;
 
@@ -175,6 +181,10 @@ Tile* Tile::stairs_netherBricks   = NULL;
 Tile* Tile::stairs_sandStone   = NULL;
 Tile* Tile::quartzBlock   = NULL;
 Tile* Tile::stairs_quartz   = NULL;
+
+Tile* Tile::netherQuartzOre = NULL;
+Tile* Tile::endStone = NULL;
+Tile* Tile::soulSand = NULL;
 
 Tile* Tile::deepslate = NULL;
 Tile* Tile::cobbledDeepslate = NULL;
@@ -224,8 +234,8 @@ void Tile::initTiles() {
 	cloth       = (new ClothTile(35))->init()->setDestroyTime(0.8f)->setSoundType(SOUND_CLOTH)->setCategory(ItemCategory::Structures)->setDescriptionId("cloth");
 
 	// IDs nuevas 179 y 180 para evitar la corrupción de las IDs 37/38
-	dandelion   = (new FlowerTile(179, 13))->init()->setCategory(ItemCategory::Decorations)->setDescriptionId("flower");
-	cornflower  = (new FlowerTile(180, 12))->init()->setCategory(ItemCategory::Decorations)->setDescriptionId("rose");
+	dandelion   = (new FlowerTile(179, 13 & ~Tile::TEXTURE_ALT_FLAG))->init()->setCategory(ItemCategory::Decorations)->setDescriptionId("flower");
+	cornflower  = (new FlowerTile(180, 12 & ~Tile::TEXTURE_ALT_FLAG))->init()->setCategory(ItemCategory::Decorations)->setDescriptionId("rose");
 	flower = dandelion; // Redirigir puntero original para compatibilidad con generadores
 	rose = cornflower;
 
@@ -283,6 +293,9 @@ void Tile::initTiles() {
 	stoneBrickSmooth = (new MultiTextureTile(98, (const int*)&STONE_BRICK_TEXTURES, STONE_BRICK_TEXTURE_COUNT, Material::stone))->init()->setDestroyTime(1.5f)->setExplodeable(10)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Structures)->setDescriptionId("stonebricksmooth");
 
 	thinGlass = (new ThinFenceTile(102, 1 + 3 * 16, 4 + 9 * 16, Material::glass, false))->init()->setDestroyTime(0.3f)->setSoundType(SOUND_GLASS)->setCategory(ItemCategory::Structures)->setDescriptionId("thinGlass");
+
+	netherPortal = (new NetherPortalTile(90, 250))->init()->setDestroyTime(-1.0f)->setLightEmission(11 / 16.0f)->setSoundType(SOUND_GLASS)->setDescriptionId("netherPortal");
+
 	melon = (new MelonTile(103))->init()->setDestroyTime(1.0f)->setSoundType(SOUND_WOOD)->setCategory(ItemCategory::FoodArmor)->setDescriptionId("melon");
 	melonStem = (new StemTile(105, Tile::melon))->init()->setDestroyTime(0.0f)->setSoundType(SOUND_WOOD)->setCategory(ItemCategory::FoodArmor)->setDescriptionId("pumpkinStem");//->sendTileData();
 	fenceGate = (new FenceGateTile(107, 4))->init()->setDestroyTime(2.0f)->setExplodeable(5)->setSoundType(SOUND_WOOD)->setCategory(ItemCategory::Structures)->setDescriptionId("fenceGate");//->sendTileData();
@@ -295,6 +308,10 @@ void Tile::initTiles() {
 
 	quartzBlock   = (new QuartzBlockTile(155))->init()->setSoundType(SOUND_STONE)->setDestroyTime(0.8f)->setCategory(ItemCategory::Structures)->setDescriptionId("quartzBlock");
 	stairs_quartz = (new StairTile(156, Tile::quartzBlock))->init()->setCategory(ItemCategory::Structures)->setDescriptionId("stairsQuartz");//->sendTileData();
+
+	netherQuartzOre = (new NetherQuartzOreTile(117, 7 + 16 | TEXTURE_ALT_FLAG))->init()->setDestroyTime(3.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Decorations)->setDescriptionId("netherQuartzOre");
+	endStone = (new Tile(118, 8 + 16 | TEXTURE_ALT_FLAG, Material::stone))->init()->setDestroyTime(3.0f)->setSoundType(SOUND_STONE)->setCategory(ItemCategory::Decorations)->setDescriptionId("endStone");
+	soulSand = (new SoulSandTile(119, 9 + 16 | TEXTURE_ALT_FLAG))->init()->setDestroyTime(0.5f)->setSoundType(SOUND_SAND)->setCategory(ItemCategory::Decorations)->setDescriptionId("soulSand");
 
 	//
 	// Special tiles for Pocket Edition is placed at high IDs
@@ -636,10 +653,10 @@ bool Tile::shouldRenderFace( LevelSource* level, int x, int y, int z, int face )
 {
 	if (face == 0 && y == -1) return false;
 	// For fixed size worlds //@todo: external constants rather than magic numbers
-	if (face == 2 && z == -1)  return false;
-	if (face == 3 && z == 256) return false;
-	if (face == 4 && x == -1)  return false;
-	if (face == 5 && x == 256) return false;
+	if (face == 2 && z == -1)  return true;
+	if (face == 3 && z == 256) return true;
+	if (face == 4 && x == -1)  return true;
+	if (face == 5 && x == 256) return true;
 	// Common
 	if (face == 0 && yy0 > 0) return true;
 	if (face == 1 && yy1 < 1) return true;

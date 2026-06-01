@@ -34,8 +34,12 @@ int MobSpawner::tick(Level* level, bool spawnEnemies, bool spawnFriendlies) {
     }
 
 	// Global entity cap: avoid spawning when there are already too many entities
-	// in the world. This reduces server/client load. Target limit: 180 entities.
-	if (level->getAllEntities().size() >= 180) {
+	// in the world. This reduces server/client load. Target limit: 180 entities (90 in Nether).
+	int cap = 180;
+	if (level->dimension && level->dimension->id == -1) {
+		cap = 90;
+	}
+	if (level->getAllEntities().size() >= cap) {
 		return 0;
 	}
 
@@ -251,6 +255,8 @@ bool MobSpawner::isSpawnPositionOk(const MobCategory& category, Level* level, in
     if (category.getSpawnPositionMaterial() == Material::water) {
         return level->getMaterial(x, y, z)->isLiquid() && !level->isSolidBlockingTile(x, y + 1, z);
     } else {
+        int blockBelow = level->getTile(x, y - 1, z);
+        if (blockBelow == Tile::unbreakable->id) return false;
         return level->isSolidBlockingTile(x, y - 1, z) && !level->isSolidBlockingTile(x, y, z) && !level->getMaterial(x, y, z)->isLiquid() && !level->isSolidBlockingTile(x, y + 1, z);
     }
 }

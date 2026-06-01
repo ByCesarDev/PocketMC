@@ -10,5 +10,6 @@
 #include "OreFeature.h"
 #include "ReedsFeature.h"
 #include "SpringFeature.h"
+#include "TallgrassFeature.h"
 
 #endif /*FEATURE_INCLUDE__H__*/

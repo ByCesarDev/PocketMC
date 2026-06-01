@@ -2,6 +2,8 @@
 #define NET_MINECRAFT_WORLD_LEVEL_TILE_ENTITY__NetherReactorTileEntity_H__
 #include "../../../Pos.h"
 #include "TileEntity.h"
+#include <vector>
+
 class NetherReactorTileEntity : public  TileEntity {
 	typedef TileEntity super;
 	static const int NUM_PIG_ZOMBIE_SLOTS = 3;
@@ -45,11 +47,23 @@ public:
 	void deterioateHollowedVolume( int x, int y, int z, int expandWidth, int height, int tileId );
 	bool playersAreCloseBy();
 	void killPigZombies();
+
+	friend bool isReactorActive(NetherReactorTileEntity* reactor);
+	friend void deactivateReactorWithoutReward(NetherReactorTileEntity* reactor);
+	void resetForReactivation() {
+		isInitialized = false;
+		progress = 0;
+		hasFinished = false;
+	}
+
 private:
 	bool isInitialized;
 	bool hasFinished;
 	int curLevel;
 	short progress;
 };
+
+bool isReactorActive(NetherReactorTileEntity* reactor);
+void deactivateReactorWithoutReward(NetherReactorTileEntity* reactor);
 
 #endif /* NET_MINECRAFT_WORLD_LEVEL_TILE_ENTITY__NetherReactorTileEntity_H__ */

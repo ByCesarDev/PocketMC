@@ -241,6 +241,7 @@ public:
 	static Tile* melonStem;
 	static Tile* netherReactor;
 	static Tile* glowingObsidian;
+	static Tile* netherPortal;
 
 	static Tile* stairs_stoneBrickSmooth;
 	static Tile* netherBrick;
@@ -249,6 +250,10 @@ public:
 	static Tile* stairs_sandStone;
 	static Tile* quartzBlock;
 	static Tile* stairs_quartz;
+
+	static Tile* netherQuartzOre;
+	static Tile* endStone;
+	static Tile* soulSand;
 
 	static Tile* deepslate;
 	static Tile* cobbledDeepslate;

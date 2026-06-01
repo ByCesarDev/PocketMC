@@ -1247,7 +1247,26 @@ void LevelRenderer::renderSky(float alpha) {
     Vec3 sc = level->getSkyColor(mc->cameraTargetPlayer, alpha);
     float sr = (float) sc.x;
     float sg = (float) sc.y;
-    float sb = (float) sc.z;// + 0.5f;
+    float sb = (float) sc.z;
+
+	float hsr = sr;
+	float hsg = sg;
+	float hsb = sb;
+
+	float* sunrise = level->dimension->getSunriseColor(level->getTimeOfDay(alpha), alpha);
+	if (sunrise != NULL) {
+		float srR = sunrise[0];
+		float srG = sunrise[1];
+		float srB = sunrise[2];
+		float topMix = sunrise[3] * 0.35f;
+		hsr = hsr * (1.0f - topMix) + srR * topMix;
+		hsg = hsg * (1.0f - topMix) + srG * topMix;
+		hsb = hsb * (1.0f - topMix) + srB * topMix;
+	}
+
+	sr = hsr;
+	sg = hsg;
+	sb = hsb;
 
     if (mc->options.getBooleanValue(OPTIONS_ANAGLYPH_3D)) {
         float srr = (sr * 30.0f + sg * 59.0f + sb * 11.0f) / 100.0f;
@@ -1264,49 +1283,21 @@ void LevelRenderer::renderSky(float alpha) {
 	drawArrayVT(skyBuffer, skyVertexCount);
 #endif
 
-	// Smooth the hard horizon split with a vertical gradient from sky color to fog color.
-	Vec3 fc = level->getFogColor(alpha);
-	float fr = (float)fc.x;
-	float fg = (float)fc.y;
-	float fb = (float)fc.z;
-	float hsr = sr;
-	float hsg = sg;
-	float hsb = sb;
-	float hfr = fr;
-	float hfg = fg;
-	float hfb = fb;
+	hsr = sr;
+	hsg = sg;
+	hsb = sb;
+
+	float hfr = mc->gameRenderer->fr;
+	float hfg = mc->gameRenderer->fg;
+	float hfb = mc->gameRenderer->fb;
 
 	if (mc->options.getBooleanValue(OPTIONS_ANAGLYPH_3D)) {
-		float frr = (fr * 30.0f + fg * 59.0f + fb * 11.0f) / 100.0f;
-		float fgg = (fr * 30.0f + fg * 70.0f) / 100.0f;
-		float fbb = (fr * 30.0f + fb * 70.0f) / 100.0f;
+		float frr = (hfr * 30.0f + hfg * 59.0f + hfb * 11.0f) / 100.0f;
+		float fgg = (hfr * 30.0f + hfg * 70.0f) / 100.0f;
+		float fbb = (hfr * 30.0f + hfb * 70.0f) / 100.0f;
 		hfr = frr;
 		hfg = fgg;
 		hfb = fbb;
-	}
-
-	float* sunrise = level->dimension->getSunriseColor(level->getTimeOfDay(alpha), alpha);
-	if (sunrise != NULL) {
-		float srR = sunrise[0];
-		float srG = sunrise[1];
-		float srB = sunrise[2];
-		if (mc->options.getBooleanValue(OPTIONS_ANAGLYPH_3D)) {
-			float rr = (srR * 30.0f + srG * 59.0f + srB * 11.0f) / 100.0f;
-			float rg = (srR * 30.0f + srG * 70.0f) / 100.0f;
-			float rb = (srR * 30.0f + srB * 70.0f) / 100.0f;
-			srR = rr;
-			srG = rg;
-			srB = rb;
-		}
-
-		float botMix = sunrise[3];
-		float topMix = sunrise[3] * 0.15f;
-		hsr = hsr * (1.0f - topMix) + srR * topMix;
-		hsg = hsg * (1.0f - topMix) + srG * topMix;
-		hsb = hsb * (1.0f - topMix) + srB * topMix;
-		hfr = hfr * (1.0f - botMix) + srR * botMix;
-		hfg = hfg * (1.0f - botMix) + srG * botMix;
-		hfb = hfb * (1.0f - botMix) + srB * botMix;
 	}
 
 	float hmr = hsr * 0.55f + hfr * 0.45f;
@@ -1319,7 +1310,7 @@ void LevelRenderer::renderSky(float alpha) {
 		Tesselator& t = Tesselator::instance;
 		const int segs = 64;
 		const float radius = 384.0f;
-		const float topY = 44.0f;
+		const float topY = 80.0f;
 		const float midY = 12.0f;
 		const float bottomY = -18.0f;
 

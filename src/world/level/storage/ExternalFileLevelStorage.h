@@ -74,6 +74,7 @@ private:
 	std::string levelPath;
 	LevelData* loadedLevelData;
 	RegionFile* regionFile;
+	RegionFile* netherRegionFile;
 	RegionFile* entitiesFile;
 
 	Level* level;

@@ -270,6 +270,27 @@ void FurnaceScreen::render(int xm, int ym, float a) {
 	blit(xx1, yy, 144, 72, bpx, 16, bpx+bpx, 32);
 }
 
+void FurnaceScreen::renderHoverTooltip(int xm, int ym) {
+	const ItemInstance* hoveredItem = NULL;
+
+	if (inventoryPane && inventoryPane->isInside(xm, ym)) {
+		ScrollingPane::GridItem gi = inventoryPane->getItemAt(xm, ym);
+		if (gi.id >= 0 && gi.id < inventoryItems.size()) {
+			hoveredItem = inventoryItems[gi.id];
+		}
+	} else if (btnIngredient.isInside(xm, ym)) {
+		hoveredItem = furnace->getItem(FurnaceTileEntity::SLOT_INGREDIENT);
+	} else if (btnFuel.isInside(xm, ym)) {
+		hoveredItem = furnace->getItem(FurnaceTileEntity::SLOT_FUEL);
+	} else if (btnResult.isInside(xm, ym)) {
+		hoveredItem = furnace->getItem(FurnaceTileEntity::SLOT_RESULT);
+	}
+
+	if (hoveredItem && !hoveredItem->isNull()) {
+		renderTooltip(hoveredItem->getName(), xm, ym);
+	}
+}
+
 void FurnaceScreen::buttonClicked(Button* button) {
 	int slot = button->id;
 
@@ -542,7 +563,9 @@ bool FurnaceScreen::handleAddItem( int slot, const ItemInstance* item )
 			return false;//takeAndClearSlot(slot);
 
 		ItemInstance moved = moveOver(item, item->getMaxStackSize());
-		player->containerMenu->setSlot(slot, &moved);
+		if (player->containerMenu) {
+			player->containerMenu->setSlot(slot, &moved);
+		}
 	}
 	 
 	if (minecraft->level->isClientSide) {

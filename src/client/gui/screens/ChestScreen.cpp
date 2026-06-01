@@ -298,6 +298,26 @@ void ChestScreen::render(int xm, int ym, float a) {
 	minecraft->textures->loadAndBindTexture("gui/spritesheet.png");
 }
 
+void ChestScreen::renderHoverTooltip(int xm, int ym) {
+	const ItemInstance* hoveredItem = NULL;
+
+	if (inventoryPane && inventoryPane->isInside(xm, ym)) {
+		ScrollingPane::GridItem gi = inventoryPane->getItemAt(xm, ym);
+		if (gi.id >= 0 && gi.id < inventoryItems.size()) {
+			hoveredItem = inventoryItems[gi.id];
+		}
+	} else if (chestPane && chestPane->isInside(xm, ym)) {
+		ScrollingPane::GridItem gi = chestPane->getItemAt(xm, ym);
+		if (gi.id >= 0 && gi.id < chestItems.size()) {
+			hoveredItem = chestItems[gi.id];
+		}
+	}
+
+	if (hoveredItem && !hoveredItem->isNull()) {
+		renderTooltip(hoveredItem->getName(), xm, ym);
+	}
+}
+
 void ChestScreen::buttonClicked(Button* button) {
 	if (button == &btnClose) {
 		minecraft->player->closeContainer();

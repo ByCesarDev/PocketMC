@@ -651,6 +651,14 @@ void Mob::travel( float xa, float ya )
 			if (isSneaking() && yd < 0) yd = 0;
 		}
 
+		if (onGround) {
+			int t = level->getTile(Mth::floor(x), Mth::floor(bb.y0 - 0.5f), Mth::floor(z));
+			if (t == 119) { // Soul Sand
+				xd *= 0.4f;
+				zd *= 0.4f;
+			}
+		}
+
 		move(xd, yd, zd);
 
 		//@todo: make it easier to climb ladders
@@ -1009,7 +1017,14 @@ Vec3 Mob::getViewVector( float a )
 HitResult Mob::pick( float range, float a )
 {
 	Vec3 from = getPos(a);
-	return level->clip(from, from + getViewVector(a) * range);
+	bool clipLiquid = false;
+	if (isPlayer()) {
+		ItemInstance* selected = ((Player*)this)->getSelectedItem();
+		if (selected && selected->isLiquidClipItem()) {
+			clipLiquid = true;
+		}
+	}
+	return level->clip(from, from + getViewVector(a) * range, clipLiquid);
 }
 
 int Mob::getMaxSpawnClusterSize()

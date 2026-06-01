@@ -122,137 +122,46 @@ void Inventory::setupDefault() {
 	}
 #else
 	if (_isCreative) {
-		// Blocks
-		Sel[1] = addItem(new ItemInstance(Tile::stoneBrick));
-		addItem(new ItemInstance(Tile::stoneBrickSmooth, 1, 0));
-		addItem(new ItemInstance(Tile::stoneBrickSmooth, 1, 1));
-		addItem(new ItemInstance(Tile::stoneBrickSmooth, 1, 2));
-		addItem(new ItemInstance(Tile::mossStone));
-		Sel[5] =  addItem(new ItemInstance(Tile::wood));
-		Sel[2] = addItem(new ItemInstance(Tile::redBrick));
+		// Populate all Tiles and variations
+		for (int i = 1; i < Tile::NUM_BLOCK_TYPES; ++i) {
+			Tile* t = Tile::tiles[i];
+			if (t) {
+				if (t == Tile::cloth) {
+					for (int m = 0; m < 16; ++m) addItem(new ItemInstance(t, 1, m));
+				} else if (t == Tile::treeTrunk || t == Tile::sapling || t == Tile::leaves || t == Tile::sandStone || t == Tile::quartzBlock) {
+					for (int m = 0; m < 3; ++m) addItem(new ItemInstance(t, 1, m));
+				} else if (t == Tile::stoneSlabHalf) {
+					for (int m = 0; m < 6; ++m) addItem(new ItemInstance(t, 1, m));
+				} else if (t == Tile::stoneBrickSmooth) {
+					for (int m = 0; m < 3; ++m) addItem(new ItemInstance(t, 1, m));
+				} else {
+					addItem(new ItemInstance(t));
+				}
+			}
+		}
 
-#ifdef RPI
-		Sel[3] = addItem(new ItemInstance(Tile::rock));
-#else
-		Sel[0] = addItem(new ItemInstance(Tile::rock));
-#endif
-		Sel[4] = addItem(new ItemInstance(Tile::dirt));
-		addItem(new ItemInstance(Tile::grass));
-		addItem(new ItemInstance(Tile::clay));
-		addItem(new ItemInstance(Tile::sandStone, 1, 0));
-		addItem(new ItemInstance(Tile::sandStone, 1, 1));
-		addItem(new ItemInstance(Tile::sandStone, 1, 2));
-		addItem(new ItemInstance(Tile::sand));
-		addItem(new ItemInstance(Tile::gravel));
-		
-		Sel[7] = addItem(new ItemInstance(Tile::treeTrunk, 1, 0));
-		addItem(new ItemInstance(Tile::treeTrunk, 1, 1));
-		addItem(new ItemInstance(Tile::treeTrunk, 1, 2));
-		addItem(new ItemInstance(Tile::netherBrick));
-		addItem(new ItemInstance(Tile::netherrack));
-		addItem(new ItemInstance(Tile::stairs_stone));
-		addItem(new ItemInstance(Tile::stairs_wood));
-		Sel[6] = addItem(new ItemInstance(Tile::stairs_brick));
-		addItem(new ItemInstance(Tile::stairs_sandStone));
-		addItem(new ItemInstance(Tile::stairs_stoneBrickSmooth));
-		addItem(new ItemInstance(Tile::stairs_netherBricks));
-		addItem(new ItemInstance(Tile::stairs_quartz));
-		addItem(new ItemInstance(Tile::stoneSlabHalf, 1, StoneSlabTile::STONE_SLAB));
-		addItem(new ItemInstance(Tile::stoneSlabHalf, 1, StoneSlabTile::COBBLESTONE_SLAB));
-		addItem(new ItemInstance(Tile::stoneSlabHalf, 1, StoneSlabTile::WOOD_SLAB));
-		addItem(new ItemInstance(Tile::stoneSlabHalf, 1, StoneSlabTile::BRICK_SLAB));
-		addItem(new ItemInstance(Tile::stoneSlabHalf, 1, StoneSlabTile::SAND_SLAB));
-		addItem(new ItemInstance(Tile::stoneSlabHalf, 1, StoneSlabTile::SMOOTHBRICK_SLAB));
+		// Populate all Items and variations
+		for (int i = 256; i < Item::MAX_ITEMS; ++i) {
+			Item* it = Item::items[i];
+			if (it) {
+				if (it == Item::dye_powder) {
+					for (int m = 0; m < 16; ++m) addItem(new ItemInstance(it, 1, m));
+				} else {
+					addItem(new ItemInstance(it));
+				}
+			}
+		}
 
-		addItem(new ItemInstance(Tile::quartzBlock, 1, QuartzBlockTile::TYPE_DEFAULT));
-		addItem(new ItemInstance(Tile::quartzBlock, 1, QuartzBlockTile::TYPE_LINES));
-		addItem(new ItemInstance(Tile::quartzBlock, 1, QuartzBlockTile::TYPE_CHISELED));
-
-		
-		
-		// Ores
-		addItem(new ItemInstance(Tile::coalOre));
-		addItem(new ItemInstance(Tile::ironOre));
-		addItem(new ItemInstance(Tile::goldOre));
-		addItem(new ItemInstance(Tile::emeraldOre));
-		addItem(new ItemInstance(Tile::lapisOre));
-		addItem(new ItemInstance(Tile::redStoneOre));
-
-		addItem(new ItemInstance(Tile::goldBlock));
-		addItem(new ItemInstance(Tile::ironBlock));
-		addItem(new ItemInstance(Tile::emeraldBlock));
-		addItem(new ItemInstance(Tile::lapisBlock));
-		addItem(new ItemInstance(Tile::obsidian));
-		addItem(new ItemInstance(Tile::snow));
-		addItem(new ItemInstance(Tile::glass));
-        addItem(new ItemInstance(Tile::lightGem));
-
-		addItem(new ItemInstance(Tile::netherReactor));
-		
-		addItem(new ItemInstance(Tile::cloth, 1, 0));
-		addItem(new ItemInstance(Tile::cloth, 1, 7));
-		addItem(new ItemInstance(Tile::cloth, 1, 6));
-		addItem(new ItemInstance(Tile::cloth, 1, 5));
-		addItem(new ItemInstance(Tile::cloth, 1, 4));
-		addItem(new ItemInstance(Tile::cloth, 1, 3));
-		addItem(new ItemInstance(Tile::cloth, 1, 2));
-		addItem(new ItemInstance(Tile::cloth, 1, 1));
-
-		addItem(new ItemInstance(Tile::cloth, 1, 15));
-		addItem(new ItemInstance(Tile::cloth, 1, 14));
-		addItem(new ItemInstance(Tile::cloth, 1, 13));
-		addItem(new ItemInstance(Tile::cloth, 1, 12));
-		addItem(new ItemInstance(Tile::cloth, 1, 11));
-		addItem(new ItemInstance(Tile::cloth, 1, 10));
-		addItem(new ItemInstance(Tile::cloth, 1, 9));
-		addItem(new ItemInstance(Tile::cloth, 1, 8));
-		addItem(new ItemInstance(Tile::ladder));
-#ifdef RPI
-		addItem(new ItemInstance(Tile::torch));
-#else
-		Sel[3] = addItem(new ItemInstance(Tile::torch));
-#endif
-		addItem(new ItemInstance(Tile::thinGlass));
-
-		addItem(new ItemInstance(Item::door_wood));
-		addItem(new ItemInstance(Tile::trapdoor));
-		addItem(new ItemInstance(Tile::fence));
-		addItem(new ItemInstance(Tile::fenceGate));
-
-		addItem(new ItemInstance(Item::bed));
-		addItem(new ItemInstance(Tile::bookshelf));
-		addItem(new ItemInstance(Item::painting));
-		addItem(new ItemInstance(Tile::workBench));
-		addItem(new ItemInstance(Tile::stonecutterBench));
-		addItem(new ItemInstance(Tile::chest));
-		addItem(new ItemInstance(Tile::furnace));
-		addItem(new ItemInstance(Tile::tnt));
-
-		addItem(new ItemInstance(((Tile*)Tile::flower)));
-		addItem(new ItemInstance(((Tile*)Tile::rose)));
-		addItem(new ItemInstance(((Tile*)Tile::mushroom1)));
-		addItem(new ItemInstance(((Tile*)Tile::mushroom2)));
-		addItem(new ItemInstance(Tile::cactus));
-		addItem(new ItemInstance(Tile::melon));
-		addItem(new ItemInstance(Item::reeds));
-		Sel[8] = addItem(new ItemInstance(Tile::sapling, 1, 0));
-		addItem(new ItemInstance(Tile::sapling, 1, 1));
-		addItem(new ItemInstance(Tile::sapling, 1, 2));
-		addItem(new ItemInstance((Tile*)Tile::leaves, 1, 0));
-		addItem(new ItemInstance((Tile*)Tile::leaves, 1, 1));
-		addItem(new ItemInstance((Tile*)Tile::leaves, 1, 2));
-
-		addItem(new ItemInstance(Item::seeds_wheat));
-		addItem(new ItemInstance(Item::seeds_melon));
-		addItem(new ItemInstance(Item::dye_powder, 1, DyePowderItem::WHITE));
-		addItem(new ItemInstance(Item::hoe_iron));
-#ifdef RPI
-		Sel[0] = addItem(new ItemInstance(Item::sword_iron));
-#else
-		addItem(new ItemInstance(Item::sword_iron));
-#endif
-		addItem(new ItemInstance(Item::bow));
-		addItem(new ItemInstance(Item::sign));
+		// Setup default hotbar selections
+		Sel[0] = 0;
+		Sel[1] = 1;
+		Sel[2] = 2;
+		Sel[3] = 3;
+		Sel[4] = 4;
+		Sel[5] = 5;
+		Sel[6] = 6;
+		Sel[7] = 7;
+		Sel[8] = 8;
 	} else {
 #if defined(WIN32)
 		// Survival
@@ -379,7 +288,7 @@ int Inventory::removeResource(ItemInstance& item, bool isAnyAuxValue) {
     } else {
         for (int i = 0; i < getContainerSize() && toRemove > 0; ++i) {
             ItemInstance* current = getItem(i);
-            if (current && current->id == item.id && current->aux == item.aux) {
+            if (current && current->id == item.id && current->getAuxValue() == item.getAuxValue()) {
                 int canRemove = std::min(toRemove, current->count);
                 current->count -= canRemove;
                 toRemove -= canRemove;
@@ -392,7 +301,7 @@ int Inventory::removeResource(ItemInstance& item, bool isAnyAuxValue) {
         if (toRemove > 0) {
             for (int i = 0; i < getContainerSize() && toRemove > 0; ++i) {
                 ItemInstance* current = getItem(i);
-                if (current && current->id == item.id && current->aux == Recipe::ANY_AUX_VALUE) {
+                if (current && current->id == item.id && current->getAuxValue() == Recipe::ANY_AUX_VALUE) {
                     int canRemove = std::min(toRemove, current->count);
                     current->count -= canRemove;
                     toRemove -= canRemove;

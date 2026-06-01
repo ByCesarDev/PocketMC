@@ -136,6 +136,63 @@ void ServerSideNetworkHandler::displayGameMessage(const std::string& message)
 
 void ServerSideNetworkHandler::handle(const RakNet::RakNetGUID& source, ChatPacket* packet)
 {
+	std::string msg = packet->message;
+	if (!msg.empty() && msg[0] == '/') {
+		std::string cmd;
+		std::vector<std::string> args;
+		size_t pos = 1;
+		while (pos < msg.size()) {
+			while (pos < msg.size() && msg[pos] == ' ') pos++;
+			if (pos >= msg.size()) break;
+			size_t end = pos;
+			while (end < msg.size() && msg[end] != ' ') end++;
+			if (cmd.empty()) {
+				cmd = msg.substr(pos, end - pos);
+			} else {
+				args.push_back(msg.substr(pos, end - pos));
+			}
+			pos = end;
+		}
+
+		Player* player = getPlayer(source);
+		if (player) {
+			if (cmd == "fly") {
+				player->abilities.mayfly = !player->abilities.mayfly;
+				if (!player->abilities.mayfly) {
+					player->abilities.flying = false;
+				}
+				std::string status = player->abilities.mayfly ? "enabled" : "disabled";
+				displayGameMessage("Flight " + status + " for " + player->name);
+				return;
+			}
+			else if (cmd == "tp") {
+				if (args.size() == 4) {
+					try {
+						int dim = std::stoi(args[0]);
+						float x = std::stof(args[1]);
+						float y = std::stof(args[2]);
+						float z = std::stof(args[3]);
+
+						if (level) {
+							if (level->dimension->id != dim) {
+								level->changeDimension(dim);
+							}
+							player->moveTo(x, y, z, player->yRot, player->xRot);
+							player->xd = player->yd = player->zd = 0;
+							displayGameMessage("Teleported " + player->name + " to dimension " + std::to_string(dim) + " at " + std::to_string((int)x) + ", " + std::to_string((int)y) + ", " + std::to_string((int)z));
+						}
+					} catch (...) {
+						displayGameMessage("Invalid arguments. Usage: /tp <dimension> <x> <y> <z>");
+					}
+					return;
+				} else {
+					displayGameMessage("Usage: /tp <dimension> <x> <y> <z>");
+					return;
+				}
+			}
+		}
+	}
+
 	displayGameMessage(packet->message);
 }
 
@@ -362,6 +419,7 @@ void ServerSideNetworkHandler::handle(const RakNet::RakNetGUID& source, RemoveBl
 
 	// code copied from GameMode.cpp
 	int oldId = level->getTile(x, y, z);
+	if (level->isReactorStructureIndestructible(x, y, z)) return;
 	int data = level->getData(x, y, z);
 	Tile* oldTile = Tile::tiles[oldId];
 	bool changed = level->setTile(x, y, z, 0);
@@ -427,7 +485,7 @@ void ServerSideNetworkHandler::handle(const RakNet::RakNetGUID& source, PlayerEq
 
 	Player* player = getPlayer(source);
 	if (!player) return;
-	if (rakPeer->GetMyGUID() == player->owner) return;
+	// if (rakPeer->GetMyGUID() == player->owner) return;
 
 	// override the player's inventory
 	//int slot = player->inventory->getSlot(packet->itemId, packet->itemAuxValue);
@@ -453,7 +511,7 @@ void ServerSideNetworkHandler::handle(const RakNet::RakNetGUID& source, PlayerAr
 
     Player* player = getPlayer(source);
     if (!player) return;
-    if (rakPeer->GetMyGUID() == player->owner) return;
+    // if (rakPeer->GetMyGUID() == player->owner) return;
 
     packet->fillIn(player);
     redistributePacket(packet, source);

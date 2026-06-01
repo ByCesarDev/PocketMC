@@ -259,6 +259,43 @@ std::string ConsoleScreen::processCommand(const std::string& raw)
         return "Unknown sub-command. Usage: /time <add|set|query> ...";
     }
 
+    // -----------------------------------------------------------------------
+    // /fly
+    // -----------------------------------------------------------------------
+    if (args[0] == "fly") {
+        if (!minecraft->player) return "No player available.";
+        minecraft->player->abilities.mayfly = !minecraft->player->abilities.mayfly;
+        if (!minecraft->player->abilities.mayfly) {
+            minecraft->player->abilities.flying = false;
+        }
+        std::string status = minecraft->player->abilities.mayfly ? "enabled" : "disabled";
+        return "Flight " + status + " for " + minecraft->player->name;
+    }
+
+    // -----------------------------------------------------------------------
+    // /tp <dimension> <x> <y> <z>
+    // -----------------------------------------------------------------------
+    if (args[0] == "tp") {
+        if (args.size() < 5) return "Usage: /tp <dimension> <x> <y> <z>";
+        if (!minecraft->player) return "No player available.";
+
+        try {
+            int dim = std::atoi(args[1].c_str());
+            float x = std::atof(args[2].c_str());
+            float y = std::atof(args[3].c_str());
+            float z = std::atof(args[4].c_str());
+
+            if (level->dimension->id != dim) {
+                level->changeDimension(dim);
+            }
+            minecraft->player->moveTo(x, y, z, minecraft->player->yRot, minecraft->player->xRot);
+            minecraft->player->xd = minecraft->player->yd = minecraft->player->zd = 0;
+            return "Teleported to dimension " + std::to_string(dim) + " at " + std::to_string((int)x) + ", " + std::to_string((int)y) + ", " + std::to_string((int)z);
+        } catch (...) {
+            return "Invalid coordinates or dimension.";
+        }
+    }
+
     return std::string("Unknown command: /") + args[0];
 }
 

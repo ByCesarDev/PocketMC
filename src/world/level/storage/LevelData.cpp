@@ -172,6 +172,7 @@ void LevelData::setTagData( CompoundTag* tag, CompoundTag* playerTag )
 	tag->putString("LevelName", levelName);
 	tag->putInt("StorageVersion", storageVersion);
 	tag->putInt("Platform", 2);
+	tag->putInt("Dimension", dimension);
 
 	if (playerTag != NULL) {
 		tag->putCompound("Player", playerTag);
@@ -192,6 +193,9 @@ void LevelData::getTagData( const CompoundTag* tag )
 	sizeOnDisk = (int)tag->getLong("SizeOnDisk");
 	levelName = tag->getString("LevelName");
 	storageVersion = tag->getInt("StorageVersion");
+	if (tag->contains("Dimension")) {
+		dimension = tag->getInt("Dimension");
+	}
 
 	spawnMobs = (gameType == GameType::Survival);
 

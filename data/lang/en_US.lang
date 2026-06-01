@@ -558,6 +558,7 @@ entity.Zombie.name=Zombie
 entity.Slime.name=Slime
 entity.Ghast.name=Ghast
 entity.PigZombie.name=Zombie Pigman
+entity.PigZombieBrute.name=Brute Pigman
 entity.Enderman.name=Enderman
 entity.Silverfish.name=Silverfish
 entity.CaveSpider.name=Cave Spider
@@ -1002,3 +1003,9 @@ desc.quartzblock=Decorative block, used to create other kinds of Quartz blocks.
 desc.stonecutter=For crafting stoneblocks.
 desc.seedsmelon=Allows for more melons.
 desc.tile.melon=Can be cut up and eaten.
+
+desc.deepslatePolished=Used as building material.
+desc.deepslateTiles=Used as building material.
+desc.deepslateBricks=Used as building material.
+desc.deepslateCobbled=Used as building material.
+desc.deepslate=Used as building material.

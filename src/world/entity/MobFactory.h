@@ -42,6 +42,9 @@ public:
 			case MobTypes::PigZombie:
 				mob = new PigZombie(level);
 				break;
+			case MobTypes::PigZombieBrute:
+				mob = new PigZombieBrute(level);
+				break;
 			default:
                 LOGE("Unknown mob type requested: %d\n", mobType);
                 break;

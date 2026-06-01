@@ -88,6 +88,7 @@ ExternalFileLevelStorage::ExternalFileLevelStorage(const std::string& levelId, c
 	levelPath(fullPath),
 	loadedLevelData(NULL),
 	regionFile(NULL),
+	netherRegionFile(NULL),
 	entitiesFile(NULL),
 	tickCount(0),
 	lastSavedEntitiesTick(-999999),
@@ -112,6 +113,7 @@ ExternalFileLevelStorage::ExternalFileLevelStorage(const std::string& levelId, c
 ExternalFileLevelStorage::~ExternalFileLevelStorage()
 {
 	delete regionFile;
+	delete netherRegionFile;
 	delete loadedLevelData;
 }
 
@@ -344,13 +346,21 @@ void ExternalFileLevelStorage::tick()
 
 void ExternalFileLevelStorage::save(Level* level, LevelChunk* levelChunk)
 {
-	if (!regionFile)
+	bool isNether = (level && level->dimension && level->dimension->id == -1);
+	RegionFile*& rFile = isNether ? netherRegionFile : regionFile;
+
+	if (!rFile)
 	{
-		regionFile = new RegionFile(levelPath);
-		if (!regionFile->open())
+		std::string path = levelPath;
+		if (isNether) {
+			path += "/DIM-1";
+			createFolderIfNotExists(path.c_str());
+		}
+		rFile = new RegionFile(path);
+		if (!rFile->open())
 		{
-			delete regionFile;
-			regionFile = NULL;
+			delete rFile;
+			rFile = NULL;
 			return;
 		}
 	}
@@ -371,7 +381,7 @@ void ExternalFileLevelStorage::save(Level* level, LevelChunk* levelChunk)
 		return;
 	}
 
-	regionFile->writeChunk(sx, sz, chunkData);
+	rFile->writeChunk(sx, sz, chunkData);
 
 	// Write entities
 
@@ -381,13 +391,21 @@ void ExternalFileLevelStorage::save(Level* level, LevelChunk* levelChunk)
 
 LevelChunk* ExternalFileLevelStorage::load(Level* level, int x, int z)
 {
-	if (!regionFile)
+	bool isNether = (level && level->dimension && level->dimension->id == -1);
+	RegionFile*& rFile = isNether ? netherRegionFile : regionFile;
+
+	if (!rFile)
 	{
-		regionFile = new RegionFile(levelPath);
-		if (!regionFile->open())
+		std::string path = levelPath;
+		if (isNether) {
+			path += "/DIM-1";
+			createFolderIfNotExists(path.c_str());
+		}
+		rFile = new RegionFile(path);
+		if (!rFile->open())
 		{
-			delete regionFile;
-			regionFile = NULL;
+			delete rFile;
+			rFile = NULL;
 			return NULL;
 		}
 	}
@@ -399,7 +417,7 @@ LevelChunk* ExternalFileLevelStorage::load(Level* level, int x, int z)
 	}
 
 	RakNet::BitStream* chunkData = NULL;
-	if (!regionFile->readChunk(sx, sz, &chunkData))
+	if (!rFile->readChunk(sx, sz, &chunkData))
 	{
 		//LOGI("Failed to read data for %d, %d\n", x, z);
 		return NULL;
@@ -533,7 +551,13 @@ void ExternalFileLevelStorage::saveEntities( Level* level, LevelChunk* levelChun
 	NbtIo::write(&base, &dos);
 	int numBytes = stream.GetNumberOfBytesUsed();
 
-	FILE* fp = fopen((levelPath + "/entities.dat").c_str(), "wb");
+	bool isNether = (level && level->dimension && level->dimension->id == -1);
+	std::string entitiesPath = levelPath;
+	if (isNether) {
+		entitiesPath += "/DIM-1";
+		createFolderIfNotExists(entitiesPath.c_str());
+	}
+	FILE* fp = fopen((entitiesPath + "/entities.dat").c_str(), "wb");
 	if (fp) {
 		int version = 1;
 		fwrite("ENT\0", 1, 4, fp);
@@ -551,7 +575,12 @@ void ExternalFileLevelStorage::saveEntities( Level* level, LevelChunk* levelChun
 
 void ExternalFileLevelStorage::loadEntities(Level* level, LevelChunk* chunk) {
 	lastSavedEntitiesTick = tickCount;
-	FILE* fp = fopen((levelPath + "/entities.dat").c_str(), "rb");
+	bool isNether = (level && level->dimension && level->dimension->id == -1);
+	std::string entitiesPath = levelPath;
+	if (isNether) {
+		entitiesPath += "/DIM-1";
+	}
+	FILE* fp = fopen((entitiesPath + "/entities.dat").c_str(), "rb");
 	if (fp) {
 		char header[5];
 		int version, numBytes;

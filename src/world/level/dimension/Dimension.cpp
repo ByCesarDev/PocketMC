@@ -1,5 +1,6 @@
 #include "Dimension.h"
 #include "NormalDayCycleDimension.h"
+#include "NetherDimension.h"
 
 //#include "../levelgen/SimpleLevelSource.h"
 #include "../levelgen/RandomLevelSource.h"
@@ -74,9 +75,15 @@ ChunkSource* Dimension::createRandomLevelSource() {
 
 void Dimension::updateLightRamp()
 {
+	updateLightRamp(0.0f);
+}
+
+void Dimension::updateLightRamp(float gamma)
+{
 	for (int i = 0; i <= 15; i++) {
 		float v = 1.0f - i * 0.0625f;
-		brightnessRamp[i] = ((1.0f - v) / (v * 3.0f + 1.0f)) * 0.95f + 0.15f;
+		float f = ((1.0f - v) / (v * 3.0f + 1.0f)) * 0.95f + 0.15f;
+		brightnessRamp[i] = f * (1.0f - gamma) + (f * 3.0f + 1.0f) / 4.0f * gamma;
 	}
 }
 
@@ -123,6 +130,7 @@ Dimension* Dimension::getNew( int id )
 {
 	if (id == NORMAL) return new Dimension();
 	if (id == NORMAL_DAYCYCLE) return new NormalDayCycleDimension();
+	if (id == -1) return new NetherDimension();
 	return NULL;
 }
 
@@ -132,7 +140,10 @@ Dimension* Dimension::getNew( int id )
 #include "../storage/LevelData.h"
 Dimension* DimensionFactory::createDefaultDimension(LevelData* data )
 {
-	int dimensionId = Dimension::NORMAL;
+	int dimensionId = data->getDimension();
+	if (dimensionId == -1) {
+		return Dimension::getNew(-1);
+	}
 
 	switch(data->getGameType()) {
 	case GameType::Survival: dimensionId = Dimension::NORMAL_DAYCYCLE;

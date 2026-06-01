@@ -295,6 +295,35 @@ void PaneCraftingScreen::render(int xm, int ym, float a) {
 	//glDisable2(GL_ALPHA_TEST);
 }
 
+void PaneCraftingScreen::renderHoverTooltip(int xm, int ym) {
+	const ItemInstance* hoveredItem = NULL;
+
+	if (pane && pane->isInside(xm, ym)) {
+		ScrollingPane::GridItem gi = pane->getItemAt(xm, ym);
+		const std::vector<CItem*>& items = _categories[currentCategory];
+		if (gi.id >= 0 && gi.id < items.size()) {
+			hoveredItem = &items[gi.id]->item;
+		}
+	} else if (currentItem) {
+		const float slotWidth = (float)btnCraft.width / 2.0f;
+		const float slotHeight = (float)btnCraft.height / 2.0f;
+		const float slotBx = (float)btnCraft.x + slotWidth/2 - 8;
+		const float slotBy = (float)btnCraft.y + slotHeight/2 - 9;
+		for (unsigned int i = 0; i < currentItem->neededItems.size(); ++i) {
+			const float xx = slotBx + slotWidth  * (float)(i % 2);
+			const float yy = slotBy + slotHeight * (float)(i / 2);
+			if (xm >= xx && xm < xx + 16 && ym >= yy && ym < yy + 16) {
+				hoveredItem = &currentItem->neededItems[i].item;
+				break;
+			}
+		}
+	}
+
+	if (hoveredItem && !hoveredItem->isNull()) {
+		renderTooltip(hoveredItem->getName(), xm, ym);
+	}
+}
+
 void PaneCraftingScreen::buttonClicked(Button* button) {
 	if (button == &btnCraft)
 		craftSelectedItem();

@@ -284,6 +284,10 @@ public:
         return _isStackedByData;
     }
 
+    virtual bool isLiquidClipItem(int auxValue) const {
+        return false;
+    }
+
 	Item* setCategory(int category) {
 		this->category = category;
 		return this;

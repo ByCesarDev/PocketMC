@@ -12,6 +12,8 @@
 #include "../tile/Tile.h"
 #include "../tile/HeavyTile.h"
 #include "../../../util/Random.h"
+#include "../../level/tile/TallGrass.h"
+#include "../../entity/MobCategory.h"
 
 const float RandomLevelSource::SNOW_CUTOFF = 0.5f;
 const float RandomLevelSource::SNOW_SCALE = 0.3f;
@@ -106,25 +108,32 @@ void RandomLevelSource::prepareHeights(int xOffs, int zOffs, unsigned char* bloc
 // + (zc * CHUNK_WIDTH + z)];
                             float temp = temperatures[(xc * CHUNK_WIDTH + x) * 16 + (zc * CHUNK_WIDTH + z)];
                             int tileId = 0;
+                            bool isNether = (level && level->dimension && level->dimension->id == -1);
                             if (yc * CHUNK_HEIGHT + y < waterHeight) {
-                                if (temp < SNOW_CUTOFF && yc * CHUNK_HEIGHT + y >= waterHeight - 1) {
+                                if (isNether) {
+                                    tileId = Tile::calmLava->id;
+                                } else if (temp < SNOW_CUTOFF && yc * CHUNK_HEIGHT + y >= waterHeight - 1) {
                                     tileId = Tile::ice->id;
                                 } else {
                                     tileId = Tile::calmWater->id;
                                 }
                             }
                             if (val > 0) {
-                                int absoluteY = yc * CHUNK_HEIGHT + y;
-                                if (absoluteY < 18) {
-                                    tileId = Tile::deepslate->id;
-                                } else if (absoluteY < 26) {
-                                    // Transición suave: mayor probabilidad de Deepslate cuanto más profundo
-                                    if (this->random.nextInt(8) > (absoluteY - 18))
-                                        tileId = Tile::deepslate->id;
-                                    else
-                                        tileId = Tile::rock->id;
+                                if (isNether) {
+                                    tileId = Tile::netherrack->id;
                                 } else {
-                                    tileId = Tile::rock->id;
+                                    int absoluteY = yc * CHUNK_HEIGHT + y;
+                                    if (absoluteY < 18) {
+                                        tileId = Tile::deepslate->id;
+                                    } else if (absoluteY < 26) {
+                                        // Transición suave: mayor probabilidad de Deepslate cuanto más profundo
+                                        if (this->random.nextInt(8) > (absoluteY - 18))
+                                            tileId = Tile::deepslate->id;
+                                        else
+                                            tileId = Tile::rock->id;
+                                    } else {
+                                        tileId = Tile::rock->id;
+                                    }
                                 }
                             } else {
                             }
@@ -165,45 +174,71 @@ void RandomLevelSource::buildSurfaces(int xOffs, int zOffs, unsigned char* block
 
             int run = -1;
 
-			char top = b->topMaterial;
-            char material = b->material;
+            bool isNether = (level && level->dimension && level->dimension->id == -1);
+            char top = isNether ? (char) Tile::netherrack->id : b->topMaterial;
+            char material = isNether ? (char) Tile::netherrack->id : b->material;
 
             for (int y = 127; y >= 0; y--) {
                 int offs = (z * 16 + x) * 128 + y;
 
-                if (y <= 0 + random.nextInt(5)) {
+                bool floorBedrock = (y <= 0 + random.nextInt(5));
+                bool ceilingBedrock = (isNether && (y >= 127 - random.nextInt(5)));
+                float nx = (float)(xOffs * 16 + x);
+                float nz = (float)(zOffs * 16 + z);
+                float wave = Mth::sin(nx * 0.15f) * 4.0f + Mth::cos(nz * 0.15f) * 4.0f + Mth::sin((nx + nz) * 0.05f) * 2.0f;
+                int ceilingHeight = 110 + (int)wave;
+                bool ceilingNetherrack = (isNether && !ceilingBedrock && y >= ceilingHeight);
+
+                if (floorBedrock || ceilingBedrock) {
                     blocks[offs] = (char) Tile::unbreakable->id;
+                } else if (ceilingNetherrack) {
+                    blocks[offs] = (char) Tile::netherrack->id;
                 } else {
                     int old = blocks[offs];
 
                     if (old == 0) {
                         run = -1;
-                    } else if (old == Tile::rock->id || old == Tile::deepslate->id) {
+                    } else if (old == Tile::rock->id || old == Tile::deepslate->id || old == Tile::netherrack->id) {
                         if (run == -1) {
                             if (runDepth <= 0) {
                                 top = 0;
-                                material = (char) old; // Preservar Deepslate o Stone original
-                            } else if (y >= waterHeight - 4 && y <= waterHeight + 1) {
-                                top = b->topMaterial;
-								material = b->material;
-								
-								//@attn: ?
-                                if (gravel) {
-									top = 0;
-									material = (char) Tile::gravel->id;
-								}
-                                if (sand) {
-									top = (char) Tile::sand->id;
-									material = (char) Tile::sand->id;
-								}
+                                material = (char) old;
+                            } else if (y >= waterHeight - 4 && y <= waterHeight + 3) {
+                                if (isNether) {
+                                    top = Tile::netherrack->id;
+                                    material = Tile::netherrack->id;
+                                    if (gravel) {
+                                        top = 0;
+                                        material = (char) Tile::gravel->id;
+                                    }
+                                    if (sand) {
+                                        top = (char) Tile::soulSand->id;
+                                        material = (char) Tile::soulSand->id;
+                                    }
+                                } else {
+                                    top = b->topMaterial;
+                                    material = b->material;
+                                    if (gravel) {
+                                        top = 0;
+                                        material = (char) Tile::gravel->id;
+                                    }
+                                    if (sand) {
+                                        top = (char) Tile::sand->id;
+                                        material = (char) Tile::sand->id;
+                                    }
+                                }
                             }
 
                             if (y < waterHeight && top == 0) {
-								if (temp < 0.15f)
-									top = (char) Tile::ice->id;
-								else
-									top = (char) Tile::calmWater->id;
-							}
+                                if (isNether) {
+                                    top = (char) Tile::calmLava->id;
+                                } else {
+                                    if (temp < 0.15f)
+                                        top = (char) Tile::ice->id;
+                                    else
+                                        top = (char) Tile::calmWater->id;
+                                }
+                            }
 
                             run = runDepth;
                             if (y >= waterHeight - 1) blocks[offs] = top;
@@ -212,9 +247,7 @@ void RandomLevelSource::buildSurfaces(int xOffs, int zOffs, unsigned char* block
                             run--;
                             blocks[offs] = material;
 
-                            // place a few sandstone blocks beneath sand
-                            // runs
-                            if (run == 0 && material == Tile::sand->id) {
+                            if (!isNether && run == 0 && material == Tile::sand->id) {
                                 run = random.nextInt(4);
                                 material = (char) Tile::sandStone->id;
                             }
@@ -243,6 +276,109 @@ void RandomLevelSource::postProcess(ChunkSource* parent, int xt, int zt) {
     int xScale = random.nextInt() / 2 * 2 + 1;
     int zScale = random.nextInt() / 2 * 2 + 1;
     random.setSeed(((xt * xScale) + (zt * zScale)) ^ level->getSeed());
+
+    bool isNether = (level && level->dimension && level->dimension->id == -1);
+    if (isNether) {
+        // 1. Glowstone Clusters (200 in the entire dimension -> 20% chance per chunk)
+        if (random.nextInt(5) == 0) {
+            int cx = xo + random.nextInt(16);
+            int cz = zo + random.nextInt(16);
+            for (int cy = 115; cy >= 80; --cy) {
+                if (level->getTile(cx, cy, cz) == Tile::netherrack->id && level->isEmptyTile(cx, cy - 1, cz)) {
+                    level->setTile(cx, cy - 1, cz, Tile::lightGem->id);
+                    for (int j = 0; j < 60; ++j) {
+                        int nx = cx + random.nextInt(6) - 3;
+                        int ny = cy - 1 - random.nextInt(4);
+                        int nz = cz + random.nextInt(6) - 3;
+                        if (level->getTile(nx, ny, nz) == 0) {
+                            int neighbors = 0;
+                            if (level->getTile(nx + 1, ny, nz) == Tile::lightGem->id) neighbors++;
+                            if (level->getTile(nx - 1, ny, nz) == Tile::lightGem->id) neighbors++;
+                            if (level->getTile(nx, ny + 1, nz) == Tile::lightGem->id) neighbors++;
+                            if (level->getTile(nx, ny - 1, nz) == Tile::lightGem->id) neighbors++;
+                            if (level->getTile(nx, ny, nz + 1) == Tile::lightGem->id) neighbors++;
+                            if (level->getTile(nx, ny, nz - 1) == Tile::lightGem->id) neighbors++;
+                            if (neighbors > 0) {
+                                level->setTile(nx, ny, nz, Tile::lightGem->id);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 2. Lava Pillars (30 in the entire dimension -> ~3% chance per chunk)
+        if (random.nextInt(34) == 0) {
+            int cx = xo + random.nextInt(16);
+            int cz = zo + random.nextInt(16);
+            for (int cy = 115; cy >= 80; --cy) {
+                if (level->getTile(cx, cy, cz) == Tile::netherrack->id && level->isEmptyTile(cx, cy - 1, cz)) {
+                    level->setTile(cx, cy - 1, cz, Tile::lava->id);
+                    level->instaTick = true;
+                    Tile::tiles[Tile::lava->id]->tick(level, cx, cy - 1, cz, &random);
+                    level->instaTick = false;
+                    break;
+                }
+            }
+        }
+
+        // 3. Netherrack Mountains (20 in the entire dimension -> ~2% chance per chunk)
+        if (random.nextInt(51) == 0) {
+            int mx = xo + random.nextInt(16);
+            int mz = zo + random.nextInt(16);
+            int baseRadius = 12 + random.nextInt(6);
+            int bottomY = 30 + random.nextInt(10);
+            int topY = 115;
+            for (int y = bottomY; y <= topY; ++y) {
+                float pct = (float)(y - bottomY) / (float)(topY - bottomY);
+                float radius = (1.0f - pct) * (float)baseRadius + 2.0f;
+                int r = (int)radius;
+                for (int dx = -r; dx <= r; ++dx) {
+                    for (int dz = -r; dz <= r; ++dz) {
+                        if (dx*dx + dz*dz <= radius*radius) {
+                            if (dx*dx + dz*dz <= (radius-1.5f)*(radius-1.5f) || random.nextInt(3) != 0) {
+                                int tx = mx + dx;
+                                int tz = mz + dz;
+                                if (tx >= 0 && tx < 512 && tz >= 0 && tz < 512) {
+                                    level->setTile(tx, y, tz, Tile::netherrack->id);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. Vetas de Nether Quartz Ore
+        for (int i = 0; i < 16; ++i) {
+            int x = xo + random.nextInt(16);
+            int y = random.nextInt(128);
+            int z = zo + random.nextInt(16);
+            OreFeature feature(Tile::netherQuartzOre->id, 14);
+            feature.place(level, &random, x, y, z);
+        }
+
+        // 5. Hongos Rojos y Marrones
+        for (int i = 0; i < 4; ++i) {
+            int x = xo + random.nextInt(16) + 8;
+            int y = random.nextInt(128);
+            int z = zo + random.nextInt(16) + 8;
+            FlowerFeature feature(Tile::mushroom1->id);
+            feature.place(level, &random, x, y, z);
+        }
+        for (int i = 0; i < 4; ++i) {
+            int x = xo + random.nextInt(16) + 8;
+            int y = random.nextInt(128);
+            int z = zo + random.nextInt(16) + 8;
+            FlowerFeature feature(Tile::mushroom2->id);
+            feature.place(level, &random, x, y, z);
+        }
+
+        HeavyTile::instaFall = false;
+        level->isGeneratingTerrain = false;
+        return;
+    }
 
 	// //@todo: hide those chunks if they are aren't visible
 //    if (random.nextInt(4) == 0) {
@@ -414,17 +550,28 @@ void RandomLevelSource::postProcess(ChunkSource* parent, int xt, int zt) {
         FlowerFeature feature(Tile::mushroom2->id);
 		feature.place(level, &random, x, y, z);
     }
-	/*int grassCount = 1;
+	int grassCount = 0;
+
+	if (biome == Biome::forest) { grassCount = 2; }
+	else if (biome == Biome::rainForest) { grassCount = 10; }
+	else if (biome == Biome::seasonalForest) { grassCount = 2; }
+	else if (biome == Biome::taiga) { grassCount = 1; }
+	else if (biome == Biome::plains) { grassCount = 10; }
+
 	for (int i = 0; i < grassCount; i++) {
-		int x = xo + random.nextInt(16) + 8;
-		int y = random.nextInt(Level::genDepth);
-		int z = zo + random.nextInt(16) + 8;
-		Feature* grassFeature = biome->getGrassFeature(&random);
-		if (grassFeature) {
-			grassFeature->place(level, &random, x, y, z);
-			delete grassFeature;
+		int grassMetadata = TallGrass::TALL_GRASS;
+		
+		if (biome == Biome::rainForest && random.nextInt(3) != 0) {
+			grassMetadata = TallGrass::FERN;
 		}
-	}*/
+
+		int x = xo + random.nextInt(16) + 8;
+		int z = zo + random.nextInt(16) + 8;
+		int y = level->getHeightmap(x, z);
+
+		TallgrassFeature grassFeature(Tile::tallgrass->id, grassMetadata);
+		grassFeature.place(level, &random, x, y, z);
+	}
     for (int i = 0; i < 10; i++) {
         int x = xo + random.nextInt(16) + 8;
         int y = random.nextInt(128);
@@ -687,6 +834,18 @@ std::string RandomLevelSource::gatherStats() {
 //}
 
 Biome::MobList RandomLevelSource::getMobsAt(const MobCategory& mobCategory, int x, int y, int z) {
+    bool isNether = (level && level->dimension && level->dimension->id == -1);
+    if (isNether) {
+        if (&mobCategory == &MobCategory::monster) {
+            static Biome::MobList netherMonsterMobs;
+            if (netherMonsterMobs.empty()) {
+                netherMonsterMobs.push_back(Biome::MobSpawnerData(MobTypes::PigZombie, 90, 4, 4));
+                netherMonsterMobs.push_back(Biome::MobSpawnerData(MobTypes::PigZombieBrute, 10, 4, 4));
+            }
+            return netherMonsterMobs;
+        }
+        return Biome::MobList();
+    }
     BiomeSource* biomeSource = level->getBiomeSource();
     if (biomeSource == NULL) {
         return Biome::MobList();

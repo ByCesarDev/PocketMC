@@ -14,6 +14,7 @@ public:
 	TileEntity* newTileEntity();
 	bool canSpawnStartNetherReactor( Level* level, int x, int y, int z, Player* player );
 	bool allPlayersCloseToReactor( Level* level, int x, int y, int z );
+	void onPlace(Level* level, int x, int y, int z) override;
 };
 
 #endif /* NET_MINECRAFT_WORLD_LEVEL_TILE__NetherReactor_H__ */

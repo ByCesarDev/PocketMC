@@ -35,7 +35,7 @@ public:
 
 	bool			removeItem(const ItemInstance* samePtr);
 
-    int removeResource(ItemInstance& item, bool isAnyAuxValue);
+    int removeResource(ItemInstance& item, bool isAnyAuxValue = false);
 
 	void			doDrop(ItemInstance* item, bool randomly);
 	bool			stillValid(Player* player);

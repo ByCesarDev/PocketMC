@@ -10,7 +10,7 @@
 
 extern const int VertexSizeBytes;
 
-typedef VertexDeclPTC VERTEX;
+typedef VertexDeclPTCN VERTEX;
 typedef std::map<GLuint, GLsizei> IntGLMap;
 
 
@@ -98,7 +98,9 @@ private:
 	float xo, yo, zo;
 	float u, v;
 	unsigned int _color;
-	int _normal;
+//	int _normal; // trying a new thing
+	float _nx, _ny, _nz; 
+
 	float _sx, _sy;
 
 	bool hasColor;

@@ -4,6 +4,7 @@
 //package net.minecraft.client.gui;
 
 #include <vector>
+#include <string>
 #include "GuiComponent.h"
 
 class Font;
@@ -18,6 +19,8 @@ public:
 	Screen();
 
     virtual void render(int xm, int ym, float a);
+    void renderTooltip(const std::string& text, int xm, int ym);
+    virtual void renderHoverTooltip(int xm, int ym) {}
 
     void init(Minecraft* minecraft, int width, int height);
 	virtual void init();

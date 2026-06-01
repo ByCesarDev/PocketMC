@@ -108,6 +108,11 @@ bool ItemInstance::isStackedByData() const {
     return Item::items[id]->isStackedByData();
 }
 
+bool ItemInstance::isLiquidClipItem() const {
+    if (isNull()) return false;
+    return Item::items[id]->isLiquidClipItem(auxValue);
+}
+
 bool ItemInstance::isDamaged() const {
     return isDamageableItem() && auxValue > 0;
 }

@@ -43,6 +43,7 @@ protected:
 	virtual void init();
 
 public:
+	virtual void updateLightRamp(float gamma);
 	Level* level;
 	BiomeSource* biomeSource;
 	bool foggy;

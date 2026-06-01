@@ -28,6 +28,7 @@ public:
 
 	void tick();
 	void render(int xm, int ym, float a);
+	void renderHoverTooltip(int xm, int ym) override;
 	bool renderGameBehind();
 	void buttonClicked(Button* button);
 

@@ -15,6 +15,8 @@ public:
     Region(Level* level, int x1, int y1, int z1, int x2, int y2, int z2);
 	~Region();
 
+	virtual Level* getLevel() override { return level; }
+
 	bool isSolidRenderTile(int x, int y, int z);
     bool isSolidBlockingTile(int x, int y, int z);
 	int  getTile(int x, int y, int z);

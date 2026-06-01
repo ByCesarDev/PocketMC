@@ -10,6 +10,8 @@ class TileEntity;
 class Material;
 class Biome;
 
+class Level;
+
 class LevelSource
 {
 public:
@@ -31,6 +33,7 @@ public:
 
     //virtual BiomeSource* getBiomeSource() = 0;
 	virtual Biome* getBiome(int x, int z) = 0;
+	virtual Level* getLevel() = 0;
 };
 
 #endif /*NET_MINECRAFT_WORLD_LEVEL__LevelSource_H__*/

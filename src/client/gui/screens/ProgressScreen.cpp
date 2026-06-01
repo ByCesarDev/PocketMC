@@ -6,6 +6,7 @@
 #include "../../renderer/Tesselator.h"
 #include "../../../SharedConstants.h"
 #include "../../renderer/Textures.h"
+#include "../../../platform/log.h"
 
 ProgressScreen::ProgressScreen()
 :	ticks(0)
@@ -14,7 +15,10 @@ ProgressScreen::ProgressScreen()
 
 void ProgressScreen::render( int xm, int ym, float a )
 {
+	LOGI("[ProgressScreen::render] Called. isLevelGenerated=%d, width=%d, height=%d, progressStagePercentage=%d\n", 
+		minecraft ? minecraft->isLevelGenerated() : -1, width, height, minecraft ? minecraft->progressStagePercentage : -2);
 	if (minecraft->isLevelGenerated()) {
+		LOGI("[ProgressScreen::render] Level is generated. Setting screen to NULL.\n");
 		minecraft->setScreen(NULL);
 		return;
 	}

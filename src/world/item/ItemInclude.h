@@ -10,6 +10,7 @@
 #include "FlintAndSteelItem.h"
 #include "SnowballItem.h"
 #include "TilePlanterItem.h"
+#include "BucketItem.h"
 
 #include "AuxDataTileItem.h"
 #include "BowlFoodItem.h"

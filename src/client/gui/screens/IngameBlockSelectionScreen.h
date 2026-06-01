@@ -16,6 +16,7 @@ public:
 	virtual void removed() override;
 
 	void render(int xm, int ym, float a) override;
+	void renderHoverTooltip(int xm, int ym) override;
 
 protected:
 	virtual void mouseClicked(int x, int y, int buttonNum) override;

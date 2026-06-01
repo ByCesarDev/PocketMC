@@ -48,6 +48,7 @@
 #include "renderer/ptexture/DynamicTexture.h"
 #include "renderer/GameRenderer.h"
 #include "renderer/ItemInHandRenderer.h"
+#include "platform/log.h"
 #include "renderer/LevelRenderer.h"
 #include "renderer/entity/EntityRenderDispatcher.h"
 #include "gui/Screen.h"
@@ -57,6 +58,7 @@
 #endif // STANDALONE_SERVER
 
 #include "player/LocalPlayer.h"
+#include "world/level/dimension/Dimension.h"
 #include "gamemode/CreativeMode.h"
 #include "gamemode/SurvivalMode.h"
 #include "player/LocalPlayer.h"
@@ -550,6 +552,18 @@ void Minecraft::tick(int nTick, int maxTick) {
 			level->difficulty = options.getIntValue(OPTIONS_DIFFICULTY);
 			if (level->isClientSide) level->difficulty = Difficulty::EASY;
 
+			if (level->dimension) {
+				static Dimension* lastDimension = NULL;
+				static float lastGamma = -999.0f;
+				float gamma = options.getProgressValue(OPTIONS_BRIGHTNESS);
+				if (gamma != lastGamma || level->dimension != lastDimension) {
+					level->dimension->updateLightRamp(gamma);
+					lastGamma = gamma;
+					lastDimension = level->dimension;
+					if (levelRenderer) levelRenderer->allChanged();
+				}
+			}
+
 			TIMER_POP_PUSH("level");
 			level->tickEntities();
 			level->tick();
@@ -668,6 +682,7 @@ void Minecraft::tickInput() {
 
 				int slot = (v->selected - e.dy + numSlots) % numSlots;
 				v->selectSlot(slot);
+				gui.resetItemNameOverlay();
 			}
 		}
 		/*
@@ -697,8 +712,10 @@ void Minecraft::tickInput() {
 				int digit = key - '0';
 				int slot = digit - 1;
 
-				if (slot >= 0 && slot < gui.getNumSlots())
+				if (slot >= 0 && slot < gui.getNumSlots()) {
 					player->inventory->selectSlot(slot);
+					gui.resetItemNameOverlay();
+				}
 
 				#if defined(WIN32)
 					if (digit >= 1 && GetAsyncKeyState(VK_CONTROL) < 0) {
@@ -721,7 +738,11 @@ void Minecraft::tickInput() {
 			}
 
 			if (key == Keyboard::KEY_E) {
-				setScreen(new ArmorScreen());
+				if (isCreativeMode()) {
+					screenChooser.setScreen(SCREEN_BLOCKSELECTION);
+				} else {
+					setScreen(new ArmorScreen());
+				}
 			}
 
 			if (!screen && key == Keyboard::KEY_T && level) {
@@ -767,7 +788,11 @@ void Minecraft::tickInput() {
 					level->setTime( level->getTime() + 1000);
 
 				if (key == Keyboard::KEY_G) {
-					setScreen(new ArmorScreen());
+					if (isCreativeMode()) {
+						screenChooser.setScreen(SCREEN_BLOCKSELECTION);
+					} else {
+						setScreen(new ArmorScreen());
+					}
 					/*
 					std::vector<AABB>& boxs = level->getCubes(NULL, AABB(128.1f, 73, 128.1f, 128.9f, 74.9f, 128.9f));
 					LOGI("boxes: %d\n", (int)boxs.size());
@@ -1045,25 +1070,44 @@ void Minecraft::gameLostFocus() {
 }
 
 
+void Minecraft::forceSetScreen( Screen* screen )
+{
+#ifndef STANDALONE_SERVER
+	LOGI("[Minecraft::forceSetScreen] screen=%p, screenMutex=%d\n", screen, screenMutex);
+	bool oldMutex = screenMutex;
+	screenMutex = false;
+	setScreen(screen);
+	screenMutex = oldMutex;
+	LOGI("[Minecraft::forceSetScreen] Finished. Current screen=%p\n", this->screen);
+#endif
+}
+
 void Minecraft::setScreen( Screen* screen )
 {
 #ifndef	STANDALONE_SERVER
+	LOGI("[Minecraft::setScreen] screen=%p, screenMutex=%d\n", screen, screenMutex);
 	Mouse::reset();
 	Multitouch::reset();
 	Multitouch::resetThisUpdate();
 
 	if (screenMutex) {
+		LOGI("[Minecraft::setScreen] Deferring screen=%p because screenMutex=1\n", screen);
 		hasScheduledScreen = true;
 		scheduledScreen = screen;
 		return;
 	}
 
-	if (screen != NULL && screen->isErrorScreen())
+	if (screen != NULL && screen->isErrorScreen()) {
+		LOGI("[Minecraft::setScreen] Ignored error screen %p\n", screen);
 		return;
-	if (screen == NULL && level == NULL)
+	}
+	if (screen == NULL && level == NULL) {
+		LOGI("[Minecraft::setScreen] Screen is NULL and level is NULL, creating start menu\n");
 		screen = screenChooser.createScreen(SCREEN_STARTMENU);
+	}
 
 	if (this->screen != NULL) {
+		LOGI("[Minecraft::setScreen] Deleting existing screen %p\n", this->screen);
 		this->screen->removed();
 		delete this->screen;
 	}
@@ -1071,19 +1115,18 @@ void Minecraft::setScreen( Screen* screen )
 	this->screen = screen;
 	if (screen != NULL) {
 		releaseMouse();
-		//ScreenSizeCalculator ssc = new ScreenSizeCalculator(options, width, height);
-		int screenWidth = (int)(width * Gui::InvGuiScale); //ssc.getWidth();
-		int screenHeight = (int)(height * Gui::InvGuiScale); //ssc.getHeight();
+		int screenWidth = (int)(width * Gui::InvGuiScale);
+		int screenHeight = (int)(height * Gui::InvGuiScale);
+		LOGI("[Minecraft::setScreen] Initializing screen %p (size: %dx%d)\n", screen, screenWidth, screenHeight);
 		screen->init(this, screenWidth, screenHeight);
 
 		if (screen->isInGameScreen() && level) {
+			LOGI("[Minecraft::setScreen] Saving level data...\n");
 			level->saveLevelData();
             level->saveGame();
         }
-
-		//noRender = false;
 	} else {
-		// Closing a screen and returning to the game should unpause.
+		LOGI("[Minecraft::setScreen] Returning to game, unpausing\n");
 		pause = false;
 		grabMouse();
 	}
@@ -1135,6 +1178,19 @@ void Minecraft::init()
 	textures = new Textures(&options, platform());
 	textures->addDynamicTexture(new WaterTexture());
 	textures->addDynamicTexture(new WaterSideTexture());
+
+	LavaTexture* lavaStill = new LavaTexture();
+	lavaStill->loadSheet(platform());
+	textures->addDynamicTexture(lavaStill);
+
+	LavaSideTexture* lavaFlow = new LavaSideTexture();
+	lavaFlow->loadSheet(platform());
+	textures->addDynamicTexture(lavaFlow);
+
+	PortalTexture* portalTex = new PortalTexture();
+	portalTex->loadSheet(platform());
+	textures->addDynamicTexture(portalTex);
+
 	gui.texturesLoaded(textures);
 
 	levelRenderer = new LevelRenderer(this);
@@ -1449,12 +1505,9 @@ void Minecraft::resetPlayer(Player* player) {
 }
 
 void Minecraft::respawnPlayer() {
-	// RESET THE FRACKING PLAYER HERE
-	//bool slowCheck = false;
-	//for (int i = 0; i < level->entities.size(); ++i)
-	//	if (level->entities[i] == player) slowCheck = true;
-	//
-	//LOGI("Has entity? %d, %d\n", level->getEntity(player->entityId), slowCheck);
+	if (level && level->dimension && level->dimension->id == -1) {
+		level->changeDimension(Dimension::NORMAL_DAYCYCLE);
+	}
 
 	resetPlayer(player);
 
@@ -1530,19 +1583,33 @@ void Minecraft::setIsCreativeMode(bool isCreative)
 		_isCreativeMode = isCreative;
 	}
 #endif
-	if (player)
 	if (player) {
 		// Recreamos el inventario para que reconozca el nuevo estado (isCreative)
 		// Esto soluciona el crash al vaciar slots y permite que aparezcan los bloques en creativo
 		if (player->inventory) {
+			std::vector<ItemInstance*> preservedHotbar;
+			for (int i = 0; i < 9; ++i) {
+				ItemInstance* item = player->inventory->getLinked(i);
+				if (item && !item->isNull()) {
+					preservedHotbar.push_back(new ItemInstance(*item));
+				} else {
+					preservedHotbar.push_back(NULL);
+				}
+			}
+
 			delete player->inventory;
 			player->inventory = new Inventory(player, isCreative);
+
+			for (int i = 0; i < 9; ++i) {
+				if (preservedHotbar[i]) {
+					player->inventory->setItem(9 + i, preservedHotbar[i]);
+					player->inventory->linkSlot(i, 9 + i, false);
+					delete preservedHotbar[i];
+				}
+			}
 		}
 
 		gameMode->initAbilities(player->abilities);
-
-		if (isCreative && player->inventory)
-			player->inventory->clearInventoryWithDefault();
 	}
 }
 
@@ -1599,12 +1666,14 @@ void Minecraft::optionUpdated(OptionId option, bool value ) {
 }
 
 void Minecraft::optionUpdated(OptionId option, float value ) {
-// #ifndef STANDALONE_SERVER
-// 	if(option == OPTIONS_PIXELS_PER_MILLIMETER) {
-// 		pixelCalcUi.setPixelsPerMillimeter(value * Gui::InvGuiScale);
-// 		pixelCalc.setPixelsPerMillimeter(value);
-// 	}
-// #endif
+	if (option == OPTIONS_BRIGHTNESS) {
+		if (level && level->dimension) {
+			level->dimension->updateLightRamp(value);
+		}
+		if (levelRenderer) {
+			levelRenderer->allChanged();
+		}
+	}
 }
 
 void Minecraft::optionUpdated(OptionId option, int value ) {

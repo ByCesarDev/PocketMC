@@ -29,6 +29,8 @@ public:
         return 0x48b518;
     }
 
+	static bool useTint;
+
 private:
     //static int pixels[256*256];
 };

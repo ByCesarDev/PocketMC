@@ -10,6 +10,46 @@
 #include "../../../Difficulty.h"
 #include "../../../phys/AABB.h"
 #include "../NetherReactorPattern.h"
+#include <map>
+#include <tuple>
+
+struct ReactorWaveState {
+	int currentHorde;
+	int cooldownTicks;
+	bool hordeSpawned;
+	std::vector<int> hordePigmenIds;
+};
+
+typedef std::tuple<int, int, int> PosKey;
+static std::map<PosKey, ReactorWaveState> g_reactorWaves;
+
+void spawnHorde(NetherReactorTileEntity* reactor, int normalSize, int bruteSize) {
+	if (reactor->level->isClientSide) return;
+	PosKey key = std::make_tuple(reactor->x, reactor->y, reactor->z);
+	for (int i = 0; i < normalSize; ++i) {
+		Mob* mob = MobFactory::CreateMob(MobTypes::PigZombie, reactor->level);
+		Vec3 enemyPosition = reactor->getSpawnPosition(3, 4, -1);
+		while (enemyPosition.x < LEVEL_MIN_X || enemyPosition.z < LEVEL_MIN_Z || enemyPosition.x > LEVEL_MAX_X || enemyPosition.z > LEVEL_MAX_Z) {
+			enemyPosition = reactor->getSpawnPosition(3, 4, -1);
+		}
+		MobSpawner::addMob(reactor->level, mob, enemyPosition.x, enemyPosition.y, enemyPosition.z, 0, 0, true);
+		g_reactorWaves[key].hordePigmenIds.push_back(mob->entityId);
+	}
+	for (int i = 0; i < bruteSize; ++i) {
+		Mob* mob = MobFactory::CreateMob(MobTypes::PigZombieBrute, reactor->level);
+		Vec3 enemyPosition = reactor->getSpawnPosition(3, 4, -1);
+		while (enemyPosition.x < LEVEL_MIN_X || enemyPosition.z < LEVEL_MIN_Z || enemyPosition.x > LEVEL_MAX_X || enemyPosition.z > LEVEL_MAX_Z) {
+			enemyPosition = reactor->getSpawnPosition(3, 4, -1);
+		}
+		MobSpawner::addMob(reactor->level, mob, enemyPosition.x, enemyPosition.y, enemyPosition.z, 0, 0, true);
+		g_reactorWaves[key].hordePigmenIds.push_back(mob->entityId);
+	}
+}
+
+bool isReactorActive(NetherReactorTileEntity* reactor) {
+	return reactor && reactor->isInitialized && !reactor->hasFinished;
+}
+
 NetherReactorTileEntity::NetherReactorTileEntity()
 	: super(TileEntityType::NetherReactor)
 	, isInitialized(false)
@@ -23,15 +63,27 @@ bool NetherReactorTileEntity::shouldSave() {
 }
 
 void NetherReactorTileEntity::lightItUp( int x, int y, int z ) {
-	//if(!isInitilized && !hasFinished) {
 	curLevel = 0;
 	NetherReactor::setPhase(level, x, y, z, 1);
-		isInitialized = true;
-		//clearDomeSpace(x, y, z);
-		buildDome(x, y, z);
-		
-		level->setNightMode(true);
-	//}
+	isInitialized = true;
+	buildDome(x, y, z);
+	
+	level->setNightMode(true);
+
+	// Immediately transform cobblestone and gold blocks to glowing obsidian
+	turnLayerToGlowingObsidian(0, Tile::stoneBrick->id);
+	turnLayerToGlowingObsidian(1, Tile::stoneBrick->id);
+	turnLayerToGlowingObsidian(2, Tile::stoneBrick->id);
+	turnLayerToGlowingObsidian(0, Tile::goldBlock->id);
+	turnLayerToGlowingObsidian(1, Tile::goldBlock->id);
+	turnLayerToGlowingObsidian(2, Tile::goldBlock->id);
+
+	// Start Wave 1 (with 5s cooldown)
+	PosKey key = std::make_tuple(x, y, z);
+	g_reactorWaves[key].currentHorde = 1;
+	g_reactorWaves[key].cooldownTicks = 100; // 5 seconds cooldown
+	g_reactorWaves[key].hordeSpawned = false;
+	g_reactorWaves[key].hordePigmenIds.clear();
 }
 
 void NetherReactorTileEntity::tick() {
@@ -47,25 +99,72 @@ void NetherReactorTileEntity::tick() {
 			if(currentTime < 10) {
 				tickGlowingRedstoneTransformation(currentTime);
 			}
-			if(currentTime > 42 && currentTime <= 45) {
-				// start with the top layer and move down
-				int currentLayer = 45 - currentTime;
-				turnGlowingObsidianLayerToObsidian(currentLayer);
+		}
+
+		PosKey key = std::make_tuple(x, y, z);
+		ReactorWaveState& state = g_reactorWaves[key];
+
+		if (state.currentHorde == 0) {
+			state.currentHorde = 1;
+			state.cooldownTicks = 100;
+			state.hordeSpawned = false;
+		}
+
+		if (state.cooldownTicks > 0) {
+			state.cooldownTicks--;
+			return;
+		}
+
+		if (state.hordePigmenIds.empty() && !state.hordeSpawned) {
+			// Search for any existing active pigmen in the dome area to track (e.g. on world reload)
+			AABB bb((float)x, (float)y, (float)z, x + 1.0f, y + 1.0f, z + 1.0f);
+			EntityList nearby = level->getEntities(NULL, bb.grow(30, 30, 30));
+			for (EntityList::iterator it = nearby.begin(); it != nearby.end(); ++it) {
+				Entity* ent = *it;
+				if (ent && (ent->isEntityType(MobTypes::PigZombie) || ent->isEntityType(MobTypes::PigZombieBrute)) && ent->isAlive()) {
+					state.hordePigmenIds.push_back(ent->entityId);
+				}
 			}
-			if(checkLevelChange(progress / SharedConstants::TicksPerSecond)) {
-				curLevel++;
-				spawnItems(getNumItemsPerLevel(curLevel));
-				trySpawnPigZombies(NUM_PIG_ZOMBIE_SLOTS, getNumEnemiesPerLevel(curLevel));
+			// If still empty, spawn the current wave
+			if (state.hordePigmenIds.empty()) {
+				state.hordeSpawned = true;
+				state.hordePigmenIds.clear();
+				int normal = 4, brute = 0;
+				if (state.currentHorde == 1) { normal = 4; brute = 0; }
+				else if (state.currentHorde == 2) { normal = 6; brute = 0; }
+				else if (state.currentHorde == 3) { normal = 6; brute = 2; }
+				else if (state.currentHorde == 4) { normal = 7; brute = 3; }
+				else if (state.currentHorde == 5) { normal = 8; brute = 4; }
+				spawnHorde(this, normal, brute);
 			}
-		}	
-		if(progress > SharedConstants::TicksPerSecond * 46) {
-			finishReactorRun();
+		}
+
+		// Check if current horde is defeated
+		bool hordeDefeated = state.hordeSpawned;
+		for (unsigned int i = 0; i < state.hordePigmenIds.size(); ++i) {
+			Entity* ent = level->getEntity(state.hordePigmenIds[i]);
+			if (ent && ent->isAlive()) {
+				hordeDefeated = false;
+				break;
+			}
+		}
+
+		if (hordeDefeated) {
+			state.hordePigmenIds.clear();
+			if (state.currentHorde < 5) {
+				state.currentHorde++;
+				state.cooldownTicks = 100; // 5 seconds cooldown between waves
+				state.hordeSpawned = false;
+			} else {
+				// Horde 5 defeated! Finish the run and spawn rewards
+				finishReactorRun();
+				spawnItems(80);
+				g_reactorWaves.erase(key);
+			}
 		}
 	} else if(hasFinished) {
-		if(progress % SharedConstants::TicksPerSecond * 60 == 0) {
-			if(playersAreCloseBy()) {
-				trySpawnPigZombies(2, 3);
-			} else {
+		if(progress % (SharedConstants::TicksPerSecond * 60) == 0) {
+			if(!playersAreCloseBy()) {
 				killPigZombies();
 			}
 		}
@@ -78,6 +177,10 @@ void NetherReactorTileEntity::load( CompoundTag* tag ) {
 	if(isInitialized) {
 		progress = tag->getShort("Progress");
 		hasFinished = tag->getBoolean("HasFinished");
+		PosKey key = std::make_tuple(x, y, z);
+		g_reactorWaves[key].currentHorde = tag->getInt("CurrentHorde");
+		g_reactorWaves[key].cooldownTicks = tag->getInt("CooldownTicks");
+		g_reactorWaves[key].hordeSpawned = tag->getBoolean("HordeSpawned");
 	}
 }
 
@@ -86,6 +189,10 @@ bool NetherReactorTileEntity::save( CompoundTag* tag ) {
 	tag->putBoolean("IsInitialized", isInitialized);
 	tag->putShort("Progress", progress);
 	tag->putBoolean("HasFinished", hasFinished);
+	PosKey key = std::make_tuple(x, y, z);
+	tag->putInt("CurrentHorde", g_reactorWaves[key].currentHorde);
+	tag->putInt("CooldownTicks", g_reactorWaves[key].cooldownTicks);
+	tag->putBoolean("HordeSpawned", g_reactorWaves[key].hordeSpawned);
 	if(isInitialized && !hasFinished)
 		level->setNightMode(true);
 	return true;
@@ -216,6 +323,12 @@ void NetherReactorTileEntity::finishReactorRun() {
 	level->setNightMode(false);
 	hasFinished = true;
 	deterioateDome(x, y, z);
+
+	// Turn all glowing obsidian layers to obsidian
+	turnGlowingObsidianLayerToObsidian(0);
+	turnGlowingObsidianLayerToObsidian(1);
+	turnGlowingObsidianLayerToObsidian(2);
+
 	for(int curX = x - 1; curX <= x + 1; ++curX) {
 		for(int curY = y - 1; curY <= y + 1; ++curY) {
 			for(int curZ = z - 1; curZ <= z + 1; ++curZ) {
@@ -224,6 +337,9 @@ void NetherReactorTileEntity::finishReactorRun() {
 			}
 		}
 	}
+
+	// Place the Nether Portal block at the reactor core position, replacing it and placing only one.
+	level->setTile(x, y, z, Tile::netherPortal->id);
 }
 
 int NetherReactorTileEntity::numOfFreeEnemySlots() {
@@ -399,4 +515,23 @@ void NetherReactorTileEntity::killPigZombies() {
 			(*it)->remove();
 		}
 	}
+}
+
+void deactivateReactorWithoutReward(NetherReactorTileEntity* reactor) {
+	if (!reactor || !reactor->isInitialized || reactor->hasFinished) return;
+
+	NetherReactor::setPhase(reactor->level, reactor->x, reactor->y, reactor->z, 2);
+	reactor->level->setNightMode(false);
+	reactor->hasFinished = true;
+
+	// Turn glowing obsidian layers back to obsidian
+	reactor->turnGlowingObsidianLayerToObsidian(0);
+	reactor->turnGlowingObsidianLayerToObsidian(1);
+	reactor->turnGlowingObsidianLayerToObsidian(2);
+
+	reactor->deterioateDome(reactor->x, reactor->y, reactor->z);
+	reactor->killPigZombies();
+	
+	PosKey key = std::make_tuple(reactor->x, reactor->y, reactor->z);
+	g_reactorWaves.erase(key);
 }

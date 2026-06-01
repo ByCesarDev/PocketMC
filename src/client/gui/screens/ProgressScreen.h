@@ -10,6 +10,7 @@ public:
 
 	void render(int xm, int ym, float a);
 	bool isInGameScreen();
+	virtual bool renderGameBehind() override { return false; }
 
 	virtual void keyPressed(int eventKey) {}
 

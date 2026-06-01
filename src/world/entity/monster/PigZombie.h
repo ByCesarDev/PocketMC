@@ -25,6 +25,8 @@ protected:
 	std::string getDeathSound();
 	void dropDeathLoot();
 	int getDeathLoot();
+protected:
+	ItemInstance weapon;
 private:
 	void alert(Entity* target);
 	
@@ -32,7 +34,6 @@ private:
 	int angerTime;
 	int playAngrySoundIn;
 	int stunedTime;
-	ItemInstance weapon;
 };
 
 #endif /* NET_MINECRAFT_WORLD_ENTITY_MONSTER__PigZombie_H__ */

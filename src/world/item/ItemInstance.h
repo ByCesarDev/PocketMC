@@ -51,6 +51,7 @@ public:
      * the same auxValue data.
      */
     bool isStackedByData() const;
+    bool isLiquidClipItem() const;
     bool isStackable() const;
     int getMaxStackSize() const;
 	static bool isStackable(const ItemInstance* a, const ItemInstance* b);

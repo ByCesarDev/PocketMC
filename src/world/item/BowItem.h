@@ -9,6 +9,7 @@
 #include "../entity/projectile/Arrow.h"
 #include "../level/Level.h"
 #include "../entity/player/Inventory.h"
+#include "ItemInstance.h"
 
 class BowItem: public Item
 {
@@ -32,7 +33,8 @@ public:
 
 		itemInstance->hurt(1);
 		level->playSound(player, "random.bow", 1.0f, 1.0f / (random.nextFloat() * 0.4f + 1.2f) + pow * 0.5f);
-		player->inventory->removeResource(Item::arrow->id);
+		ItemInstance arrowItem(Item::arrow);
+		player->inventory->removeResource(arrowItem, false);
 		if (!level->isClientSide) {
 			Arrow* arrow =	new Arrow(level, player, pow * 2.0f);
 			if (pow == 1)

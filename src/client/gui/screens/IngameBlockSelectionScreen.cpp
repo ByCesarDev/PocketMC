@@ -1,4 +1,5 @@
 #include "IngameBlockSelectionScreen.h"
+#include "../../../locale/I18n.h"
 #include "../../renderer/TileRenderer.h"
 #include "../../player/LocalPlayer.h"
 #include "../../renderer/gles.h"
@@ -304,6 +305,17 @@ void IngameBlockSelectionScreen::render( int xm, int ym, float a )
 	glEnable2(GL_DEPTH_TEST);
 
 	Screen::render(xm, ym, a);
+}
+
+void IngameBlockSelectionScreen::renderHoverTooltip(int xm, int ym) {
+	const ItemInstance* hoveredItem = NULL;
+	int slot = getSelectedSlot(xm, ym);
+	if (isAllowed(slot)) {
+		hoveredItem = minecraft->player->inventory->getItem(slot + Inventory::MAX_SELECTION_SIZE);
+	}
+	if (hoveredItem && !hoveredItem->isNull()) {
+		renderTooltip(hoveredItem->getName(), xm, ym);
+	}
 }
 
 void IngameBlockSelectionScreen::renderDemoOverlay() {

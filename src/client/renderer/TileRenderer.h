@@ -10,6 +10,7 @@ class ThinFenceTile;
 class StairTile;
 class LevelSource;
 class Material;
+class Minecraft;
 
 class TileRenderer
 {
@@ -34,6 +35,8 @@ public:
 	bool tesselateFenceGateInWorld(FenceGateTile* tt, int x, int y, int z);
 	bool tesselateBedInWorld(Tile *tt, int x, int y, int z);
 	bool tesselateRowInWorld(Tile* tt, int x, int y, int z);
+	bool tesselateFireInWorld(Tile* tt, int x, int y, int z);
+
 
     void tesselateTorch(Tile* tt, float x, float y, float z, float xxa, float zza);
 	void tesselateCrossTexture(Tile* tt, int data, float x, float y, float z);
@@ -58,6 +61,10 @@ public:
     void renderTile(Tile* tile, int data);
 	void renderGuiTile(Tile* tile, int data);
 
+	static void setUseTint(bool value) {
+       sideTinting = value;
+    }
+
     static bool canRender(int renderShape);
 private:
 	// Atlas filter: -1 = render everything, 0 = only main atlas, 1 = only alt atlas
@@ -66,12 +73,14 @@ private:
 public:
 	void setAtlasFilter(int f) { atlasFilter = f; }
 
+private:
     float getWaterHeight(int x, int y, int z, const Material* m);
 
     LevelSource* level;
 	int fixedTexture;
 	bool xFlipTexture;
 	bool noCulling;
+	static bool sideTinting;
 
 	bool applyAmbienceOcclusion;
 	float ll000, llx00, ll0y0, ll00z, llX00, ll0Y0, ll00Z;

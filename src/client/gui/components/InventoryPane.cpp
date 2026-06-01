@@ -53,9 +53,9 @@ InventoryPane::~InventoryPane() {
 
 void InventoryPane::renderBatch( std::vector<GridItem>& items, float alpha )
 {
-	//fill(bg.x, bg.y, bg.w, bg.h, 0xff333333);
-	fill((float)(bbox.x-fillMarginX-1), (float)(bbox.y-fillMarginY), (float)(bbox.x + bbox.w + fillMarginX+1), (float)(bbox.y + bbox.h + fillMarginY), 0xff333333);
-	//fill(0.0f, (float)(bbox.y-fillMarginY), 400.0f, (float)(bbox.y + bbox.h + fillMarginY), 0xff333333);//(float)(bbox.x-fillMarginX), (float)(bbox.y-fillMarginY), (float)(bbox.x + bbox.w + fillMarginX), (float)(bbox.y + bbox.h + fillMarginY), 0xff333333);
+	if (!mc->isCreativeMode()) {
+		fill((float)(bbox.x-fillMarginX-1), (float)(bbox.y-fillMarginY), (float)(bbox.x + bbox.w + fillMarginX+1), (float)(bbox.y + bbox.h + fillMarginY), 0xff333333);
+	}
 	glEnable2(GL_BLEND);
 	glDisable2(GL_ALPHA_TEST);
 	std::vector<const ItemInstance*> inventoryItems = screen->getItems(this);
@@ -162,11 +162,10 @@ void InventoryPane::renderBatch( std::vector<GridItem>& items, float alpha )
 		glEnable2(GL_TEXTURE_2D);
 	}
 	glDisable2(GL_SCISSOR_TEST);
-
-	//fillGradient(bbox.x - 1, bbox.y, bbox.x + bbox.w + 1, bbox.y + 20, 0x99000000, 0x00000000);
-	//fillGradient(bbox.x - 1, bbox.y + bbox.h - 20, bbox.x + bbox.w + 1, bbox.y + bbox.h, 0x00000000, 0x99000000);
-	fillGradient(bg.x - fillMarginX, bbox.y, bg.w + fillMarginX, bbox.y + 20, 0x99000000, 0x00000000);
-	fillGradient(bg.x - fillMarginX, bbox.y + bbox.h - 20, bg.w + fillMarginX, bbox.y + bbox.h, 0x00000000, 0x99000000);
+	if (!mc->isCreativeMode()) {
+		fillGradient(bg.x - fillMarginX, bbox.y, bg.w + fillMarginX, bbox.y + 20, 0x99000000, 0x00000000);
+		fillGradient(bg.x - fillMarginX, bbox.y + bbox.h - 20, bg.w + fillMarginX, bbox.y + bbox.h, 0x00000000, 0x99000000);
+	}
 
 	drawScrollBar(hScroll);
 	drawScrollBar(vScroll);

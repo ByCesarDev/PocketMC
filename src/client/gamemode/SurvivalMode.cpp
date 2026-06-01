@@ -27,6 +27,11 @@ void SurvivalMode::continueDestroyBlock( int x, int y, int z, int face ) {
 		if (t == 0) return;
 		Tile* tile = Tile::tiles[t];
 
+		if (minecraft->level->isReactorStructureIndestructible(x, y, z)) {
+			destroyProgress = 0;
+			return;
+		}
+
 		destroyProgress += tile->getDestroyProgress(minecraft->player);
 
 		if ((++destroyTicks & 3) == 1) {
@@ -93,6 +98,6 @@ void SurvivalMode::startDestroyBlock( int x, int y, int z, int face ) {
 
 	int t = minecraft->level->getTile(x, y, z);
 	if (t > 0 && destroyProgress == 0) Tile::tiles[t]->attack(minecraft->level, x, y, z, minecraft->player);
-	if (t > 0 && Tile::tiles[t]->getDestroyProgress(minecraft->player) >= 1)
+	if (t > 0 && !minecraft->level->isReactorStructureIndestructible(x, y, z) && Tile::tiles[t]->getDestroyProgress(minecraft->player) >= 1)
 		destroyBlock(x, y, z, face);
 }

@@ -35,6 +35,28 @@ void OptionsItem::render( Minecraft* minecraft, int xm, int ym ) {
 		default: scaleText = I18n::get("options.guiScale.auto"); break;
 		}
 		text += ": " + scaleText;
+	} else if (m_optionId == OPTIONS_FOV) {
+		float val = minecraft->options.getProgressValue(OPTIONS_FOV);
+		std::string valText;
+		if (val <= 70.0f + 0.01f) {
+			valText = I18n::get("options.fov.min");
+		} else if (val >= 110.0f - 0.01f) {
+			valText = I18n::get("options.fov.max");
+		} else {
+			valText = std::to_string((int)std::round(val));
+		}
+		text += ": " + valText;
+	} else if (m_optionId == OPTIONS_BRIGHTNESS) {
+		float val = minecraft->options.getProgressValue(OPTIONS_BRIGHTNESS);
+		std::string valText;
+		if (val <= 0.0f + 0.01f) {
+			valText = I18n::get("options.gamma.min");
+		} else if (val >= 1.0f - 0.01f) {
+			valText = I18n::get("options.gamma.max");
+		} else {
+			valText = "+" + std::to_string((int)std::round(val * 100.0f)) + "%";
+		}
+		text += ": " + valText;
 	}
 
 	minecraft->font->draw(text, (float)x, (float)y + yOffset, 0x909090, false);

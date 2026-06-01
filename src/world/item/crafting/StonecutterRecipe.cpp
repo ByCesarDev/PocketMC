@@ -3,7 +3,7 @@
 
 StonecutterRecipe::StonecutterRecipe(ItemInstance output, ItemInstance input)
     : output(output), input(input) {
-    myItems.add(input.id, 1);
+    myItems.add(ItemPack::getIdForItemInstance(&input), 1);
 }
 
 bool StonecutterRecipe::matches(CraftingContainer* craftSlots) {
@@ -27,7 +27,7 @@ ItemInstance StonecutterRecipe::getResultItem() const {
 }
 
 int StonecutterRecipe::getMaxCraftCount(ItemPack& fromItems) {
-    return fromItems.getCount(input.id);
+    return fromItems.getMaxMultipliesOf(myItems);
 }
 
 int StonecutterRecipe::size() {

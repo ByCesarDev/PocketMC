@@ -140,28 +140,6 @@ static const signed short _mapper[] = {-1, 7, 9, 8, 0, 5, -2, -1, -1, -1, -1, -1
 #define IRMAPCASE(x) case x: return  _##x [item->getAuxValue() & 15]
 
 int ItemRenderer::getAtlasPos(const ItemInstance* item) {
-	int id = item->id;
-	if (id < 0 || id >= sizeof(_mapper) / sizeof(const signed short))
-		return -1;
-
-	int texId = _mapper[id];
-	if (texId != -2)
-		return texId;
-
-	switch(id) {
-		IRMAPCASE(6);
-		IRMAPCASE(17);
-		IRMAPCASE(18);
-		IRMAPCASE(24);
-		IRMAPCASE(35);
-		IRMAPCASE(44);
-		IRMAPCASE(98);
-		IRMAPCASE(155);
-		IRMAPCASE(263);
-		IRMAPCASE(351);
-	default:
-		break;
-	}
 	return -1;
 }
 

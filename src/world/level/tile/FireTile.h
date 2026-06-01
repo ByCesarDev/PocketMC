@@ -33,14 +33,27 @@ public:
 
         setFlammable(Tile::wood->id, FLAME_HARD, BURN_MEDIUM);
         setFlammable(Tile::treeTrunk->id, FLAME_HARD, BURN_HARD);
-        setFlammable(Tile::birchTrunk->id, FLAME_HARD, BURN_HARD);
-        setFlammable(Tile::spruceTrunk->id, FLAME_HARD, BURN_HARD);
         setFlammable(((Tile*)Tile::leaves)->id, FLAME_EASY, BURN_EASY);
         setFlammable(Tile::bookshelf->id, FLAME_EASY, BURN_MEDIUM);
         setFlammable(Tile::tnt->id, FLAME_MEDIUM, BURN_INSTANT);
         setFlammable(Tile::cloth->id, FLAME_EASY, BURN_EASY);
 
-        //setTicking(true); //@fire
+        if (Tile::birchTrunk) setFlammable(Tile::birchTrunk->id, FLAME_HARD, BURN_HARD);
+        if (Tile::spruceTrunk) setFlammable(Tile::spruceTrunk->id, FLAME_HARD, BURN_HARD);
+        if (Tile::birchPlanks) setFlammable(Tile::birchPlanks->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::sprucePlanks) setFlammable(Tile::sprucePlanks->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::spruceSlab) setFlammable(Tile::spruceSlab->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::spruceSlabHalf) setFlammable(Tile::spruceSlabHalf->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::birchSlab) setFlammable(Tile::birchSlab->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::birchSlabHalf) setFlammable(Tile::birchSlabHalf->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::stairs_spruce) setFlammable(Tile::stairs_spruce->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::stairs_birch) setFlammable(Tile::stairs_birch->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::fenceSpruce) setFlammable(Tile::fenceSpruce->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::fenceBirch) setFlammable(Tile::fenceBirch->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::fenceGateSpruce) setFlammable(Tile::fenceGateSpruce->id, FLAME_HARD, BURN_MEDIUM);
+        if (Tile::fenceGateBirch) setFlammable(Tile::fenceGateBirch->id, FLAME_HARD, BURN_MEDIUM);
+
+        setTicking(true); //@fire
     }
 
     AABB* getAABB(Level* level, int x, int y, int z) {
@@ -72,9 +85,9 @@ public:
     }
 
     void tick(Level* level, int x, int y, int z, Random* random) {
-		return; //@fire
+		
 
-        bool infiniBurn = false;//level->getTile(x, y - 1, z) == Tile::hellRock->id;
+        bool infiniBurn = level->getTile(x, y - 1, z) == Tile::netherrack->id;
 
         int age = level->getData(x, y, z);
         if (age < 15) {
@@ -133,6 +146,10 @@ public:
         return false;
     }
 
+		    int getRenderLayer() {
+        return Tile::RENDERLAYER_ALPHATEST;
+    }
+
     bool canBurn(LevelSource* level, int x, int y, int z) {
         return flameOdds[level->getTile(x, y, z)] > 0;
     }
@@ -150,7 +167,6 @@ public:
     }
 
     void neighborChanged(Level* level, int x, int y, int z, int type) {
-		return; //@fire
         if (!level->isSolidBlockingTile(x, y - 1, z) && !isValidFireLocation(level, x, y, z)) {
             level->setTile(x, y, z, 0);
             return;
@@ -158,7 +174,6 @@ public:
     }
 
     void onPlace(Level* level, int x, int y, int z) {
-		return; //@fire
         if (!level->isSolidBlockingTile(x, y - 1, z) && !isValidFireLocation(level, x, y, z)) {
             level->setTile(x, y, z, 0);
             return;
@@ -171,7 +186,6 @@ public:
     }
 
     void ignite(Level* level, int x, int y, int z) {
-		return; //@fire
 
         bool lit = false;
         if (!lit) lit = tryIgnite(level, x, y + 1, z);
@@ -186,11 +200,10 @@ public:
     }
 
     void animateTick(Level* level, int x, int y, int z, Random* random) {
-		return; //@fire
 
-        //if (random.nextInt(24) == 0) {
-        //    level->playSound(x + 0.5f, y + 0.5f, z + 0.5f, "fire.fire", 1 + random.nextFloat(), random.nextFloat() * 0.7f + 0.3f);
-        //}
+        if (random->nextInt(24) == 0) {
+            level->playSound(x + 0.5f, y + 0.5f, z + 0.5f, "fire.fire", 1 + random->nextFloat(), random->nextFloat() * 0.7f + 0.3f);
+        }
 
         if (level->isSolidBlockingTile(x, y - 1, z) || Tile::fire->canBurn(level, x, y - 1, z)) {
             for (int i = 0; i < 3; i++) {
@@ -250,7 +263,6 @@ private:
     }
 
     void checkBurn(Level* level, int x, int y, int z, int chance, Random* random) {
-        return; //@fire
 
 		int odds = burnOdds[level->getTile(x, y, z)];
         if (random->nextInt(chance) < odds) {
@@ -267,7 +279,6 @@ private:
     }
 
     bool isValidFireLocation(Level* level, int x, int y, int z) {
-		return false; //@fire
 
         if (canBurn(level, x + 1, y, z)) return true;
         if (canBurn(level, x - 1, y, z)) return true;
@@ -280,7 +291,6 @@ private:
     }
 
     int getFireOdds(Level* level, int x, int y, int z) {
-        return 0; //@fire
 
 		int odds = 0;
         if (!level->isEmptyTile(x, y, z)) return 0;
@@ -296,7 +306,6 @@ private:
     }
 
 	bool tryIgnite(Level* level, int x, int y, int z) {
-        return false; //@fire
 
 		int t = level->getTile(x, y, z);
         if (t == Tile::fire->id) return true;

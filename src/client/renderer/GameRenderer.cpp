@@ -1,6 +1,7 @@
 #include "GameRenderer.h"
 #include "client/Options.h"
 #include "gles.h"
+#include "../../world/item/ItemInstance.h"
 
 #include "../../util/PerfTimer.h"
 
@@ -218,6 +219,9 @@ void GameRenderer::render(float a) {
 			glDisable2(GL_SCISSOR_TEST);
 
 		mc->screen->render(xMouse, yMouse, a);
+		if (mc->screen != NULL) {
+			mc->screen->renderHoverTooltip(xMouse, yMouse);
+		}
 
     mc->platform()->hideCursor(!mc->options.getBooleanValue(OPTIONS_RPI_CURSOR));
     if (mc->options.getBooleanValue(OPTIONS_RPI_CURSOR))        
@@ -408,7 +412,7 @@ void GameRenderer::tickFov() {
 /*private*/
 float GameRenderer::getFov(float a, bool applyEffects) {
     Mob* player = mc->cameraTargetPlayer;
-    float fov = 70;
+    float fov = mc->options.getProgressValue(OPTIONS_FOV);
 
 	if (applyEffects)
 		fov *= this->oFov + (this->fov - this->oFov) * a;
@@ -654,7 +658,15 @@ bool GameRenderer::updateFreeformPickDirection(float a, Vec3& outDir) {
     //sw.stop();
     //sw.printEvery(30, "unproject ");
 
-    const HitResult& hit = mc->hitResult = mc->level->clip(p0, p1, false);
+    bool clipLiquid = false;
+    if (mc->player) {
+        ItemInstance* selected = mc->player->getSelectedItem();
+        if (selected && selected->isLiquidClipItem()) {
+            clipLiquid = true;
+        }
+    }
+
+    const HitResult& hit = mc->hitResult = mc->level->clip(p0, p1, clipLiquid);
 
     // If in 3rd person view - verify that the hit target is within range
     if (!firstPerson && hit.isHit()) {
@@ -962,6 +974,9 @@ void GameRenderer::saveMatrices()
 }
 
 void GameRenderer::prepareAndRenderClouds( LevelRenderer* levelRenderer, float a ) {
+	if (mc->level && mc->level->dimension && mc->level->dimension->id == -1) {
+		return;
+	}
 	//if(mc->options.isCloudsOn()) {
 	TIMER_PUSH("clouds");
 	glMatrixMode(GL_PROJECTION);

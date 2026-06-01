@@ -1,6 +1,105 @@
 #ifndef MAIN_GLFW_H__
 #define MAIN_GLFW_H__
 
+#include <csignal>
+#include <fstream>
+#include <iostream>
+#include <exception>
+#include <string>
+#include <cstdlib>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+// A flag to ensure we only write the log once if multiple signals/exceptions fire
+static bool g_has_crashed = false;
+
+inline void write_crash_log(const std::string& reason) {
+    if (g_has_crashed) return;
+    g_has_crashed = true;
+
+    std::ofstream log("crash_log.txt");
+    if (log.is_open()) {
+        log << "========================================\n";
+        log << "EVLYMC CRASH LOG\n";
+        log << "========================================\n";
+        log << "Reason: " << reason << "\n";
+        log.close();
+    }
+    std::cerr << "CRASH! " << reason << "\nSaved crash log to crash_log.txt\n";
+}
+
+inline void signal_handler(int sig) {
+    std::string reason;
+    switch (sig) {
+        case SIGSEGV: reason = "SIGSEGV (Segmentation Fault / Access Violation)"; break;
+        case SIGABRT: reason = "SIGABRT (Abort / assertion failed)"; break;
+        case SIGFPE:  reason = "SIGFPE (Floating Point Exception)"; break;
+        case SIGILL:  reason = "SIGILL (Illegal Instruction)"; break;
+        default:      reason = "Signal " + std::to_string(sig); break;
+    }
+    write_crash_log(reason);
+    std::exit(sig);
+}
+
+inline void terminate_handler() {
+    std::string reason = "Unhandled C++ exception";
+    try {
+        auto ex = std::current_exception();
+        if (ex) {
+            std::rethrow_exception(ex);
+        }
+    } catch (const std::exception& e) {
+        reason += ": " + std::string(e.what());
+    } catch (...) {
+        reason += ": Unknown type";
+    }
+    write_crash_log(reason);
+    std::abort();
+}
+
+#ifdef _WIN32
+inline LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS* info) {
+    std::string reason = "Windows Exception Code: 0x";
+    char hex_code[32];
+    std::sprintf(hex_code, "%lX", info->ExceptionRecord->ExceptionCode);
+    reason += hex_code;
+    
+    char hex_addr[32];
+    std::sprintf(hex_addr, "%p", info->ExceptionRecord->ExceptionAddress);
+    reason += " at address " + std::string(hex_addr);
+
+    switch (info->ExceptionRecord->ExceptionCode) {
+        case EXCEPTION_ACCESS_VIOLATION:
+            reason += " (Access Violation / Null pointer dereference)";
+            break;
+        case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+            reason += " (Array Bounds Exceeded)";
+            break;
+        case EXCEPTION_INT_DIVIDE_BY_ZERO:
+            reason += " (Integer Divide by Zero)";
+            break;
+        case EXCEPTION_STACK_OVERFLOW:
+            reason += " (Stack Overflow)";
+            break;
+    }
+
+    // Capture and print stack trace
+    reason += "\nStack trace:\n";
+    void* stack[62];
+    unsigned short frames = CaptureStackBackTrace(0, 62, stack, NULL);
+    for (unsigned short i = 0; i < frames; ++i) {
+        char frame_info[64];
+        std::sprintf(frame_info, "  #%d %p\n", i, stack[i]);
+        reason += frame_info;
+    }
+
+    write_crash_log(reason);
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
+
 #include "App.h"
 #include "client/renderer/entity/PlayerRenderer.h"
 #include "client/renderer/gles.h"
@@ -134,6 +233,18 @@ void loop() {
 }
 
 int main(void) {
+    // Register crash handlers
+#ifndef _WIN32
+    std::signal(SIGSEGV, signal_handler);
+    std::signal(SIGFPE, signal_handler);
+    std::signal(SIGILL, signal_handler);
+#endif
+    std::signal(SIGABRT, signal_handler);
+    std::set_terminate(terminate_handler);
+#ifdef _WIN32
+    SetUnhandledExceptionFilter(windows_exception_handler);
+#endif
+
 	AppContext appContext;
 
 #ifndef STANDALONE_SERVER

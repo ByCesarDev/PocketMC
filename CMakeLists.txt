@@ -9,8 +9,8 @@ set(CMAKE_POLICY_VERSION_MINIMUM 3.10)
 
 include(cmake/EnumOption.cmake)
 
-# Absolute project root (set this to your workspace root)
-set(PROJECT_ROOT "C:/Users/usuario/Desktop/cdobs/evlymc" CACHE PATH "Absolute path to project root")
+# Absolute project root
+set(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if(EMSCRIPTEN)
     # When configuring web builds with "emcmake cmake -B build -S .", set PLATFORM to Web by default
@@ -305,6 +305,12 @@ list(APPEND SERVER_SOURCES "src/world/item/crafting/ExtraRecipes.cpp")
 list(APPEND CLIENT_SOURCES "src/world/item/crafting/ExtraRecipes.cpp")
 list(APPEND SERVER_SOURCES "src/world/item/crafting/StonecutterRecipe.cpp")
 list(APPEND CLIENT_SOURCES "src/world/item/crafting/StonecutterRecipe.cpp")
+list(APPEND SERVER_SOURCES "src/world/entity/monster/PigZombieBrute.cpp")
+list(APPEND CLIENT_SOURCES "src/world/entity/monster/PigZombieBrute.cpp")
+
+# Buckets
+list(APPEND SERVER_SOURCES "src/world/item/BucketItem.cpp")
+list(APPEND CLIENT_SOURCES "src/world/item/BucketItem.cpp")
 
 if (${PLATFORM} STREQUAL "Desktop")
     list(APPEND CLIENT_SOURCES glad/src/glad.c)

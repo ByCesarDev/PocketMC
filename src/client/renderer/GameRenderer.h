@@ -93,10 +93,12 @@ private:
 	float cameraRoll;
 	float cameraRollO;
 
+public:
 	float fr;
 	float fg;
 	float fb;
 
+private:
 	float fogBrO, fogBr;
 
 	float _rotX;

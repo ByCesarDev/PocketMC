@@ -37,6 +37,8 @@ public:
 	void getSlotPos(int slot, int& posX, int& posY);
 	int getNumSlots();
 
+	void resetItemNameOverlay() { itemNameOverlayTime = 0.0f; }
+
 	void handleClick(int button, int x, int y);
 	void handleKeyPressed( int key );
 	void scrollChat(int delta);

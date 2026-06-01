@@ -4,6 +4,7 @@
 #include <vector>
 
 class Textures;
+class AppPlatform;
 
 class DynamicTexture
 {
@@ -54,6 +55,45 @@ public:
 	~WaterSideTexture();
 
 	void tick();
+};
+
+class LavaTexture: public DynamicTexture
+{
+	typedef DynamicTexture super;
+	int _frame;
+	int _frameCount;
+	unsigned char* _sheetData;
+public:
+	LavaTexture();
+	~LavaTexture();
+	void tick() override;
+	void loadSheet(AppPlatform* platform);
+};
+
+class LavaSideTexture: public DynamicTexture
+{
+	typedef DynamicTexture super;
+	int _frame;
+	int _frameCount;
+	unsigned char* _sheetData;
+public:
+	LavaSideTexture();
+	~LavaSideTexture();
+	void tick() override;
+	void loadSheet(AppPlatform* platform);
+};
+
+class PortalTexture: public DynamicTexture
+{
+	typedef DynamicTexture super;
+	int _frame;
+	int _frameCount;
+	unsigned char* _sheetData;
+public:
+	PortalTexture();
+	~PortalTexture();
+	void tick() override;
+	void loadSheet(AppPlatform* platform);
 };
 
 #endif /*NET_MINECRAFT_CLIENT_RENDERER_PTEXTURE__DynamicTexture_H__*/

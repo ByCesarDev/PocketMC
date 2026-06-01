@@ -64,6 +64,8 @@ public:
                                     // Permitir que el mineral se genere en piedra o deepslate
                                     if (currentTile == Tile::rock->id || currentTile == Tile::deepslate->id) {
                                         level->setTileNoUpdate(x2, y2, z2, Tile::getOreVariant(tile, currentTile));
+                                    } else if (currentTile == Tile::netherrack->id) {
+                                        level->setTileNoUpdate(x2, y2, z2, tile);
                                     }
                                 }
                             }

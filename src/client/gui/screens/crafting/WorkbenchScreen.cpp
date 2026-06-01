@@ -11,5 +11,5 @@ WorkbenchScreen::~WorkbenchScreen() {
 }
 
 bool WorkbenchScreen::filterRecipe(const Recipe& r) {
-	return !CraftingFilters::isStonecutterItem(r.getResultItem());
+	return r.getRecipeType() != RecipeType::StoneCutter && !CraftingFilters::isStonecutterItem(r.getResultItem());
 }

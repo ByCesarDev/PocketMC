@@ -95,6 +95,8 @@ std::string I18n::getDescriptionString( const ItemInstance& item )
 		return I18n::get("desc.fence");
 	else if (item.id == Tile::stoneSlabHalf->id || item.id == Tile::spruceSlabHalf->id || item.id == Tile::birchSlabHalf->id)
 		return I18n::get("desc.slab");
+	else if ((item.id >= 170 && item.id <= 178) || (item.id >= 181 && item.id <= 183))
+		return I18n::get("desc.stonebricksmooth");
 
 	for (unsigned int i = 0; i < s.length(); ++i)
 		s[i] = ::tolower(s[i]);

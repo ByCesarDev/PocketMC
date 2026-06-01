@@ -1,6 +1,7 @@
 #include "Level.h"
 #include "LevelListener.h"
 #include "tile/entity/TileEntity.h"
+#include "tile/entity/NetherReactorTileEntity.h"
 #include "../entity/player/Player.h"
 #include "../entity/EntityEvent.h"
 
@@ -464,6 +465,52 @@ void Level::validateSpawn() {
     levelData.setZSpawn(zSpawn);
 }
 
+void Level::changeDimension(int dimId) {
+	if (dimension->id == dimId) return;
+
+	levelData.setDimension(dimId);
+
+	_chunkSource->saveAll(true);
+
+	if (levelStorage) {
+		levelStorage->saveGame(this);
+	}
+
+	for (int i = (int)entities.size() - 1; i >= 0; i--) {
+		Entity* e = entities[i];
+		if (!e->isPlayer()) {
+			int xc = e->xChunk;
+			int zc = e->zChunk;
+			if (e->inChunk && hasChunk(xc, zc)) {
+				getChunk(xc, zc)->removeEntity(e);
+			}
+			entityIdLookup.erase(e->entityId);
+			entities.erase(entities.begin() + i);
+			entityRemoved(e);
+			delete e;
+		}
+	}
+
+	Dimension* newDimension = Dimension::getNew(dimId);
+	if (!newDimension) return;
+
+	delete _chunkSource;
+	delete dimension;
+
+	dimension = newDimension;
+	dimension->init(this);
+
+	_chunkSource = createChunkSource();
+
+	if (levelStorage) {
+		levelStorage->loadEntities(this, NULL);
+	}
+
+	for (unsigned int i = 0; i < _listeners.size(); i++) {
+		_listeners[i]->allChanged();
+	}
+}
+
 int Level::getTopTile(int x, int z) {
     int y = 63;
     while (!isEmptyTile(x, y + 1, z)) {
@@ -790,6 +837,27 @@ BiomeSource* Level::getBiomeSource() {
 }
 Biome* Level::getBiome( int x, int z ) {
 	return dimension->biomeSource->getBiome(x, z);
+}
+
+bool Level::isReactorStructureIndestructible(int x, int y, int z) {
+	int tileId = getTile(x, y, z);
+	if (tileId == Tile::netherReactor->id) {
+		return getData(x, y, z) == 1; // Phase 1 is active/glowing red
+	}
+	if (tileId == Tile::netherrack->id) {
+		for (TileEntity* te : tileEntities) {
+			if (te && te->type == TileEntityType::NetherReactor) {
+				NetherReactorTileEntity* reactor = static_cast<NetherReactorTileEntity*>(te);
+				if (isReactorActive(reactor)) {
+					if (abs(x - reactor->x) <= 8 && abs(z - reactor->z) <= 8 &&
+						y >= reactor->y - 3 && y <= reactor->y + 25) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void Level::updateLightIfOtherThan(const LightLayer& layer, int x, int y, int z, int expected) {
@@ -1603,8 +1671,8 @@ bool Level::containsFireTile(const AABB& box) {
                 for (int z = z0; z < z1; z++) {
                     int t = getTile(x, y, z);
 
-                    if (/*t == ((Tile*)(Tile::fire))->id
-					 ||*/ t == Tile::lava->id
+                    if (t == ((Tile*)(Tile::fire))->id
+					 || t == Tile::lava->id
 					 || t == Tile::calmLava->id) {
  						 return true;
 					}

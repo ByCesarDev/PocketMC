@@ -69,6 +69,7 @@ public:
 	void swing();
 	virtual void openTextEdit( TileEntity* tileEntity );
 	virtual float getWalkingSpeedModifier();
+    bool isLocalPlayer() const override { return true; }
 private:
 	void calculateFlight(float xa, float ya, float za);
 	bool isSolidTile(int x, int y, int z);
@@ -76,6 +77,7 @@ private:
 public:
 	IMoveInput* input;
 	bool autoJumpEnabled;
+	Minecraft* getMinecraft() const { return minecraft; }
 protected:
 	Minecraft* minecraft;
 	int jumpTriggerTime;

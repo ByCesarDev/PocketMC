@@ -8,7 +8,8 @@ public:
 		FLAG_SNEAKING = 1,
 		FLAG_RIDING = 2,
 		FLAG_SPRINTING = 3,
-		FLAG_USINGITEM = 4
+		FLAG_USINGITEM = 4,
+		FLAG_SWIMMING = 5
 	};
 	typedef char SharedFlagsInformationType;
 	

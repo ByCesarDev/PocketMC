@@ -68,6 +68,7 @@ public:
 	bool isCreativeMode();
 	void setIsCreativeMode(bool isCreative);
 	void setScreen(Screen*);
+	void forceSetScreen(Screen*);
 
 	virtual void selectLevel(const std::string& levelId, const std::string& levelName, const LevelSettings& settings);
 	virtual void setLevel(Level* level, const std::string& message = "", LocalPlayer* forceInsertPlayer = NULL);
@@ -109,6 +110,9 @@ public:
 	void onGraphicsReset();
 
 	bool isLevelGenerated();
+	void setIsGeneratingLevel(bool val) { isGeneratingLevel = val; }
+	bool getIsGeneratingLevel() { return isGeneratingLevel; }
+	void setProgressStageStatusId(int id) { progressStageStatusId = id; }
 
 	void handleMouseDown(int button, bool down);
 	

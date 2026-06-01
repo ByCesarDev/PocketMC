@@ -25,9 +25,22 @@ void Recipes::addStoneCutterRecipe(int outputId, int outputAux, int inputId) {
 }
 
 void Recipes::initStoneCutterRecipes() {
-	addStoneCutterRecipe(Tile::deepslatePolished->id, 0, Tile::cobbledDeepslate->id);
-	addStoneCutterRecipe(Tile::deepslateTiles->id, 0, Tile::cobbledDeepslate->id);
-	addStoneCutterRecipe(Tile::deepslateBricks->id, 0, Tile::cobbledDeepslate->id);
+    // Slabs (1 block -> 2 slabs)
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::stoneSlabHalf->id, 2, StoneSlabTile::COBBLESTONE_SLAB), ItemInstance(Tile::stoneBrick->id, 1, 0)));
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::stoneSlabHalf->id, 2, StoneSlabTile::STONE_SLAB), ItemInstance(Tile::rock->id, 1, 0)));
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::stoneSlabHalf->id, 2, StoneSlabTile::SAND_SLAB), ItemInstance(Tile::sandStone->id, 1, 0)));
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::stoneSlabHalf->id, 2, StoneSlabTile::BRICK_SLAB), ItemInstance(Tile::redBrick->id, 1, 0)));
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::stoneSlabHalf->id, 2, StoneSlabTile::SMOOTHBRICK_SLAB), ItemInstance(Tile::stoneBrickSmooth->id, 1, 0)));
+
+    // Deepslate variants (1 block -> 1 block)
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::deepslatePolished->id, 1, 0), ItemInstance(Tile::cobbledDeepslate->id, 1, 0)));
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::deepslateTiles->id, 1, 0), ItemInstance(Tile::deepslatePolished->id, 1, 0)));
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::deepslate->id, 1, 0), ItemInstance(Tile::cobbledDeepslate->id, 1, 0)));
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::deepslateBricks->id, 1, 0), ItemInstance(Tile::deepslate->id, 1, 0)));
+
+    // Other conversions
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::stoneBrickSmooth->id, 1, 0), ItemInstance(Tile::rock->id, 1, 0)));
+    recipes.push_back(new StonecutterRecipe(ItemInstance(Tile::sandStone->id, 1, 0), ItemInstance(Tile::sand->id, 1, 0)));
 }
 
 Recipes::Recipes()
@@ -316,11 +329,11 @@ Recipes::Recipes()
 
 	//	definition('#', Tile::wood));
 
-	//addShapedRecipe(ItemInstance(Item::bucket_empty, 1), //
-	//	"# #", //
-	//	" # ", //
+	addShapedRecipe(ItemInstance(Item::bucket_empty, 1), //
+		"# #", //
+		" # ", //
 
-	//	definition('#', Item::ironIngot));
+		definition('#', Item::ironIngot));
 
 	addShapedRecipe(ItemInstance(Item::flintAndSteel, 1), //
 		"A ", //

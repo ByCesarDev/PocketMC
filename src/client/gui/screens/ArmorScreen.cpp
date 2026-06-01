@@ -1,4 +1,5 @@
 #include "ArmorScreen.h"
+#include "../../../locale/I18n.h"
 #include "../Screen.h"
 #include "../components/NinePatch.h"
 #include "../../sound/SoundEngine.h"
@@ -211,6 +212,41 @@ void ArmorScreen::render(int xm, int ym, float a) {
     minecraft->gui.renderToolBar(a, ySlot, screenWidth);
 
 	glDisable2(GL_ALPHA_TEST);
+}
+
+void ArmorScreen::renderHoverTooltip(int xm, int ym) {
+	const ItemInstance* hoveredItem = NULL;
+
+	if (inventoryPane && inventoryPane->isInside(xm, ym)) {
+		ScrollingPane::GridItem gi = inventoryPane->getItemAt(xm, ym);
+		std::vector<const ItemInstance*> invItems = getItems(inventoryPane);
+		if (gi.id >= 0 && gi.id < invItems.size()) {
+			hoveredItem = invItems[gi.id];
+		}
+	} else {
+		for (int i = 0; i < NUM_ARMORBUTTONS; ++i) {
+			if (armorButtons[i] && armorButtons[i]->isInside(xm, ym)) {
+				hoveredItem = player->getArmor(i);
+				break;
+			}
+		}
+	}
+
+	// Hotbar hover check
+	if (!hoveredItem) {
+		int ySlot = height - 16 - 3;
+		if (ym >= ySlot && ym < height) {
+			int xBase = width / 2 - minecraft->gui.getNumSlots() * 10;
+			int slot = (xm - xBase) / 20;
+			if (slot >= 0 && slot < minecraft->gui.getNumSlots()) {
+				hoveredItem = player->inventory->getItem(slot);
+			}
+		}
+	}
+
+	if (hoveredItem && !hoveredItem->isNull()) {
+		renderTooltip(hoveredItem->getName(), xm, ym);
+	}
 }
 
 void ArmorScreen::buttonClicked(Button* button) {

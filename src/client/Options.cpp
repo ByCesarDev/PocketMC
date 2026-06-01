@@ -52,10 +52,13 @@ OptionInt viewDistance("renderDistance", 2, 0, 4);
 OptionBool anaglyph3d("anaglyph3d", false);
 OptionBool limitFramerate("limitFramerate", false);
 OptionBool vsync("vsync", true);
+OptionFloat fovOpt("fov", 70.f, 70.f, 110.f);
+OptionFloat brightnessOpt("gamma", 0.f, 0.f, 1.f);
+
 OptionBool fancyGraphics("fancyGraphics", true);
 OptionBool viewBobbing("viewBobbing", true);
-OptionBool ambientOcclusion("ao", false);
-OptionBool smoothLighting(OptionStrings::Graphics_SmoothLightning, false);
+OptionBool ambientOcclusion("ao", true);
+OptionBool smoothLighting(OptionStrings::Graphics_SmoothLightning, true);
 
 OptionBool useTouchscreen("useTouchscreen", true);
 
@@ -132,6 +135,8 @@ void Options::initTable() {
     m_options[OPTIONS_LIMIT_FRAMERATE] = &limitFramerate;
     m_options[OPTIONS_VSYNC] = &vsync;
     m_options[OPTIONS_FANCY_GRAPHICS] = &fancyGraphics;
+    m_options[OPTIONS_FOV] = &fovOpt;
+    m_options[OPTIONS_BRIGHTNESS] = &brightnessOpt;
 	m_options[OPTIONS_VIEW_BOBBING] = &viewBobbing;
 	m_options[OPTIONS_AMBIENT_OCCLUSION] = &ambientOcclusion;
 	m_options[OPTIONS_SMOOTH_LIGHTNING] = &smoothLighting;

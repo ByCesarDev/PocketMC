@@ -82,9 +82,12 @@ public:
     Level(LevelStorage* levelStorage, const std::string& levelName, const LevelSettings& settings, int generatorVersion, Dimension* fixedDimension = NULL);
 	virtual ~Level();
 
+	virtual Level* getLevel() override { return this; }
+
 	void _init(const std::string& levelName, const LevelSettings& settings, int levelVersion, Dimension* fixedDimension);
 
 	void validateSpawn();
+	void changeDimension(int dimId);
 
 	int getTopTile(int x, int z);
 	int getTopTileY(int x, int z);
@@ -208,6 +211,7 @@ public:
 	const EntityList& getAllEntities();
 
 	TileEntity* getTileEntity(int x, int y, int z);
+	bool isReactorStructureIndestructible(int x, int y, int z);
 	void setTileEntity(int x, int y, int z, TileEntity* tileEntity);
 	void removeTileEntity(int x, int y, int z);
 	void tileEntityChanged(int x, int y, int z, TileEntity* te);

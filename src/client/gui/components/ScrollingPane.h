@@ -59,6 +59,9 @@ public:
 
 	void setSelected(int id, bool selected);
 
+	bool isInside(float x, float y) { return bboxArea.isInside(x, y); }
+	GridItem getItemAt(float x, float y) { return getItemForPos(x, y, true); }
+
 	// This function is called with all visible GridItems. The base
 	// implementation just dispatches each item to renderItem in y,x order
 	virtual void renderBatch(std::vector<GridItem>& items, float alpha);

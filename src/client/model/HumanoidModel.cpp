@@ -9,6 +9,8 @@ HumanoidModel::HumanoidModel( float g /*= 0*/, float yOffset /*= 0*/, int texW /
 	holdingRightHand(false),
 	sneaking(false),
 	bowAndArrow(false),
+	swimming(false),
+	swimLean(0.0f),
 	head(0, 0),
 	hair(32, 0),
 	//ear (24, 0),
@@ -40,10 +42,8 @@ HumanoidModel::HumanoidModel( float g /*= 0*/, float yOffset /*= 0*/, int texW /
 	head.addBox(-4, -8, -4, 8, 8, 8, g); // Head
 	head.setPos(0, 0 + yOffset, 0);
 
-	if (modernSkin) {
-		hair.addBox(-4, -8, -4, 8, 8, 8, g + 0.5f); // Outer head layer (hat)
-		hair.setPos(0, 0 + yOffset, 0);
-	}
+	hair.addBox(-4, -8, -4, 8, 8, 8, g + 0.5f); // Outer head layer (hat)
+	hair.setPos(0, 0 + yOffset, 0);
 
 	body.addBox(-4, 0, -2, 8, 12, 4, g); // Body
 	body.setPos(0, 0 + yOffset, 0);
@@ -61,6 +61,10 @@ HumanoidModel::HumanoidModel( float g /*= 0*/, float yOffset /*= 0*/, int texW /
 	leg1.mirror = true;
 	leg1.addBox(-2, 0, -2, 4, 12, 4, g); // Leg1
 	leg1.setPos(2, 12 + yOffset, 0);
+
+	// Legs are children of body — they rotate WITH the torso
+	body.addChild(&leg0);
+	body.addChild(&leg1);
 
 	if (modernSkin) {
 		// Overlay layers for 64x64 skins (same geometry, different texture regions)
@@ -94,28 +98,30 @@ void HumanoidModel::render(Entity* e, float time, float r, float bob, float yRot
 				}
 			}
 		}
+		if (mob->isPlayer()) {
+			Player* p = static_cast<Player*>(mob);
+			swimming = p->isSwimming();
+		}
 	}
 	
 	setupAnim(time, r, bob, yRot, xRot, scale);
 	
-	// Sync overlay with head rotation/position
-	if (texWidth == 64 && texHeight == 64) {
-		hair.xRot = head.xRot;
-		hair.yRot = head.yRot;
-		hair.zRot = head.zRot;
-		hair.y = head.y;
-	}
+	// Hair/outline always follows head position exactly (even when swimming)
+	hair.xRot = head.xRot;
+	hair.yRot = head.yRot;
+	hair.zRot = head.zRot;
+	hair.x = head.x;
+	hair.y = head.y;
+	hair.z = head.z;
 
 	head.render(scale);
-	if (texWidth == 64 && texHeight == 64) {
-		hair.render(scale);
-	}
+	hair.render(scale);
 	body.render(scale);
 	arm0.render(scale);
 	arm1.render(scale);
-	leg0.render(scale);
-	leg1.render(scale);
 	bowAndArrow = false;
+	swimming = false;
+	swimLean = 0.0f;
 }
 
 void HumanoidModel::render( HumanoidModel* model, float scale )
@@ -123,12 +129,10 @@ void HumanoidModel::render( HumanoidModel* model, float scale )
 	head.yRot = model->head.yRot;
 	head.y = model->head.y;
 	head.xRot = model->head.xRot;
-	if (texWidth == 64 && texHeight == 64) {
-		hair.yRot = head.yRot;
-		hair.xRot = head.xRot;
-		hair.zRot = head.zRot;
-		hair.y = head.y;
-	}
+	hair.yRot = head.yRot;
+	hair.xRot = head.xRot;
+	hair.zRot = head.zRot;
+	hair.y = head.y;
 
 	arm0.xRot = model->arm0.xRot;
 	arm0.zRot = model->arm0.zRot;
@@ -136,18 +140,21 @@ void HumanoidModel::render( HumanoidModel* model, float scale )
 	arm1.xRot = model->arm1.xRot;
 	arm1.zRot = model->arm1.zRot;
 
-	leg0.xRot = model->leg0.xRot;
-	leg1.xRot = model->leg1.xRot;
 
 	head.render(scale);
-	if (texWidth == 64 && texHeight == 64) {
-		hair.render(scale);
-	}
+	hair.render(scale);
 	body.render(scale);
 	arm0.render(scale);
 	arm1.render(scale);
-	leg0.render(scale);
-	leg1.render(scale);
+}
+
+void HumanoidModel::prepareMobModel(Mob* mob, float time, float r, float a) {
+	if (mob->isPlayer()) {
+		Player* p = static_cast<Player*>(mob);
+		swimLean = p->swimLeanO + (p->swimLean - p->swimLeanO) * a;
+	} else {
+		swimLean = 0.0f;
+	}
 }
 
 void HumanoidModel::renderHorrible( float time, float r, float bob, float yRot, float xRot, float scale )
@@ -157,8 +164,6 @@ void HumanoidModel::renderHorrible( float time, float r, float bob, float yRot, 
 	body.renderHorrible(scale);
 	arm0.renderHorrible(scale);
 	arm1.renderHorrible(scale);
-	leg0.renderHorrible(scale);
-	leg1.renderHorrible(scale);
 	//hair.renderHorrible(scale);
 }
 // Updated to match Minecraft Java, all except hair.
@@ -263,6 +268,115 @@ void HumanoidModel::setupAnim( float time, float r, float bob, float yRot, float
 		arm0.xRot += bsin;
 		arm1.xRot -= bsin;
 	}
+	// Establish normal non-swimming offsets first
+	body.y = 0.0f;
+	body.z = 0.0f;
+	arm0.y = 2.0f;
+	arm0.z = 0.0f;
+	arm0.x = -5.0f;
+	arm1.y = 2.0f;
+	arm1.z = 0.0f;
+	arm1.x = 5.0f;
+	leg0.y = 12.0f;
+	leg0.z = 0.0f;
+	leg1.y = 12.0f;
+	leg1.z = 0.0f;
+	head.y = sneaking ? 1.0f : 0.0f;
+	head.z = 0.0f;
+	hair.z = 0.0f;
+
+	if (swimLean > 0.0f) {
+		// 1. Whole body follows the direction the player is looking (look pitch)
+		float bodyTargetX = Mth::PI / 2.0f + head.xRot;
+		body.xRot = body.xRot + (bodyTargetX - body.xRot) * swimLean;
+		body.y = body.y + (12.0f - body.y) * swimLean;
+		body.z = body.z + (0.0f - body.z) * swimLean;
+
+		// 5. Arms stroke cycle: forward → spread outward → backward → down → forward
+		// Phase loops from 0.0 to 1.0 at a slow pace (~20 sec per full stroke)
+		float strokeTime = time * 0.02f;
+		float phase = strokeTime - Mth::floor(strokeTime); // 0.0 to 1.0
+		float subPhase = phase * 4.0f; // 0.0 to 4.0 for 4 segments
+		int seg = (int)subPhase % 4;   // 0,1,2,3
+		float t = subPhase - Mth::floor(subPhase); // 0.0-1.0 within segment
+
+		// Stroke sequence (viewed from side, X rotation along body horizontal axis):
+		//   seg 0: Forward (-PI/2) → T-pose spread (0, arms open wide with zRot)
+		//   seg 1: T-pose spread → Natural (arms close to sides like standing, zRot → 0)
+		//   seg 2: Natural (0) → Downward (PI/2, pointing at ground)
+		//   seg 3: Downward (PI/2) → Forward (-PI/2, loop)
+
+		float armXTarget0, armXTarget1;
+		float armZTarget0, armZTarget1;
+
+		if (seg == 0) {
+			// Forward → T-pose spread (arms open wide)
+			float s = t;
+			armXTarget0 = (-Mth::PI / 2.0f + head.xRot) * (1.0f - s) + 0.0f * s;
+			armXTarget1 = (-Mth::PI / 2.0f + head.xRot) * (1.0f - s) + 0.0f * s;
+			armZTarget0 = 0.0f * (1.0f - s) + (Mth::PI / 2.0f) * s;
+			armZTarget1 = 0.0f * (1.0f - s) + (-Mth::PI / 2.0f) * s;
+		} else if (seg == 1) {
+			// T-pose spread → Natural (arms close to sides like standing pose)
+			float s = t;
+			armXTarget0 = 0.0f;
+			armXTarget1 = 0.0f;
+			armZTarget0 = (Mth::PI / 2.0f) * (1.0f - s) + 0.0f * s;
+			armZTarget1 = (-Mth::PI / 2.0f) * (1.0f - s) + 0.0f * s;
+		} else if (seg == 2) {
+			// Natural → Downward (arms drop from sides toward ground)
+			float s = t;
+			armXTarget0 = 0.0f * (1.0f - s) + (Mth::PI / 2.0f) * s;
+			armXTarget1 = 0.0f * (1.0f - s) + (Mth::PI / 2.0f) * s;
+			armZTarget0 = 0.0f;
+			armZTarget1 = 0.0f;
+		} else {
+			// Downward → Forward (arms sweep from ground up to front, loop)
+			float s = t;
+			armXTarget0 = (Mth::PI / 2.0f) * (1.0f - s) + (-Mth::PI / 2.0f + head.xRot) * s;
+			armXTarget1 = (Mth::PI / 2.0f) * (1.0f - s) + (-Mth::PI / 2.0f + head.xRot) * s;
+			armZTarget0 = 0.0f;
+			armZTarget1 = 0.0f;
+		}
+
+		arm0.xRot = arm0.xRot + (armXTarget0 - arm0.xRot) * swimLean;
+		arm1.xRot = arm1.xRot + (armXTarget1 - arm1.xRot) * swimLean;
+
+		arm0.zRot = arm0.zRot + (armZTarget0 - arm0.zRot) * swimLean;
+		arm1.zRot = arm1.zRot + (armZTarget1 - arm1.zRot) * swimLean;
+
+		arm0.yRot = arm0.yRot + (0.0f - arm0.yRot) * swimLean;
+		arm1.yRot = arm1.yRot + (0.0f - arm1.yRot) * swimLean;
+
+		arm0.y = arm0.y + (10.0f - arm0.y) * swimLean;
+		arm1.y = arm1.y + (10.0f - arm1.y) * swimLean;
+
+		arm0.z = arm0.z + (-2.0f - arm0.z) * swimLean;
+		arm1.z = arm1.z + (-2.0f - arm1.z) * swimLean;
+
+		// 3. Legs inherit body rotation as children — only flutter kick applied directly
+		float legKick = Mth::sin(time * 1.5f) * 0.15f;
+		leg0.xRot = leg0.xRot + (legKick - leg0.xRot) * swimLean;
+		leg1.xRot = leg1.xRot + (-legKick - leg1.xRot) * swimLean;
+
+		leg0.yRot = leg0.yRot + (0.0f - leg0.yRot) * swimLean;
+		leg1.yRot = leg1.yRot + (0.0f - leg1.yRot) * swimLean;
+
+		leg0.zRot = leg0.zRot + (0.0f - leg0.zRot) * swimLean;
+		leg1.zRot = leg1.zRot + (0.0f - leg1.zRot) * swimLean;
+
+		// Legs anchored at the base of the torso — trail slightly behind
+		leg0.y = leg0.y + (12.0f - leg0.y) * swimLean;
+		leg1.y = leg1.y + (12.0f - leg1.y) * swimLean;
+
+		leg0.z = leg0.z + (0.0f - leg0.z) * swimLean;
+		leg1.z = leg1.z + (0.0f - leg1.z) * swimLean;
+
+		// 4. Head points diagonally downward
+		head.xRot = head.xRot + swimLean * (Mth::PI / 4.0f);
+		head.y = head.y + (10.0f - head.y) * swimLean;
+		head.z = head.z + (-4.0f - head.z) * swimLean;
+	}
 }
 
 void HumanoidModel::onGraphicsReset()
@@ -273,7 +387,7 @@ void HumanoidModel::onGraphicsReset()
 	arm1.onGraphicsReset();
 	leg0.onGraphicsReset();
 	leg1.onGraphicsReset();
-	//hair.onGraphicsReset();
+	hair.onGraphicsReset();
 }
 
 //void renderHair(float scale) {

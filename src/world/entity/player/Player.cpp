@@ -6,6 +6,7 @@
 #include "../../item/BowItem.h"
 #include "../../inventory/BaseContainerMenu.h"
 #include "../../../nbt/CompoundTag.h"
+#include "../../level/tile/entity/NetherReactorTileEntity.h"
 
 #include "../../../network/RakNetInstance.h"
 #include "../../../network/packet/AnimatePacket.h"
@@ -37,7 +38,9 @@ Player::Player(Level* level, bool isCreative)
 	bedOffsetY(0),
 	bedOffsetZ(0),
 	respawnPosition(0, -1, 0),
-	allPlayersSleeping(false)
+	allPlayersSleeping(false),
+	swimLean(0.0f),
+	swimLeanO(0.0f)
 {
 	canRemove = false;
 
@@ -69,6 +72,10 @@ Player::Player(Level* level, bool isCreative)
 Player::~Player() {
 	delete inventory;
 }
+bool Player::isSwimming() {
+	return getSharedFlag(SharedFlagsInformation::FLAG_SWIMMING);
+}
+
 bool Player::isSleeping() {
 	return playerIsSleeping;
 }
@@ -246,6 +253,27 @@ void Player::tick() {
 	}
     super::tick();
 
+	swimLeanO = swimLean;
+	if (isSwimming()) {
+		swimLean += (1.0f - swimLean) * 0.1f;
+		if (swimLean > 0.99f) swimLean = 1.0f;
+	} else {
+		swimLean += (0.0f - swimLean) * 0.1f;
+		if (swimLean < 0.01f) swimLean = 0.0f;
+	}
+
+	if (isSwimming()) {
+		if (bbHeight != 0.6f) {
+			setSize(0.6f, 0.6f);
+			heightOffset = 0.4f;
+		}
+	} else if (!isSleeping()) {
+		if (bbHeight != 1.8f) {
+			setSize(0.6f, 1.8f);
+			setDefaultHeadHeight();
+		}
+	}
+
 	if (!level->isClientSide) {
 		foodData.tick(this);
 	//	if (containerMenu != NULL && !containerMenu->stillValid(this)) {
@@ -369,12 +397,34 @@ void Player::travel(float xa, float ya) {
 		super::travel(xa, ya);
 		yd = ydo * 0.6f;
 		flyingSpeed = ofs;
-	} else {
-		// Si está en el agua y tiene el flag de sprint activo, aumentar velocidad un 50%
-		if (this->isInWater() && this->getSharedFlag(SharedFlagsInformation::FLAG_SPRINTING)) {
-			xa *= 1.5f;
-			ya *= 1.5f;
+	} else if (isInWater()) {
+		float speed = 0.02f;
+		// Aumentar la velocidad de nado al esprintar (reducido a la mitad)
+		if (this->getSharedFlag(SharedFlagsInformation::FLAG_SPRINTING)) {
+			speed = 0.0425f;
 		}
+		float yo = y;
+		moveRelative(xa, ya, speed);
+		move(xd, yd, zd);
+
+		xd *= 0.80f;
+		yd *= 0.80f;
+		zd *= 0.80f;
+
+		if (isSwimming()) {
+			yd -= 0.005f; // Flotabilidad/gravedad reducida en nado activo
+			if (ya > 0) {
+				Vec3 look = getLookAngle();
+				yd = look.y * 0.11f; // Movimiento vertical según mirada (reducido a la mitad)
+			}
+		} else {
+			yd -= 0.02f;
+		}
+
+		if (horizontalCollision && isFree(xd, yd + 0.6f - y + yo, zd)) {
+			yd = 0.3f;
+		}
+	} else {
 		super::travel(xa, ya);
 	}
 }
@@ -469,6 +519,15 @@ void Player::die(Entity* source) {
     setPos(x, y, z);
     yd = 0.1f;
 
+    if (!level->isClientSide) {
+        for (TileEntity* te : level->tileEntities) {
+            if (te && te->type == TileEntityType::NetherReactor) {
+                NetherReactorTileEntity* reactor = static_cast<NetherReactorTileEntity*>(te);
+                deactivateReactorWithoutReward(reactor);
+            }
+        }
+    }
+
 	//inventory->dropAll(level->isClientSide);
 
     if (source != NULL) {
@@ -490,6 +549,7 @@ void Player::_init() {
 	swinging = 0;
 	swingTime = 0;
 	score = 0;
+	swimLean = swimLeanO = 0.0f;
 }
 
 float Player::getWalkingSpeedModifier() {

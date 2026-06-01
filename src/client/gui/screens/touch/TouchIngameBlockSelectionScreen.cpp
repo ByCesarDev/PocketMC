@@ -20,6 +20,10 @@
 #include "../../../../world/item/crafting/Recipe.h"
 #include "../../../player/input/touchscreen/TouchAreaModel.h"
 #include "../ArmorScreen.h"
+#include "../../../renderer/GameRenderer.h"
+
+#include "../../components/NinePatch.h"
+#include "../../../../world/item/ItemCategory.h"
 
 namespace Touch {
 
@@ -45,7 +49,34 @@ static const int ItemSize = (int)(BlockPixels + 2*BorderPixels);
 
 static const int Bx = 10; // Border Frame width
 static const int By = 6; // Border Frame height
-    
+
+class CategoryButton: public ImageButton {
+	typedef ImageButton super;
+public:
+	CategoryButton(int id, const ImageButton* const* selectedPtr, NinePatchLayer* stateNormal, NinePatchLayer* statePressed)
+	:	super(id, ""),
+		selectedPtr(selectedPtr),
+		stateNormal(stateNormal),
+		statePressed(statePressed)
+	{}
+
+	void renderBg(Minecraft* minecraft, int xm, int ym) override {
+		bool hovered = active && (minecraft->useTouchscreen()?
+			(_currentlyDown && xm >= x && ym >= y && xm < x + width && ym < y + height) : isInside(xm, ym));
+
+		if (hovered || *selectedPtr == this)
+			statePressed->draw(Tesselator::instance, (float)x, (float)y);
+		else
+			stateNormal->draw(Tesselator::instance, (float)x, (float)y);
+	}
+	bool isSecondImage(bool hovered) override { return false; }
+
+private:
+	const ImageButton* const* selectedPtr;
+	NinePatchLayer* stateNormal;
+	NinePatchLayer* statePressed;
+};
+
 //
 // Block selection screen
 //
@@ -58,25 +89,64 @@ IngameBlockSelectionScreen::IngameBlockSelectionScreen()
 	//bDone   (3, "Done"),
 	bMenu   (2, "Menu"),
 	bCraft  (1, "Craft"),
-	bHeader (0, "Select blocks")
+	bHeader (0, "Select blocks"),
+	currentCategory(0),
+	numCategories(4),
+	selectedCategoryButton(NULL),
+	guiBackground(NULL),
+	guiSlotCategory(NULL),
+	guiSlotCategorySelected(NULL),
+	guiPaneFrame(NULL)
 {
+	for (int i = 0; i < numCategories; ++i) {
+		categoryBitmasks.push_back(1 << i);
+		categoryIcons.push_back(i);
+	}
 }
 
 IngameBlockSelectionScreen::~IngameBlockSelectionScreen()
 {
 	delete _blockList;
+	for (unsigned int i = 0; i < _categoryButtons.size(); ++i) {
+		delete _categoryButtons[i];
+	}
+	delete guiBackground;
+	delete guiSlotCategory;
+	delete guiSlotCategorySelected;
+	delete guiPaneFrame;
 }
 
 void IngameBlockSelectionScreen::init()
 {
 	Inventory* inventory = minecraft->player->inventory;
 
-	//const int itemWidth = 2 * BorderPixels + 
+	if (minecraft->isCreativeMode()) {
+		NinePatchFactory builder(minecraft->textures, "gui/spritesheet.png");
+		guiBackground   = builder.createSymmetrical(IntRectangle(0, 0, 16, 16), 4, 4);
+		guiSlotCategory = builder.createSymmetrical(IntRectangle(8, 32, 8, 8), 2, 2);
+		guiSlotCategorySelected = builder.createSymmetrical(IntRectangle(0, 32, 8, 8), 2, 2);
+		guiPaneFrame    = builder.createSymmetrical(IntRectangle(0, 20, 8, 8), 1, 2)->setExcluded(1 << 4);
 
-	int maxWidth = width - Bx - Bx;
+		_categoryButtons.clear();
+		for (int i = 0; i < numCategories; ++i) {
+			ImageButton* button = new CategoryButton(100 + i, (const ImageButton**)&selectedCategoryButton, guiSlotCategory, guiSlotCategorySelected);
+			_categoryButtons.push_back( button );
+			buttons.push_back( button );
+		}
+		selectedCategoryButton = _categoryButtons[currentCategory];
+	}
+
+	int categoryWidth = 0;
+	if (minecraft->isCreativeMode()) {
+		int categoriesHeight = height - (24 + By) - By;
+		categoryWidth = categoriesHeight / 4;
+	}
+
+	int paneLeft = categoryWidth + (minecraft->isCreativeMode() ? (int)BorderPixels * 2 : Bx);
+	int maxWidth = width - paneLeft - Bx;
 	InventoryColumns = maxWidth / ItemSize;
 	const int realWidth = InventoryColumns * ItemSize;
-	const int realBx = (width - realWidth) / 2;
+	const int realBx = paneLeft + (maxWidth - realWidth) / 2;
 
 	IntRectangle rect(realBx,
 #ifdef __APPLE__
@@ -85,18 +155,14 @@ void IngameBlockSelectionScreen::init()
 		24 + By, realWidth, height-By-By-20-24);
 #endif
 
-	_blockList = new InventoryPane(this, minecraft, rect, width, BorderPixels, inventory->getContainerSize() - Inventory::MAX_SELECTION_SIZE, ItemSize, (int)BorderPixels);
+	int countItems = getItems(NULL).size();
+
+	_blockList = new InventoryPane(this, minecraft, rect, width, BorderPixels, countItems, ItemSize, (int)BorderPixels);
 	_blockList->fillMarginX = realBx;
 
-	//for (int i = 0; i < inventory->getContainerSize(); ++i)
-		//LOGI("> %d - %s\n", i, inventory->getItem(i)? inventory->getItem(i)->getDescriptionId().c_str() : "<-->\n");
-
-	InventorySize = inventory->getContainerSize();
+	InventorySize = countItems;
 	InventoryRows = 1 + (InventorySize-1) / InventoryColumns;
 
-    //
-    // Buttons
-    //
 	ImageDef def;
 	def.name = "gui/spritesheet.png";
 	def.x = 0;
@@ -104,8 +170,7 @@ void IngameBlockSelectionScreen::init()
 	def.width = def.height = 18;
 	def.setSrc(IntRectangle(60, 0, 18, 18));
 	bDone.setImageDef(def, true);
-    bDone.width = bDone.height = 19;
-
+	bDone.width = bDone.height = 19;
 	bDone.scaleWhenPressed = false;
 
 	buttons.push_back(&bHeader);
@@ -119,17 +184,49 @@ void IngameBlockSelectionScreen::init()
 void IngameBlockSelectionScreen::setupPositions() {
 	bHeader.y = bDone.y = bCraft.y = 0;
 	bDone.x   = width -  bDone.width;
-	bCraft.x  = 0;//width - bDone.w - bCraft.w;
+	bCraft.x  = 0;
 	bCraft.width = bArmor.width = 48;
 	bArmor.x = bCraft.width;
 
 	if (minecraft->isCreativeMode()) {
 		bHeader.x = 0;
-		bHeader.width = width;// -  bDone.w;
+		bHeader.width = width;
 		bHeader.xText = width/2; // Center of the screen
+
+		int categoriesHeight = height - (24 + By) - By;
+		int buttonHeight = categoriesHeight / 4;
+
+		int paneLeft = buttonHeight + (int)BorderPixels * 2;
+		int maxWidth = width - paneLeft - Bx;
+		int invCols = maxWidth / ItemSize;
+		int realWidth = invCols * ItemSize;
+		int realBx = paneLeft + (maxWidth - realWidth) / 2;
+
+		for (unsigned int c = 0; c < _categoryButtons.size(); ++c) {
+			ImageButton* button = _categoryButtons[c];
+			button->x = realBx - buttonHeight - (int)BorderPixels;
+			button->y = 24 + (int)By + c * (1 + buttonHeight);
+			button->width = buttonHeight;
+			button->height = buttonHeight;
+
+			int icon = categoryIcons[c];
+			ImageDef def;
+			def.x = 0;
+			def.width = def.height = (float)buttonHeight;
+			def.name = "gui/spritesheet.png";
+			def.setSrc(IntRectangle(32 * (icon/2), 64 + (icon&1) * 32, 32, 32));
+			button->setImageDef(def, false);
+		}
+
+		guiBackground->setSize((float)width, (float)height);
+		guiSlotCategory->setSize((float)buttonHeight, (float)buttonHeight);
+		guiSlotCategorySelected->setSize((float)buttonHeight, (float)buttonHeight);
+		if (guiPaneFrame) {
+			guiPaneFrame->setSize((float)_blockList->rect.w + 2, (float)_blockList->rect.h + 2);
+		}
 	} else {
 		bHeader.x = bCraft.width + bArmor.width;
-		bHeader.width = width - bCraft.width - bArmor.width;// -  bDone.w;
+		bHeader.width = width - bCraft.width - bArmor.width;
 		bHeader.xText = bHeader.x + (bHeader.width - bDone.width) /2;
 	}
 
@@ -145,7 +242,6 @@ void IngameBlockSelectionScreen::removed()
 }
 
 int IngameBlockSelectionScreen::getSlotPosX(int slotX) {
-    // @todo: Number of columns
 	return width / 2 - InventoryColumns * 10 + slotX * 20 + 2;
 }
 
@@ -154,7 +250,6 @@ int IngameBlockSelectionScreen::getSlotPosY(int slotY) {
 }
 
 int IngameBlockSelectionScreen::getSlotHeight() {
-	// same as non-touch implementation
 	return 22;
 }
 
@@ -192,23 +287,52 @@ void IngameBlockSelectionScreen::mouseWheel(int dx, int dy, int xm, int ym)
 bool IngameBlockSelectionScreen::addItem(const InventoryPane* pane, int itemId)
 {
 	Inventory* inventory = minecraft->player->inventory;
-	itemId += Inventory::MAX_SELECTION_SIZE;
 
-	if (!inventory->getItem(itemId))
+	int realInventoryIndex = -1;
+	if (minecraft->isCreativeMode()) {
+		int targetMask = categoryBitmasks[currentCategory];
+		int filteredIndex = 0;
+		for (int i = Inventory::MAX_SELECTION_SIZE; i < inventory->getContainerSize(); ++i) {
+			const ItemInstance* item = inventory->getItem(i);
+			if (item && !item->isNull()) {
+				Item* it = item->getItem();
+				if (it) {
+					int cat = it->category;
+					if (cat <= 0) cat = 8;
+					bool match = false;
+					if (targetMask == 8) {
+						match = (cat == 8 || cat == 16 || cat > 16);
+					} else {
+						match = (cat == targetMask);
+					}
+					if (match) {
+						if (filteredIndex == itemId) {
+							realInventoryIndex = i;
+							break;
+						}
+						filteredIndex++;
+					}
+				}
+			}
+		}
+	} else {
+		realInventoryIndex = itemId + Inventory::MAX_SELECTION_SIZE;
+	}
+
+	if (realInventoryIndex == -1 || !inventory->getItem(realInventoryIndex))
 		return false;
 
-	inventory->moveToSelectionSlot(0, itemId, true);
-
+	inventory->moveToSelectionSlot(0, realInventoryIndex, true);
 	inventory->selectSlot(0);
+
 #ifdef __APPLE__
-	minecraft->soundEngine->playUI("random.pop", 0.3f, 0.3f);//1.0f + 0.2f*(Mth::random()-Mth::random()));
+	minecraft->soundEngine->playUI("random.pop", 0.3f, 0.3f);
 #else
-    minecraft->soundEngine->playUI("random.pop2", 1.0f, 0.3f);//1.0f + 0.2f*(Mth::random()-Mth::random()));
+	minecraft->soundEngine->playUI("random.pop2", 1.0f, 0.3f);
 #endif
 
-	// Flash the selected gui item
 	minecraft->gui.flashSlot(inventory->selected);
-    return true;
+	return true;
 }
 
 void IngameBlockSelectionScreen::tick()
@@ -222,18 +346,32 @@ void IngameBlockSelectionScreen::render( int xm, int ym, float a )
 	glDisable2(GL_DEPTH_TEST);
 	glEnable2(GL_BLEND);
 
-	Screen::render(xm, ym, a);
-	_blockList->render(xm, ym, a);
+	if (minecraft->isCreativeMode()) {
+		fill(0, 0, width, height, 0xff141414);
+	}
 
-	// render frame
 	IntRectangle& bbox = _blockList->rect;
-	Tesselator::instance.colorABGR(0xffffffff);
-	minecraft->textures->loadAndBindTexture("gui/itemframe.png");
-	glEnable2(GL_BLEND);
-	glColor4f2(1, 1, 1, 1);
-	glBlendFunc2(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	blit(0, bbox.y-By, 0, 0, width, bbox.h+By+By, 215, 256); // why bbox.h + 1*B?
-	glDisable2(GL_BLEND);
+	Tesselator& t = Tesselator::instance;
+
+	if (!minecraft->isCreativeMode()) {
+		// render frame for survival
+		t.colorABGR(0xffffffff);
+		minecraft->textures->loadAndBindTexture("gui/itemframe.png");
+		glEnable2(GL_BLEND);
+		glColor4f2(1, 1, 1, 1);
+		glBlendFunc2(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		blit(0, bbox.y-By, 0, 0, width, bbox.h+By+By, 215, 256);
+		glDisable2(GL_BLEND);
+	}
+
+	_blockList->render(xm, ym, a);
+	Screen::render(xm, ym, a);
+
+	// Draw hotbar on top of the inventory
+	if (minecraft->isCreativeMode() && !minecraft->options.getBooleanValue(OPTIONS_HIDEGUI)) {
+		minecraft->gameRenderer->setupGuiScreen(false);
+		minecraft->gui.render(a, true, xm, ym);
+	}
 
 	glEnable2(GL_DEPTH_TEST);
 }
@@ -246,26 +384,65 @@ void IngameBlockSelectionScreen::renderDemoOverlay() {
 	const int centerX = (getSlotPosX(4) + getSlotPosX(5)) / 2;
 	const int centerY = (getSlotPosY(0) + getSlotPosY(1)) / 2 + 5;
 	drawCenteredString(minecraft->font, demoVersionString, centerX, centerY, 0xffffffff);
-#endif /*DEMO_MODE*/
+#endif
 }
 
 void IngameBlockSelectionScreen::buttonClicked(Button* button) {
 	if (button->id == bDone.id)
 		minecraft->setScreen(NULL);
 
-    if (button->id == bMenu.id)
-        minecraft->screenChooser.setScreen(SCREEN_PAUSE);
+	if (button->id == bMenu.id)
+		minecraft->screenChooser.setScreen(SCREEN_PAUSE);
 
 	if (button->id == bCraft.id)
 		minecraft->setScreen(new WorkbenchScreen(Recipe::SIZE_2X2));
 
 	if (button == &bArmor)
 		minecraft->setScreen(new ArmorScreen());
+
+	if (button->id >= 100 && button->id < 200) {
+		int categoryId = button->id - 100;
+		currentCategory = categoryId;
+		selectedCategoryButton = (ImageButton*)button;
+
+		if (_blockList) {
+			delete _blockList;
+			_blockList = NULL;
+		}
+
+		int categoryWidth = 0;
+		int categoriesHeight = height - (24 + By) - By;
+		categoryWidth = categoriesHeight / 4;
+
+		int paneLeft = categoryWidth + (int)BorderPixels * 2;
+		int maxWidth = width - paneLeft - Bx;
+		InventoryColumns = maxWidth / ItemSize;
+		const int realWidth = InventoryColumns * ItemSize;
+		const int realBx = paneLeft + (maxWidth - realWidth) / 2;
+
+		IntRectangle rect(realBx,
+#ifdef __APPLE__
+			24 + By - ((width==240)?1:0), realWidth, ((width==240)?1:0) + height-By-By-20-24);
+#else
+			24 + By, realWidth, height-By-By-20-24);
+#endif
+
+		int countItems = getItems(NULL).size();
+		_blockList = new InventoryPane(this, minecraft, rect, width, BorderPixels, countItems, ItemSize, (int)BorderPixels);
+		_blockList->fillMarginX = realBx;
+
+		InventorySize = countItems;
+		InventoryRows = 1 + (InventorySize-1) / InventoryColumns;
+
+		if (guiPaneFrame) {
+			guiPaneFrame->setSize((float)_blockList->rect.w + 2, (float)_blockList->rect.h + 2);
+		}
+	}
 }
 
 bool IngameBlockSelectionScreen::isAllowed( int slot )
 {
-	if (slot < 0 || slot >= minecraft->player->inventory->getContainerSize())
+	if (slot < 0 || slot >= getItems(NULL).size())
 		return false;
 
 #ifdef DEMO_MODE
@@ -283,9 +460,33 @@ bool IngameBlockSelectionScreen::hasClippingArea( IntRectangle& out )
 std::vector<const ItemInstance*> IngameBlockSelectionScreen::getItems( const InventoryPane* forPane )
 {
 	std::vector<const ItemInstance*> out;
-	for (int i = Inventory::MAX_SELECTION_SIZE; i < minecraft->player->inventory->getContainerSize(); ++i)
-		out.push_back(minecraft->player->inventory->getItem(i));
+	if (minecraft->isCreativeMode()) {
+		int targetMask = categoryBitmasks[currentCategory];
+		for (int i = Inventory::MAX_SELECTION_SIZE; i < minecraft->player->inventory->getContainerSize(); ++i) {
+			const ItemInstance* item = minecraft->player->inventory->getItem(i);
+			if (item && !item->isNull()) {
+				Item* it = item->getItem();
+				if (it) {
+					int cat = it->category;
+					if (cat <= 0) cat = 8;
+					bool match = false;
+					if (targetMask == 8) {
+						match = (cat == 8 || cat == 16 || cat > 16);
+					} else {
+						match = (cat == targetMask);
+					}
+					if (match) {
+						out.push_back(item);
+					}
+				}
+			}
+		}
+	} else {
+		for (int i = Inventory::MAX_SELECTION_SIZE; i < minecraft->player->inventory->getContainerSize(); ++i)
+			out.push_back(minecraft->player->inventory->getItem(i));
+	}
 	return out;
 }
 
 }
+

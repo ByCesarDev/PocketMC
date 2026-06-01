@@ -24,7 +24,9 @@
 #include "../../platform/HttpClient.h"
 #include "../../platform/CThread.h"
 #include "../../util/StringUtils.h"
+#include "../../world/entity/SharedFlags.h"
 #include "client/Options.h"
+
 
 #if defined(_WIN32)
 #include <direct.h>
@@ -509,6 +511,18 @@ void LocalPlayer::aiStep() {
 	if (input->sneaking || abilities.flying)
 		sprinting = false;
 
+	setSharedFlag(SharedFlagsInformation::FLAG_SPRINTING, sprinting);
+
+	bool wantsToSwim = isInWater() && sprinting;
+	bool shouldSwim = wantsToSwim;
+	if (!shouldSwim && isSwimming()) {
+		AABB normalBB(x - 0.3f, y, z - 0.3f, x + 0.3f, y + 1.8f, z + 0.3f);
+		if (level->getCubes(this, normalBB).size() > 0) {
+			shouldSwim = true;
+		}
+	}
+	setSharedFlag(SharedFlagsInformation::FLAG_SWIMMING, shouldSwim);
+
     if (input->sneaking) {
         if (ySlideOffset < 0.2f) ySlideOffset = 0.2f;
     }
@@ -551,7 +565,7 @@ void LocalPlayer::aiStep() {
 
 /*public*/
 void LocalPlayer::closeContainer() {
-	if (level->isClientSide) {
+	if (level->isClientSide && containerMenu) {
 		ContainerClosePacket packet(containerMenu->containerId);
 		minecraft->raknetInstance->send(packet);
 	}

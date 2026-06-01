@@ -17,12 +17,15 @@ HumanoidModel(float g = 0, float yOffset = 0, int texW = 64, int texH = 32);
     void render(Entity* e, float time, float r, float bob, float yRot, float xRot, float scale);
 	void renderHorrible(float time, float r, float bob, float yRot, float xRot, float scale);
 	void onGraphicsReset();
+	virtual void prepareMobModel(Mob* mob, float time, float r, float a) override;
 
 	ModelPart head, hair, body, arm0, arm1, leg0, leg1;//, ear;
 	bool holdingLeftHand;
 	bool holdingRightHand;
 	bool sneaking;
 	bool bowAndArrow;
+	bool swimming;
+	float swimLean;
 };
 
 #endif /*NET_MINECRAFT_CLIENT_MODEL__HumanoidModel_H__*/

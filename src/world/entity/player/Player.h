@@ -72,6 +72,7 @@ public:
     bool isCreativeModeAllowed();
 	bool isPlayer();
     bool isInWall();
+    bool isSwimming();
 
 	virtual bool hasResource( int id );
 
@@ -142,6 +143,7 @@ public:
     //AbstractContainerMenu inventoryMenu;
     //AbstractContainerMenu containerMenu;
     int getArmorValue();
+    virtual bool isLocalPlayer() const { return false; }
 protected:
 	bool isImmobile();
 	void updateAi();
@@ -168,6 +170,7 @@ public:
 
     std::string name;
     int dimension;
+    float swimLean, swimLeanO;
 
 	Abilities abilities;
 	SimpleFoodData foodData;

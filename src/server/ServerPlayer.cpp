@@ -96,8 +96,10 @@ void ServerPlayer::openFurnace( FurnaceTileEntity* furnace ) {
 
 void ServerPlayer::closeContainer() {
 	LOGI("Client is closing a container\n");
-	ContainerClosePacket packet(containerMenu->containerId);
-	_mc->raknetInstance->send(owner, packet);
+	if (containerMenu) {
+		ContainerClosePacket packet(containerMenu->containerId);
+		_mc->raknetInstance->send(owner, packet);
+	}
 	doCloseContainer();
 }
 

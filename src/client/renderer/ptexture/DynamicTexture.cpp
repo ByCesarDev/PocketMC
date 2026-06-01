@@ -2,12 +2,11 @@
 
 #include <cstring>
 #include "../Textures.h"
+#include "../TextureData.h"
 #include "../../../world/level/tile/Tile.h"
 #include "../../../util/Mth.h"
+#include "../../../AppPlatform.h"
 
-//
-// DynamicTexture
-//
 DynamicTexture::DynamicTexture(int tex_)
 :   tex(tex_),
 	replicate(1)
@@ -18,25 +17,6 @@ DynamicTexture::DynamicTexture(int tex_)
 void DynamicTexture::bindTexture(Textures* tex) {
 	tex->loadAndBindTexture("terrain.png");
 }
-
-//
-// WaterTexture
-// I was thinking of adding something simple (a simple frame copy from a
-// "still water image sequence") every n:th tick for calm water, and shifting
-// the rows of a texture for the running water. I might do that, but I got
-// impressed over the java code, so I will try that first.. and I suspect they
-// wont mix very good.
-/*
-WaterTexture::WaterTexture()
-:   super(Tile::water->tex),
-	_tick(0),
-	_frame(0)
-{
-}
-
-void WaterTexture::tick() {
-}
-*/
 
 WaterTexture::WaterTexture()
 :   super(Tile::water->tex),
@@ -103,16 +83,6 @@ void WaterTexture::tick()
 		int b = (int) (255);
 		int a = (int) (146 + pp * 50);
 
-		//if (anaglyph3d) {
-		//	int rr = (r * 30 + g * 59 + b * 11) / 100;
-		//	int gg = (r * 30 + g * 70) / (100);
-		//	int bb = (r * 30 + b * 70) / (100);
-
-		//	r = rr;
-		//	g = gg;
-		//	b = bb;
-		//}
-
 		pixels[i * 4 + 0] = r;
 		pixels[i * 4 + 1] = g;
 		pixels[i * 4 + 2] = b;
@@ -120,9 +90,6 @@ void WaterTexture::tick()
 	}
 }
 
-//
-// WaterSideTexture
-//
 WaterSideTexture::WaterSideTexture()
 :   super(Tile::water->tex + 1),
 	_tick(0),
@@ -190,19 +157,160 @@ void WaterSideTexture::tick() {
 		int b = (int) (255);
 		int a = (int) (146 + pp * 50);
 
-		//if (anaglyph3d) {
-		//	int rr = (r * 30 + g * 59 + b * 11) / 100;
-		//	int gg = (r * 30 + g * 70) / (100);
-		//	int bb = (r * 30 + b * 70) / (100);
-
-		//	r = rr;
-		//	g = gg;
-		//	b = bb;
-		//}
-
 		pixels[i * 4 + 0] = r;
 		pixels[i * 4 + 1] = g;
 		pixels[i * 4 + 2] = b;
 		pixels[i * 4 + 3] = a;
 	}
+}
+
+LavaTexture::LavaTexture()
+:	super(Tile::calmLava->tex),
+	_frame(0),
+	_frameCount(20),
+	_sheetData(nullptr)
+{}
+
+LavaTexture::~LavaTexture() {
+	delete[] _sheetData;
+}
+
+void LavaTexture::loadSheet(AppPlatform* platform) {
+	TextureData td = platform->loadTexture("environment/lava.png", true);
+	if (td.data && td.format == TEXF_UNCOMPRESSED_8888
+		&& td.w == 16 && td.h == 16 * _frameCount)
+	{
+		const int totalBytes = 16 * 16 * _frameCount * 4;
+		_sheetData = new unsigned char[totalBytes];
+		memcpy(_sheetData, td.data, totalBytes);
+	} else if (td.data) {
+		_frameCount = td.h / 16;
+		if (_frameCount < 1) _frameCount = 1;
+		const int totalBytes = 16 * _frameCount * 16 * 4;
+		_sheetData = new unsigned char[totalBytes];
+		memcpy(_sheetData, td.data, totalBytes);
+	}
+	if (td.data && !td.memoryHandledExternally)
+		delete[] td.data;
+	if (_sheetData) {
+		const int totalPixels = 16 * 16 * _frameCount;
+		for (int i = 0; i < totalPixels; ++i)
+			_sheetData[i * 4 + 3] = 255;
+	}
+
+	if (_sheetData)
+		memcpy(pixels, _sheetData, 16 * 16 * 4);
+}
+
+void LavaTexture::tick() {
+	if (!_sheetData) return;
+
+	int cycle = (_frameCount > 1) ? (_frameCount - 1) * 2 : 1;
+	int step = (_frame / 2) % cycle;
+	int currentFrame = (step < _frameCount) ? step : (cycle - step);
+
+	const int frameOffset = currentFrame * 16 * 16 * 4;
+	memcpy(pixels, _sheetData + frameOffset, 16 * 16 * 4);
+
+	_frame++;
+}
+
+LavaSideTexture::LavaSideTexture()
+:	super(Tile::calmLava->tex + 1),
+	_frame(0),
+	_frameCount(32),
+	_sheetData(nullptr)
+{
+	replicate = 2;
+}
+
+LavaSideTexture::~LavaSideTexture() {
+	delete[] _sheetData;
+}
+
+void LavaSideTexture::loadSheet(AppPlatform* platform) {
+	TextureData td = platform->loadTexture("environment/flow_lava.png", true);
+	if (td.data && td.format == TEXF_UNCOMPRESSED_8888
+		&& td.w == 16 && td.h == 16 * _frameCount)
+	{
+		const int totalBytes = 16 * 16 * _frameCount * 4;
+		_sheetData = new unsigned char[totalBytes];
+		memcpy(_sheetData, td.data, totalBytes);
+	} else if (td.data) {
+		_frameCount = td.h / 16;
+		if (_frameCount < 1) _frameCount = 1;
+		const int totalBytes = 16 * _frameCount * 16 * 4;
+		_sheetData = new unsigned char[totalBytes];
+		memcpy(_sheetData, td.data, totalBytes);
+	}
+	if (td.data && !td.memoryHandledExternally)
+		delete[] td.data;
+	if (_sheetData) {
+		const int totalPixels = 16 * 16 * _frameCount;
+		for (int i = 0; i < totalPixels; ++i)
+			_sheetData[i * 4 + 3] = 255;
+	}
+
+	if (_sheetData)
+		memcpy(pixels, _sheetData, 16 * 16 * 4);
+}
+
+void LavaSideTexture::tick() {
+	if (!_sheetData) return;
+
+	int currentFrame = (_frame / 2) % _frameCount;
+
+	const int frameOffset = currentFrame * 16 * 16 * 4;
+	memcpy(pixels, _sheetData + frameOffset, 16 * 16 * 4);
+
+	_frame++;
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// PortalTexture – animated Nether Portal tile (environment/portal.png, 32 frames)
+// ──────────────────────────────────────────────────────────────────────────────
+PortalTexture::PortalTexture()
+:	super(Tile::netherPortal->tex),   // writes into the terrain atlas slot of the portal
+	_frame(0),
+	_frameCount(32),
+	_sheetData(nullptr)
+{}
+
+PortalTexture::~PortalTexture() {
+	delete[] _sheetData;
+}
+
+void PortalTexture::loadSheet(AppPlatform* platform) {
+	TextureData td = platform->loadTexture("environment/portal.png", true);
+	if (td.data && td.format == TEXF_UNCOMPRESSED_8888
+		&& td.w == 16 && td.h == 16 * _frameCount)
+	{
+		const int totalBytes = 16 * 16 * _frameCount * 4;
+		_sheetData = new unsigned char[totalBytes];
+		memcpy(_sheetData, td.data, totalBytes);
+	} else if (td.data) {
+		_frameCount = td.h / 16;
+		if (_frameCount < 1) _frameCount = 1;
+		const int totalBytes = 16 * _frameCount * 16 * 4;
+		_sheetData = new unsigned char[totalBytes];
+		memcpy(_sheetData, td.data, totalBytes);
+	}
+	if (td.data && !td.memoryHandledExternally)
+		delete[] td.data;
+
+	// Preserve the original alpha channel from the PNG (don't force alpha=255)
+	if (_sheetData)
+		memcpy(pixels, _sheetData, 16 * 16 * 4);
+}
+
+void PortalTexture::tick() {
+	if (!_sheetData) return;
+
+	// 1 frame per tick (no /2 divider – maximum animation speed)
+	int currentFrame = _frame % _frameCount;
+
+	const int frameOffset = currentFrame * 16 * 16 * 4;
+	memcpy(pixels, _sheetData + frameOffset, 16 * 16 * 4);
+
+	_frame++;
 }
