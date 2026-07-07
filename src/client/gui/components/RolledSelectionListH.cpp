@@ -172,16 +172,16 @@ void RolledSelectionListH::render( int xm, int ym, float a )
 
 	//LOGI("x: %f\n", xo);
 
-	minecraft->textures->loadAndBindTexture("gui/background.png");
-	glColor4f2(1.0f, 1, 1, 1);
-	float s = 32;
-	t.begin();
-	t.color(0x202020);
-	t.vertexUV(x0, by1, 0, (x0 + (int) xo) / s, by1 / s);
-	t.vertexUV(x1, by1, 0, (x1 + (int) xo) / s, by1 / s);
-	t.vertexUV(x1, by0, 0, (x1 + (int) xo) / s, by0 / s);
-	t.vertexUV(x0, by0, 0, (x0 + (int) xo) / s, by0 / s);
-	t.draw();
+	// minecraft->textures->loadAndBindTexture("gui/background.png");
+	// glColor4f2(1.0f, 1, 1, 1);
+	// float s = 32;
+	// t.begin();
+	// t.color(0x202020);
+	// t.vertexUV(x0, by1, 0, (x0 + (int) xo) / s, by1 / s);
+	// t.vertexUV(x1, by1, 0, (x1 + (int) xo) / s, by1 / s);
+	// t.vertexUV(x1, by0, 0, (x1 + (int) xo) / s, by0 / s);
+	// t.vertexUV(x0, by0, 0, (x0 + (int) xo) / s, by0 / s);
+	// t.draw();
 
 	const int HalfHeight = 48;
 
@@ -279,18 +279,18 @@ void RolledSelectionListH::render( int xm, int ym, float a )
 
 void RolledSelectionListH::renderHoleBackground( /*float x0, float x1,*/ float y0, float y1, int a0, int a1 )
 {
-	Tesselator& t = Tesselator::instance;
-	minecraft->textures->loadAndBindTexture("gui/background.png");
-	glColor4f2(1.0f, 1, 1, 1);
-	float s = 32;
-	t.begin();
-	t.color(0x505050, a1);
-	t.vertexUV(0, y1, 0, 0, y1 / s);
-	t.vertexUV((float)width, y1, 0, width / s, y1 / s);
-	t.color(0x505050, a0);
-	t.vertexUV((float)width, y0, 0, width / s, y0 / s);
-	t.vertexUV(0, y0, 0, 0, y0 / s);
-	t.draw();
+	// Tesselator& t = Tesselator::instance;
+	// minecraft->textures->loadAndBindTexture("gui/background.png");
+	// glColor4f2(1.0f, 1, 1, 1);
+	// float s = 32;
+	// t.begin();
+	// t.color(0x505050, a1);
+	// t.vertexUV(0, y1, 0, 0, y1 / s);
+	// t.vertexUV((float)width, y1, 0, width / s, y1 / s);
+	// t.color(0x505050, a0);
+	// t.vertexUV((float)width, y0, 0, width / s, y0 / s);
+	// t.vertexUV(0, y0, 0, 0, y0 / s);
+	// t.draw();
 	//printf("x, y, x1, y1: %d, %d, %d, %d\n", 0, (int)y0, width, (int)y1);
 }
 

@@ -2,9 +2,7 @@
 #define NET_MINECRAFT_CLIENT_GUI_SCREENS_TOUCH__TouchStartMenuScreen_H__
 
 #include "../../Screen.h"
-#include "../../components/LargeImageButton.h"
-#include "../../components/ImageButton.h"
-#include "../../components/TextBox.h"
+#include "../../components/Button.h"
 
 namespace Touch {
 
@@ -26,17 +24,15 @@ public:
 	bool isInGameScreen();
 private:
 	
-	LargeImageButton bHost;
-	LargeImageButton bJoin;
-	LargeImageButton bOptions;
-	ImageButton bQuit; // X close icon
+	Button bHost;
+	Button bJoin;
+	Button bOptions;
+	Button bProfile;
+	Button bSkindex;
+	Button bQuit;
 
 	std::string copyright;
-	int copyrightPosX;
-
 	std::string version;
-	int versionPosX;
-
 	std::string username;
 	int panoramaTicks;
 };

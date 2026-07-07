@@ -26,16 +26,16 @@ void ProgressScreen::render( int xm, int ym, float a )
 	Tesselator& t = Tesselator::instance;
 	renderBackground();
 
-	minecraft->textures->loadAndBindTexture("gui/background.png");
+	// minecraft->textures->loadAndBindTexture("gui/background.png");
 
-	const float s = 32;
-	t.begin();
-	t.color(0x404040);
-	t.vertexUV(0, (float)height, 0, 0, height / s);
-	t.vertexUV((float)width, (float)height, 0, width / s, height / s);
-	t.vertexUV((float)width, 0, 0, width / s, 0);
-	t.vertexUV(0, 0, 0, 0, 0);
-	t.draw();
+	// const float s = 32;
+	// t.begin();
+	// t.color(0x404040);
+	// t.vertexUV(0, (float)height, 0, 0, height / s);
+	// t.vertexUV((float)width, (float)height, 0, width / s, height / s);
+	// t.vertexUV((float)width, 0, 0, width / s, 0);
+	// t.vertexUV(0, 0, 0, 0, 0);
+	// t.draw();
 
 	int i = minecraft->progressStagePercentage;
 

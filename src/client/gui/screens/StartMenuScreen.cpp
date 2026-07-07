@@ -27,7 +27,9 @@ StartMenuScreen::StartMenuScreen()
 :	bHost(    2, 0, 0, 160, 24, I18n::get("menu.startGame")),
 	bJoin(    3, 0, 0, 160, 24, I18n::get("menu.joinGame")),
 	bOptions( 4, 0, 0, 160, 24, I18n::get("menu.options")),
-	bQuit(    5, ""),
+	bProfile( 6, 0, 0, 60, 24, I18n::get("menu.profile")),
+	bSkindex(7, 0, 0, 60, 24, I18n::get("menu.skindex")),
+	bQuit(    5, 0, 0, 160, 24, I18n::get("menu.quit")),
 	panoramaTicks(0)
 {
 }
@@ -45,29 +47,18 @@ void StartMenuScreen::init()
 	}
 
 	buttons.push_back(&bHost);
+	buttons.push_back(&bOptions);
 	buttons.push_back(&bJoin);
-	//buttons.push_back(&bTest);
+	buttons.push_back(&bQuit);
+	buttons.push_back(&bProfile);
+	buttons.push_back(&bSkindex);
 
 	tabButtons.push_back(&bHost);
+	tabButtons.push_back(&bOptions);
 	tabButtons.push_back(&bJoin);
-
-	#ifndef RPI
-		buttons.push_back(&bOptions);
-		tabButtons.push_back(&bOptions);
-	#endif
-
-    // add quit button (top right X icon) – match OptionsScreen style
-    {
-        ImageDef def;
-        def.name = "gui/touchgui.png";
-        def.width = 34;
-        def.height = 26;
-        def.setSrc(IntRectangle(150, 0, (int)def.width, (int)def.height));
-        bQuit.setImageDef(def, true);
-        bQuit.scaleWhenPressed = false;
-        buttons.push_back(&bQuit);
-        // don't include in tab navigation
-    }
+	tabButtons.push_back(&bQuit);
+	tabButtons.push_back(&bProfile);
+	tabButtons.push_back(&bSkindex);
 
 	copyright = "\xffMojang AB";//. Do not distribute!";
 
@@ -95,20 +86,26 @@ void StartMenuScreen::init()
 }
 
 void StartMenuScreen::setupPositions() {
-	int yBase = height / 2;
+	// Four center buttons stacked vertically
+	int totalH = 4 * 24 + 3 * 4; // 4 buttons + 3 gaps
+	int yBase = (height - totalH) / 2;
 
-	bHost.y =	 yBase;
-	bJoin.y =	 bHost.y + 24 + 4;
-	bOptions.y = bJoin.y + 24 + 4;
+	bHost.y = yBase;
+	bOptions.y = bHost.y + 24 + 4;
+	bJoin.y = bOptions.y + 24 + 4;
+	bQuit.y = bJoin.y + 24 + 4;
 
 	// Center buttons
 	bHost.x = (width - bHost.width) / 2;
-	bJoin.x = (width - bJoin.width) / 2;
 	bOptions.x = (width - bOptions.width) / 2;
+	bJoin.x = (width - bJoin.width) / 2;
+	bQuit.x = (width - bQuit.width) / 2;
 
-    // position quit icon at top-right (use image-defined size)
-    bQuit.x = width - bQuit.width;
-    bQuit.y = 0;
+	bProfile.x = 2;
+	bProfile.y = height - 24 - 20;
+
+	bSkindex.x = width - bSkindex.width - 2;
+	bSkindex.y = height - 24 - 20;
 }
 
 void StartMenuScreen::tick() {
@@ -134,7 +131,15 @@ void StartMenuScreen::buttonClicked(Button* button) {
 	{
 		minecraft->setScreen(new OptionsScreen());
 	}
-	if (button == &bQuit)
+	if (button->id == bProfile.id)
+	{
+		minecraft->setScreen(new UsernameScreen());
+	}
+	if (button->id == bSkindex.id)
+	{
+		// TODO: Vestidor screen
+	}
+	if (button->id == bQuit.id)
 	{
 		minecraft->quit();
 	}
@@ -145,9 +150,6 @@ bool StartMenuScreen::isInGameScreen() { return false; }
 void StartMenuScreen::render( int xm, int ym, float a )
 {
 	renderPanorama(panoramaTicks, a);
-
-	// Show current username in the top-left corner
-	drawString(font, username, 2, 2, 0xffffffff);
 
 #if defined(RPI)
 	TextureId id = minecraft->textures->loadTexture("gui/pi_title.png");
@@ -161,7 +163,6 @@ void StartMenuScreen::render( int xm, int ym, float a )
 
 		const float x = (float)width / 2;
 		const float y = height/16;
-		//const float scale = Mth::Min(
 		const float wh = Mth::Min((float)width/2.0f, (float)data->w / 2);
 		const float scale = 2.0f * wh / (float)data->w;
 		const float h = scale * (float)data->h;
@@ -182,35 +183,10 @@ void StartMenuScreen::render( int xm, int ym, float a )
 		blit(0, height - 12, 0, 0, 43, 12, 256, 72+72);
 #endif
 
-	drawString(font, version, width - font->width(version) - 2, height - 10, 0xffcccccc);//0x666666);
-	drawString(font, copyright, 2, height - 20, 0xffffff);
-	glEnable2(GL_BLEND);
-	glBlendFunc2(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4f2(1, 1, 1, 1);
-	if (Textures::isTextureIdValid(minecraft->textures->loadAndBindTexture("gui/logo/github.png")))
-		blit(2, height - 10, 0, 0, 8, 8, 256, 256);
-	{
-			std::string txt = "Kolyah35/minecraft-pe-0.6.1";
-			float wtxt = font->width(txt);
-			Gui::drawColoredString(font, txt, 12, height - 10, 255);
-			// underline link
-			float y0 = height - 10 + font->lineHeight - 1;
-			this->fill(12, (int)y0, 12 + (int)wtxt, (int)(y0 + 1), 0xffffffff);
-    }
-
+	drawString(font, version, width - font->width(version) - 2, height - 10, 0xffcccccc);
+	drawString(font, copyright, 2, height - 10, 0xffffff);
 	
 	Screen::render(xm, ym, a);
-}
-
-void StartMenuScreen::mouseClicked(int x, int y, int buttonNum) {
-	const int logoX = 2;
-	const int logoW = 8 + 2 + font->width("Kolyah35/minecraft-pe-0.6.1");
-	const int logoY = height - 10;
-	const int logoH = 10;
-	if (x >= logoX && x <= logoX + logoW && y >= logoY && y <= logoY + logoH)
-		minecraft->platform()->openURL("https://gitea.sffempire.ru/Kolyah35/minecraft-pe-0.6.1");
-	else
-		Screen::mouseClicked(x, y, buttonNum);
 }
 
 bool StartMenuScreen::handleBackEvent( bool isDown ) {

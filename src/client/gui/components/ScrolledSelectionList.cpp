@@ -266,31 +266,31 @@ void ScrolledSelectionList::render( int xm, int ym, float a )
 
 void ScrolledSelectionList::renderHoleBackground( float y0, float y1, int a0, int a1 )
 {
-	Tesselator& t = Tesselator::instance;
-	minecraft->textures->loadAndBindTexture("gui/background.png");
-	glColor4f2(1.0f, 1, 1, 1);
-	float s = 32;
-	t.begin();
-	t.color(0x505050, a1);
-	t.vertexUV(0, y1, 0, 0, y1 / s);
-	t.vertexUV((float)width, y1, 0, width / s, y1 / s);
-	t.color(0x505050, a0);
-	t.vertexUV((float)width, y0, 0, width / s, y0 / s);
-	t.vertexUV(0, y0, 0, 0, y0 / s);
-	t.draw();
+	// Tesselator& t = Tesselator::instance;
+	// minecraft->textures->loadAndBindTexture("gui/background.png");
+	// glColor4f2(1.0f, 1, 1, 1);
+	// float s = 32;
+	// t.begin();
+	// t.color(0x505050, a1);
+	// t.vertexUV(0, y1, 0, 0, y1 / s);
+	// t.vertexUV((float)width, y1, 0, width / s, y1 / s);
+	// t.color(0x505050, a0);
+	// t.vertexUV((float)width, y0, 0, width / s, y0 / s);
+	// t.vertexUV(0, y0, 0, 0, y0 / s);
+	// t.draw();
 }
 
 void ScrolledSelectionList::renderDirtBackground()
 {
-	Tesselator& t = Tesselator::instance;
-	minecraft->textures->loadAndBindTexture("gui/background.png");
-	glColor4f2(1.0f, 1, 1, 1);
-	float s = 32;
-	t.begin();
-	t.color(0x202020);
-	t.vertexUV(x0, y1, 0, x0 / s, (y1 + (int) yo) / s);
-	t.vertexUV(x1, y1, 0, x1 / s, (y1 + (int) yo) / s);
-	t.vertexUV(x1, y0, 0, x1 / s, (y0 + (int) yo) / s);
-	t.vertexUV(x0, y0, 0, x0 / s, (y0 + (int) yo) / s);
-	t.draw();
+	// Tesselator& t = Tesselator::instance;
+	// minecraft->textures->loadAndBindTexture("gui/background.png");
+	// glColor4f2(1.0f, 1, 1, 1);
+	// float s = 32;
+	// t.begin();
+	// t.color(0x202020);
+	// t.vertexUV(x0, y1, 0, x0 / s, (y1 + (int) yo) / s);
+	// t.vertexUV(x1, y1, 0, x1 / s, (y1 + (int) yo) / s);
+	// t.vertexUV(x1, y0, 0, x1 / s, (y0 + (int) yo) / s);
+	// t.vertexUV(x0, y0, 0, x0 / s, (y0 + (int) yo) / s);
+	// t.draw();
 }

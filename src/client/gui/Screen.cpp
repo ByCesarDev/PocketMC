@@ -167,22 +167,28 @@ void Screen::renderBackground( int vo )
 	}
 }
 
+#include <chrono>
+
+static float getPanoramaTime() {
+    static auto start_time = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+    return duration / 50.0f;
+}
+
 void Screen::renderDirtBackground( int vo )
 {
-	//glDisable2(GL_LIGHTING);
-	glDisable2(GL_FOG);
-	Tesselator& t = Tesselator::instance;
-	minecraft->textures->loadAndBindTexture("gui/background.png");
-	glColor4f2(1, 1, 1, 1);
-	float s = 32;
-	float fvo = (float) vo;
-	t.begin();
-	t.color(0x404040);
-	t.vertexUV(0, (float)height, 0, 0, height / s + fvo);
-	t.vertexUV((float)width, (float)height, 0, width / s, (float)height / s + fvo);
-	t.vertexUV((float)width, 0, 0, (float)width / s, 0 + fvo);
-	t.vertexUV(0, 0, 0, 0, 0 + fvo);
-	t.draw();
+	renderPanorama((int)getPanoramaTime(), getPanoramaTime() - (int)getPanoramaTime());
+
+	// Dark semi-transparent overlay
+	glDisable2(GL_DEPTH_TEST);
+	glDisable2(GL_ALPHA_TEST);
+	glEnable2(GL_BLEND);
+	glBlendFunc2(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	fillGradient(0, 0, width, height, 0xB0000000, 0xB0000000);
+	
+	glDisable2(GL_BLEND);
 }
 
 void Screen::renderPanorama(int ticks, float a)

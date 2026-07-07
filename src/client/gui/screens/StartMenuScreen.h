@@ -3,7 +3,6 @@
 
 #include "../Screen.h"
 #include "../components/Button.h"
-#include "../components/ImageButton.h"
 
 class StartMenuScreen: public Screen
 {
@@ -18,7 +17,6 @@ public:
 	void render(int xm, int ym, float a);
 
 	void buttonClicked(Button* button);
-	virtual void mouseClicked(int x, int y, int buttonNum);
 	bool handleBackEvent(bool isDown);
 	bool isInGameScreen();
 private:
@@ -26,7 +24,9 @@ private:
 	Button bHost;
 	Button bJoin;
 	Button bOptions;
-	ImageButton bQuit; // X button in top-right corner
+	Button bProfile;
+	Button bSkindex;
+	Button bQuit; // X button in top-right corner
 
 	std::string copyright;
 	int copyrightPosX;
