@@ -33,6 +33,7 @@ enum OptionId {
     OPTIONS_SOUND_VOLUME,
     OPTIONS_SKIN,
     OPTIONS_USERNAME,
+    OPTIONS_LANGUAGE,
     OPTIONS_SERVER_VISIBLE,
     OPTIONS_BAR_ON_TOP,
     OPTIONS_ALLOW_SPRINT,
@@ -152,7 +153,7 @@ public:
 	void notifyOptionUpdate(OptionId key, bool value);
 	void notifyOptionUpdate(OptionId key, float value);
 	void notifyOptionUpdate(OptionId key, int value);
-    void notifyOptionUpdate(OptionId key, const std::string& value) {}
+    void notifyOptionUpdate(OptionId key, const std::string& value);
 
 private:
     template<typename T>

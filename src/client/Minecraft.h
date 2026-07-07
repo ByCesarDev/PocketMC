@@ -125,6 +125,7 @@ public:
 	void optionUpdated(OptionId option, bool value);
 	void optionUpdated(OptionId option, float value);
 	void optionUpdated(OptionId option, int value);
+	void optionUpdated(OptionId option, const std::string& value);
 #ifdef __APPLE__
     bool _isSuperFast;
     bool isSuperFast() { return _isSuperFast; }

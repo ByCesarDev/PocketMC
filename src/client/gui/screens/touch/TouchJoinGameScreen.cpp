@@ -4,6 +4,7 @@
 #include "../../Font.h"
 #include "../../../Minecraft.h"
 #include "../../../renderer/Textures.h"
+#include "../../../../locale/I18n.h"
 
 namespace Touch {
 
@@ -62,9 +63,9 @@ void AvailableGamesList::renderItem( int i, int x, int y, int h, Tesselator& t )
 // Join Game screen
 //
 JoinGameScreen::JoinGameScreen()
-:	bJoin(  2, "Join Game"),
-	bBack(  3, "Back"),
-	bJoinByIp(4, "Join By IP"),
+:	bJoin(  2, I18n::get("menu.joinGame")),
+	bBack(  3, I18n::get("gui.back")),
+	bJoinByIp(4, I18n::get("gui.joinByIp")),
 	bHeader(0, ""),
 	gamesList(NULL)
 {
@@ -224,7 +225,7 @@ void JoinGameScreen::render( int xm, int ym, float a )
 	const int baseX = bHeader.x + bHeader.width / 2;
 
 	if (hasNetwork) {
-		std::string s = "Scanning for WiFi Games...";
+		std::string s = I18n::get("gui.scanningWiFi");
 		drawCenteredString(minecraft->font, s, baseX, 8, 0xffffffff);
 
 		const int textWidth = minecraft->font->width(s);
@@ -234,7 +235,7 @@ void JoinGameScreen::render( int xm, int ym, float a )
 		int n = ((int)(5.5f * getTimeS()) % 4);
 		drawCenteredString(minecraft->font, spinnerTexts[n], spinnerX, 8, 0xffffffff);
 	} else {
-		drawCenteredString(minecraft->font, "WiFi is disabled", baseX, 8, 0xffffffff);
+		drawCenteredString(minecraft->font, I18n::get("gui.wifiDisabled"), baseX, 8, 0xffffffff);
 	}
 }
 

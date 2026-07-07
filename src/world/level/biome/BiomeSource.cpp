@@ -38,6 +38,19 @@ BiomeSource::BiomeSource( Level* level )
 	noises(NULL),
 	biomes(NULL)
 {
+	const int size = 16 * 16;
+	biomes = new Biome*[size];
+	temperatures = new float[size];
+	downfalls = new float[size];
+	noises = new float[size];
+	lenTemperatures = lenDownfalls = lenNoises = lenBiomes = size;
+	// Fill arrays with initial values. More accurate values can be generated later by noise maps.
+	for (int i = 0; i < size; ++i) {
+		biomes[i] = NULL;
+		temperatures[i] = 0.5f;
+		downfalls[i] = 1.0f;
+		noises[i] = 0.0f;
+	}
 	temperatureMap = new PerlinSimplexNoise(&rndTemperature, 4);
 	downfallMap = new PerlinSimplexNoise(&rndDownfall, 4);
 	noiseMap = new PerlinSimplexNoise(&rndNoise, 2);

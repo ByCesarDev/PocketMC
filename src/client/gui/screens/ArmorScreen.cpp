@@ -11,6 +11,9 @@
 #include "../../renderer/entity/ItemRenderer.h"
 #include "../../../world/item/Item.h"
 #include "../../../world/item/ItemCategory.h"
+#include "../../../world/item/ItemInstance.h"
+#include "../../../locale/I18n.h"
+#include "../../../world/entity/player/Player.h"
 #include "../../../world/entity/player/Inventory.h"
 #include "../../../world/entity/item/ItemEntity.h"
 #include "../../../world/level/Level.h"
@@ -52,8 +55,8 @@ ArmorScreen::ArmorScreen():
 	btnArmor2(2),
 	btnArmor3(3),
 	btnClose(4, ""),
-	bCraft(6, "Craft"),
-	bHeader (5, "Inventory"),
+	bCraft(6, I18n::get("gui.craft")),
+	bHeader (5, I18n::get("gui.inventory")),
 	guiBackground(NULL),
 	guiSlot(NULL),
 	guiPaneFrame(NULL),

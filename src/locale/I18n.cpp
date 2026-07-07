@@ -59,7 +59,44 @@ void I18n::fillTranslations( AppPlatform* platform, const std::string& filename,
 		return;
 
 	std::string data((const char*)blob.data, blob.size);
-	std::stringstream fin(data, std::ios_base::in);
+	
+	std::string cp437_data;
+	cp437_data.reserve(data.length());
+	for (size_t i = 0; i < data.length(); ) {
+		unsigned char c = data[i];
+		if (i == 0 && c == 0xEF && i + 2 < data.length() && (unsigned char)data[i+1] == 0xBB && (unsigned char)data[i+2] == 0xBF) {
+			i += 3; // skip BOM
+		} else if (c == 0xC2 && i + 1 < data.length()) {
+			unsigned char c2 = data[i+1];
+			if (c2 == 0xBF) cp437_data += (char)0xA8; // ¿
+			else if (c2 == 0xA1) cp437_data += (char)0xAD; // ¡
+			else cp437_data += '?';
+			i += 2;
+		} else if (c == 0xC3 && i + 1 < data.length()) {
+			unsigned char c2 = data[i+1];
+			if (c2 == 0xA1) cp437_data += (char)0xA0; // á
+			else if (c2 == 0xA9) cp437_data += (char)0x82; // é
+			else if (c2 == 0xAD) cp437_data += (char)0xA1; // í
+			else if (c2 == 0xB3) cp437_data += (char)0xA2; // ó
+			else if (c2 == 0xBA) cp437_data += (char)0xA3; // ú
+			else if (c2 == 0xB1) cp437_data += (char)0xA4; // ñ
+			else if (c2 == 0x91) cp437_data += (char)0xA5; // Ñ
+			else if (c2 == 0x89) cp437_data += (char)0x90; // É
+			else if (c2 == 0x81) cp437_data += 'A'; // Á
+			else if (c2 == 0x8D) cp437_data += 'I'; // Í
+			else if (c2 == 0x93) cp437_data += 'O'; // Ó
+			else if (c2 == 0x9A) cp437_data += 'U'; // Ú
+			else if (c2 == 0xBC) cp437_data += (char)0x81; // ü
+			else if (c2 == 0x9C) cp437_data += (char)0x9A; // Ü
+			else cp437_data += '?';
+			i += 2;
+		} else {
+			cp437_data += c;
+			i++;
+		}
+	}
+	
+	std::stringstream fin(cp437_data, std::ios_base::in);
 
 	std::string line;
 	while( std::getline(fin, line) ) {
@@ -73,7 +110,10 @@ void I18n::fillTranslations( AppPlatform* platform, const std::string& filename,
 			continue;
 
 		std::string value = Util::stringTrim(line.substr(spos + 1));
-		_strings.insert( std::make_pair(key, value ) );
+		if (overwrite)
+			_strings[key] = value;                          // always overwrite (e.g. es_ES over en_US)
+		else if (_strings.find(key) == _strings.end())
+			_strings[key] = value;                          // only insert if key doesn't exist yet
 	}
 
 	delete[] blob.data;

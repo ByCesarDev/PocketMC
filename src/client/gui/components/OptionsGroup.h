@@ -18,9 +18,11 @@ public:
 	virtual void setupPositions();
 	virtual void render(Minecraft* minecraft, int xm, int ym);
 	OptionsGroup& addOptionItem(OptionId optId, Minecraft* minecraft);
+	void setTitle(const std::string& newLabel) { label = newLabel; }
     virtual void mouseClicked(Minecraft* minecraft, int x, int y, int buttonNum);
     virtual void mouseReleased(Minecraft* minecraft, int x, int y, int buttonNum);
     virtual void mouseWheel(int dx, int dy, int xm, int ym);
+	int getScrollOffset() const { return scrollOffset; }
 protected:
 
 	void createToggle(OptionId optId, Minecraft* minecraft);

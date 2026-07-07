@@ -37,7 +37,9 @@ private:
 	Touch::THeader* bHeader;
 	ImageButton* btnClose;
 
-	Button* btnCredits;   // <-- ADD THIS
+	Button* btnCredits;
+	std::vector<Button*> languageButtons;
+	Button* btnApplyLanguage;
 
 	std::vector<Touch::TButton*> categoryButtons;
 	std::vector<OptionsGroup*> optionPanes;

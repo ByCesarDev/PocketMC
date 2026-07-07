@@ -60,7 +60,7 @@ FurnaceScreen::FurnaceScreen(Player* player, FurnaceTileEntity* furnace)
 	btnIngredient(FurnaceTileEntity::SLOT_INGREDIENT),
 	btnResult(FurnaceTileEntity::SLOT_RESULT),
 	btnClose(4, ""),
-	bHeader (5, "Furnace"),
+	bHeader (5, I18n::get("gui.furnace")),
 	guiBackground(NULL),
 	guiSlot(NULL),
 	guiSlotMarked(NULL),

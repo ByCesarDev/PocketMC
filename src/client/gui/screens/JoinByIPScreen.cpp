@@ -9,12 +9,13 @@
 #include "client/gui/Screen.h"
 #include "client/gui/components/TextBox.h"
 #include "network/ClientSideNetworkHandler.h"
+#include "../../../locale/I18n.h"
 
 JoinByIPScreen::JoinByIPScreen() :
-    tIP(0, "Server IP"),
-    bHeader(1, "Join on server"),
-	bJoin(  2, "Join Game"),
-	bBack(  3, "")
+    tIP(0, I18n::get("gui.serverIp")),
+    bHeader(1, I18n::get("gui.joinOnServer")),
+	bJoin(  2, I18n::get("menu.joinGame")),
+	bBack(  3, I18n::get("gui.back"))
 {
 	bJoin.active = false;
 	//gamesList->yInertia = 0.5f;

@@ -5,7 +5,7 @@
 OptionsItem::OptionsItem( OptionId optionId, std::string label, GuiElement* element )
 : GuiElementContainer(false, true, 0, 0, 24, 12),
   m_optionId(optionId),
-  m_label(label) {
+  m_labelKey(label) {
 	  addChild(element);
 }
 
@@ -20,8 +20,16 @@ void OptionsItem::setupPositions() {
 }
 
 void OptionsItem::render( Minecraft* minecraft, int xm, int ym ) {
+	std::vector<int> oldYs;
+	for(auto child : children) oldYs.push_back(child->y);
+	setupPositions();
+
 	int yOffset = (height - 8) / 2;
-	std::string text = m_label;
+	// Read label live from I18n so it updates instantly when language changes
+	std::string text = I18n::get(m_labelKey);
+	// If key not found (I18n appends '<'), fall back to the raw key string
+	if (!text.empty() && text.back() == '<') text = m_labelKey;
+	
 	if (m_optionId == OPTIONS_GUI_SCALE) {
 		int value = minecraft->options.getIntValue(OPTIONS_GUI_SCALE);
 		std::string scaleText;
@@ -61,4 +69,8 @@ void OptionsItem::render( Minecraft* minecraft, int xm, int ym ) {
 
 	minecraft->font->draw(text, (float)x, (float)y + yOffset, 0x909090, false);
 	super::render(minecraft, xm, ym);
+
+	for(size_t i = 0; i < children.size(); ++i) {
+		children[i]->y = oldYs[i];
+	}
 }

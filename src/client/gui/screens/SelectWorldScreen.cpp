@@ -14,6 +14,7 @@
 #include <set>
 #include "../../renderer/Textures.h"
 #include "SimpleChooseLevelScreen.h"
+#include "../../../locale/I18n.h"
 
 static float Max(float a, float b) {
 	return a>b? a : b;
@@ -225,9 +226,9 @@ void WorldSelectionList::tweenInited() {
 // Select World Screen
 //
 SelectWorldScreen::SelectWorldScreen()
-:	bDelete (1, "Delete"),
-	bCreate (2, "Create new"),
-	bBack   (3, "Back"),
+:	bDelete (1, I18n::get("gui.delete")),
+	bCreate (2, I18n::get("gui.create")),
+	bBack   (3, I18n::get("gui.back")),
 	bWorldView(4, ""),
 	worldsList(NULL),
 	_hasStartedLevel(false)

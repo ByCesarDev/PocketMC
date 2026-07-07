@@ -37,6 +37,9 @@ OptionString username("username", "StevePi");
 OptionString username("username", "Steve");
 #endif
 
+// language option maps to an index in the languages list. Default 0 = en_US
+OptionInt language("language", 0, 0, 1);
+
 OptionBool destroyVibration("destroyVibration", true);
 OptionBool isLeftHanded("isLeftHanded", false);
 OptionBool isJoyTouchArea("isJoyTouchArea", false);
@@ -119,6 +122,7 @@ void Options::initTable() {
 
 	m_options[OPTIONS_SKIN] = &skin;
 	m_options[OPTIONS_USERNAME] = &username;
+	m_options[OPTIONS_LANGUAGE] = &language;
 
     m_options[OPTIONS_DESTROY_VIBRATION] = &destroyVibration;
     m_options[OPTIONS_IS_LEFT_HANDED] = &isLeftHanded;
@@ -316,5 +320,9 @@ void Options::notifyOptionUpdate(OptionId key, float value) {
 }
 
 void Options::notifyOptionUpdate(OptionId key, int value) {
+	minecraft->optionUpdated(key, value);
+}
+
+void Options::notifyOptionUpdate(OptionId key, const std::string& value) {
 	minecraft->optionUpdated(key, value);
 }

@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <set>
 #include "../SimpleChooseLevelScreen.h"
+#include "../../../../locale/I18n.h"
 
 namespace Touch {
 
@@ -278,9 +279,9 @@ void TouchWorldSelectionList::tweenInited() {
 //
 SelectWorldScreen::SelectWorldScreen()
 :	bDelete (1, ""),
-	bCreate (2, "Create new"),
-	bBack   (3, "Back"),
-	bHeader (0, "Select world"),
+	bCreate (2, I18n::get("gui.create")),
+	bBack   (3, I18n::get("gui.back")),
+	bHeader (0, I18n::get("selectWorld.header")),
 	bWorldView(4, ""),
 	worldsList(NULL),
 	_hasStartedLevel(false)

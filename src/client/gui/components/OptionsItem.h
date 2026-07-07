@@ -21,7 +21,7 @@ public:
 
 private:
 	OptionId m_optionId;
-	std::string m_label;
+	std::string m_labelKey;  // I18n key, resolved live on each render
 };
 
 #endif /*NET_MINECRAFT_CLIENT_GUI_COMPONENTS__OptionsItem_H__*/

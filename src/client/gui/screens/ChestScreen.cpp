@@ -11,6 +11,7 @@
 #include "../../../world/entity/player/Inventory.h"
 #include "../../../world/entity/item/ItemEntity.h"
 #include "../../../world/level/Level.h"
+#include "../../../world/level/Level.h"
 #include "../../../locale/I18n.h"
 #include "../../../util/StringUtils.h"
 #include "../../../network/packet/ContainerSetSlotPacket.h"
@@ -114,8 +115,8 @@ ChestScreen::ChestScreen(Player* player, ChestTileEntity* chest)
 	inventoryPane(NULL),
 	chestPane(NULL),
 	btnClose(4, ""),
-	bHeader (5, "Inventory"),
-	bHeaderChest (6, "Chest"),
+	bHeader (5, I18n::get("gui.inventory")),
+	bHeaderChest (6, I18n::get("gui.chest")),
 	guiBackground(NULL),
 	guiSlot(NULL),
 	guiSlotMarked(NULL),

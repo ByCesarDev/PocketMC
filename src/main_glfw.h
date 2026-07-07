@@ -43,7 +43,7 @@ inline void signal_handler(int sig) {
     std::exit(sig);
 }
 
-inline void terminate_handler() {
+inline void custom_terminate_handler() {
     std::string reason = "Unhandled C++ exception";
     try {
         auto ex = std::current_exception();
@@ -240,7 +240,7 @@ int main(void) {
     std::signal(SIGILL, signal_handler);
 #endif
     std::signal(SIGABRT, signal_handler);
-    std::set_terminate(terminate_handler);
+    std::set_terminate(custom_terminate_handler);
 #ifdef _WIN32
     SetUnhandledExceptionFilter(windows_exception_handler);
 #endif

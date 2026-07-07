@@ -20,12 +20,13 @@
 #include "SimpleChooseLevelScreen.h"
 #include "../../renderer/Textures.h"
 #include "../../../SharedConstants.h"
+#include "../../../locale/I18n.h"
 
 // Some kind of default settings, might be overridden in ::init
 StartMenuScreen::StartMenuScreen()
-:	bHost(    2, 0, 0, 160, 24, "Start Game"),
-	bJoin(    3, 0, 0, 160, 24, "Join Game"),
-	bOptions( 4, 0, 0, 160, 24, "Options"),
+:	bHost(    2, 0, 0, 160, 24, I18n::get("menu.startGame")),
+	bJoin(    3, 0, 0, 160, 24, I18n::get("menu.joinGame")),
+	bOptions( 4, 0, 0, 160, 24, I18n::get("menu.options")),
 	bQuit(    5, "")
 {
 }

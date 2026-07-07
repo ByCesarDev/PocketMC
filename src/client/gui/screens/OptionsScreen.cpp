@@ -6,10 +6,12 @@
 #include "../../Minecraft.h"
 #include "../../../AppPlatform.h"
 #include "CreditsScreen.h"
+#include "../../../locale/I18n.h"
 
 #include "../components/ImageButton.h"
 #include "../components/OptionsGroup.h"
 #include "platform/input/Keyboard.h"
+#include "../../sound/SoundEngine.h"
 
 OptionsScreen::OptionsScreen()
 	: btnClose(NULL),
@@ -52,7 +54,7 @@ OptionsScreen::~OptionsScreen() {
 }
 
 void OptionsScreen::init() {
-	bHeader = new Touch::THeader(0, "Options");
+	bHeader = new Touch::THeader(0, I18n::get("options.title"));
 
 	btnClose = new ImageButton(1, "");
 
@@ -64,13 +66,14 @@ void OptionsScreen::init() {
 	def.setSrc(IntRectangle(150, 0, (int)def.width, (int)def.height));
 	btnClose->setImageDef(def, true);
 
-	categoryButtons.push_back(new Touch::TButton(2, "General"));
-	categoryButtons.push_back(new Touch::TButton(3, "Game"));
-	categoryButtons.push_back(new Touch::TButton(4, "Controls"));
-	categoryButtons.push_back(new Touch::TButton(5, "Graphics"));
-	categoryButtons.push_back(new Touch::TButton(6, "Tweaks"));
+	categoryButtons.push_back(new Touch::TButton(2, I18n::get("options.tab.general")));
+	categoryButtons.push_back(new Touch::TButton(3, I18n::get("options.tab.game")));
+	categoryButtons.push_back(new Touch::TButton(4, I18n::get("options.tab.controls")));
+	categoryButtons.push_back(new Touch::TButton(5, I18n::get("options.tab.graphics")));
+	categoryButtons.push_back(new Touch::TButton(6, I18n::get("options.tab.tweaks")));
+	categoryButtons.push_back(new Touch::TButton(7, I18n::get("options.tab.language")));
 
-	btnCredits = new Touch::TButton(11, "Credits");
+	btnCredits = new Touch::TButton(11, I18n::get("options.credits"));
 
 	buttons.push_back(bHeader);
 	buttons.push_back(btnClose);
@@ -144,7 +147,7 @@ void OptionsScreen::render(int xm, int ym, float a) {
 
 	if (currentOptionsGroup != NULL)
 		currentOptionsGroup->render(minecraft, xmm, ymm);
-	
+
 	super::render(xm, ym, a);
 }
 
@@ -160,12 +163,56 @@ void OptionsScreen::buttonClicked(Button* button) {
 			minecraft->screenChooser.setScreen(SCREEN_STARTMENU);
 		}
 	}
-	else if (button->id > 1 && button->id < 7) {
+	else if (button->id > 1 && button->id < 8) {
 		int categoryButton = button->id - categoryButtons[0]->id;
 		selectCategory(categoryButton);
 	}
 	else if (button == btnCredits) {
 		minecraft->setScreen(new CreditsScreen());
+	}
+	// Handle language selection buttons
+	else if (button->id >= 100 && button->id < 102) {
+		int langIndex = button->id - 100;
+		minecraft->options.set(OPTIONS_LANGUAGE, langIndex);
+		// Update button selection states
+		for(int i = 0; i < languageButtons.size(); i++) {
+			languageButtons[i]->selected = (i == langIndex);
+		}
+	}
+	// Handle apply button
+	else if (button == btnApplyLanguage) {
+		minecraft->options.save();
+		int langIndex = minecraft->options.getIntValue(OPTIONS_LANGUAGE);
+		const char* languages[] = {"en_US", "es_ES"};
+		if(langIndex >= 0 && langIndex < 2) {
+			I18n::loadLanguage(minecraft->platform(), languages[langIndex]);
+		}
+		// Update language button labels with new language
+		const char* langKeys[] = {"options.language.0", "options.language.1"};
+		for(int i = 0; i < languageButtons.size(); i++) {
+			languageButtons[i]->msg = I18n::get(langKeys[i]);
+		}
+		btnApplyLanguage->msg = I18n::get("options.applyLanguage");
+
+		// Refresh category tab labels
+		const char* categoryKeys[] = {"options.tab.general", "options.tab.game", "options.tab.controls", "options.tab.graphics", "options.tab.tweaks", "options.tab.language"};
+		const char* categoryFallbacks[] = {"General", "Game", "Controls", "Graphics", "Tweaks", "Language"};
+		for(int i = 0; i < (int)categoryButtons.size() && i < 6; i++) {
+			std::string label = I18n::get(categoryKeys[i]);
+			// If key not found (ends with '<'), use the hardcoded fallback
+			if (!label.empty() && label.back() == '<')
+				label = categoryFallbacks[i];
+			categoryButtons[i]->msg = label;
+		}
+
+		// Refresh option pane headers
+		const char* groupKeys[] = {"options.group.general", "options.group.game", "options.group.controls", "options.group.graphics", "options.group.tweaks", "options.group.language"};
+		for(int i = 0; i < (int)optionPanes.size() && i < 6; i++) {
+			std::string label = I18n::get(groupKeys[i]);
+			if (!label.empty() && label.back() == '<')
+				label = categoryFallbacks[i];
+			optionPanes[i]->setTitle(label);
+		}
 	}
 }
 
@@ -184,6 +231,8 @@ void OptionsScreen::selectCategory(int index) {
 
 	if (index < (int)optionPanes.size())
 		currentOptionsGroup = optionPanes[index];
+
+	selectedCategory = index;
 }
 
 void OptionsScreen::generateOptionScreens() {
@@ -194,6 +243,7 @@ void OptionsScreen::generateOptionScreens() {
 	optionPanes.push_back(new OptionsGroup("options.group.controls"));
 	optionPanes.push_back(new OptionsGroup("options.group.graphics"));
 	optionPanes.push_back(new OptionsGroup("options.group.tweaks"));
+	optionPanes.push_back(new OptionsGroup("options.group.language"));
 
 	// General Pane
 	optionPanes[0]->addOptionItem(OPTIONS_USERNAME, minecraft)
@@ -235,11 +285,43 @@ void OptionsScreen::generateOptionScreens() {
 	optionPanes[4]->addOptionItem(OPTIONS_ALLOW_SPRINT, minecraft)
 		.addOptionItem(OPTIONS_BAR_ON_TOP, minecraft)
 		.addOptionItem(OPTIONS_RPI_CURSOR, minecraft);
+
+	// Language Pane - Add language selection buttons manually
+	int langIndex = minecraft->options.getIntValue(OPTIONS_LANGUAGE);
+	const char* langKeys[] = {"options.language.0", "options.language.1"};
+
+	for(int i = 0; i < 2; i++) {
+		Button* langBtn = new Button(100 + i, I18n::get(langKeys[i]));
+		langBtn->selected = (i == langIndex);
+		languageButtons.push_back(langBtn);
+		optionPanes[5]->addChild(langBtn);
+	}
+
+	// Add apply button
+	btnApplyLanguage = new Button(200, I18n::get("options.applyLanguage"));
+	optionPanes[5]->addChild(btnApplyLanguage);
+	optionPanes[5]->setupPositions();
 }
 
 void OptionsScreen::mouseClicked(int x, int y, int buttonNum) {
 	if (currentOptionsGroup != NULL)
 		currentOptionsGroup->mouseClicked(minecraft, x, y, buttonNum);
+
+	if (selectedCategory == 5) {
+		int translatedY = y + optionPanes[5]->getScrollOffset();
+		for(int i = 0; i < languageButtons.size(); i++) {
+			if (languageButtons[i]->clicked(minecraft, x, translatedY)) {
+				minecraft->soundEngine->playUI("random.click", 1.0f, 1.0f);
+				buttonClicked(languageButtons[i]);
+				return;
+			}
+		}
+		if (btnApplyLanguage && btnApplyLanguage->clicked(minecraft, x, translatedY)) {
+			minecraft->soundEngine->playUI("random.click", 1.0f, 1.0f);
+			buttonClicked(btnApplyLanguage);
+			return;
+		}
+	}
 
 	super::mouseClicked(x, y, buttonNum);
 }

@@ -8,6 +8,7 @@
 #include "../../../platform/time.h"
 #include "../../../platform/input/Keyboard.h"
 #include "../../../platform/log.h"
+#include "../../../locale/I18n.h"
 
 SimpleChooseLevelScreen::SimpleChooseLevelScreen(const std::string& levelName)
 :   bHeader(0),
@@ -19,8 +20,8 @@ SimpleChooseLevelScreen::SimpleChooseLevelScreen(const std::string& levelName)
     hasChosen(false),
     gamemode(GameType::Survival),
     cheatsEnabled(false),
-    tLevelName(0, "World name"),
-    tSeed(1, "World seed")
+    tLevelName(0, I18n::get("selectWorld.enterName")),
+    tSeed(1, I18n::get("selectWorld.enterSeed"))
 {
 }
 
@@ -42,10 +43,10 @@ void SimpleChooseLevelScreen::init()
     // first") when the name already existed.
     ChooseLevelScreen::init();
 
-    tLevelName.text = "New world";
+    tLevelName.text = I18n::get("selectWorld.newWorld");
 
     // header + close button
-    bHeader = new Touch::THeader(0, "Create World");
+    bHeader = new Touch::THeader(0, I18n::get("selectWorld.createWorld"));
     // create the back/X button as ImageButton like CreditsScreen
     bBack = new ImageButton(2, "");
     {
@@ -57,13 +58,13 @@ void SimpleChooseLevelScreen::init()
         bBack->setImageDef(def, true);
     }
     if (/* minecraft->useTouchscreen() */ true) {
-        bGamemode = new Touch::TButton(1, "Survival mode");
-        bCheats  = new Touch::TButton(4, "Cheats: Off");
-        bCreate  = new Touch::TButton(3, "Create");
+        bGamemode = new Touch::TButton(1, I18n::get("selectWorld.survivalMode"));
+        bCheats  = new Touch::TButton(4, I18n::get("selectWorld.cheatsOff"));
+        bCreate  = new Touch::TButton(3, I18n::get("gui.createButton"));
     } else {
-        bGamemode = new Button(1, "Survival mode");
-        bCheats  = new Button(4, "Cheats: Off");
-        bCreate  = new Button(3, "Create");
+        bGamemode = new Button(1, I18n::get("selectWorld.survivalMode"));
+        bCheats  = new Button(4, I18n::get("selectWorld.cheatsOff"));
+        bCreate  = new Button(3, I18n::get("gui.createButton"));
     }
 
     buttons.push_back(bHeader);
@@ -158,8 +159,8 @@ void SimpleChooseLevelScreen::render( int xm, int ym, float a )
         drawCenteredString(minecraft->font, modeDesc, width / 2, bGamemode->y + bGamemode->height + 4, 0xffcccccc);
     }
 
-    drawString(minecraft->font, "World name:", tLevelName.x, tLevelName.y - Font::DefaultLineHeight - 2, 0xffcccccc);
-    drawString(minecraft->font, "World seed:", tSeed.x, tSeed.y - Font::DefaultLineHeight - 2, 0xffcccccc);
+    drawString(minecraft->font, I18n::get("selectWorld.enterName") + ":", tLevelName.x, tLevelName.y - Font::DefaultLineHeight - 2, 0xffcccccc);
+    drawString(minecraft->font, I18n::get("selectWorld.enterSeed") + ":", tSeed.x, tSeed.y - Font::DefaultLineHeight - 2, 0xffcccccc);
 
     Screen::render(xm, ym, a);
     glDisable2(GL_BLEND);
@@ -208,13 +209,13 @@ void SimpleChooseLevelScreen::buttonClicked( Button* button )
 
     if (button == bGamemode) {
         gamemode ^= 1;
-        bGamemode->msg = (gamemode == GameType::Survival) ? "Survival mode" : "Creative mode";
+        bGamemode->msg = (gamemode == GameType::Survival) ? I18n::get("selectWorld.survivalMode") : I18n::get("selectWorld.creativeMode");
         return;
     }
 
     if (button == bCheats) {
         cheatsEnabled = !cheatsEnabled;
-        bCheats->msg = cheatsEnabled ? "Cheats: On" : "Cheats: Off";
+        bCheats->msg = cheatsEnabled ? I18n::get("selectWorld.cheatsOn") : I18n::get("selectWorld.cheatsOff");
         return;
     }
 

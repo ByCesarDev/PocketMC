@@ -3,10 +3,11 @@
 #include "ProgressScreen.h"
 #include "../Font.h"
 #include "../../../network/RakNetInstance.h"
+#include "../../../locale/I18n.h"
 
 JoinGameScreen::JoinGameScreen()
-:	bJoin(  2, "Join Game"),
-	bBack(  3, "Back"),
+:	bJoin(  2, I18n::get("menu.joinGame")),
+	bBack(  3, I18n::get("gui.back")),
 	gamesList(NULL)
 {
 	bJoin.active = false;

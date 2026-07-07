@@ -18,6 +18,7 @@
 
 #include "../DialogDefinitions.h"
 #include "../SimpleChooseLevelScreen.h"
+#include "../../../../locale/I18n.h"
 
 namespace Touch {
 
@@ -27,9 +28,9 @@ namespace Touch {
 
 // Some kind of default settings, might be overridden in ::init
 StartMenuScreen::StartMenuScreen()
-:	bHost(    2, "Start Game"),
-	bJoin(    3, "Join Game"),
-	bOptions( 4, "Options"),
+:	bHost(    2, I18n::get("menu.startGame")),
+	bJoin(    3, I18n::get("menu.joinGame")),
+	bOptions( 4, I18n::get("menu.options")),
 	bQuit(    5, "")
 {
 	ImageDef def;

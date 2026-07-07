@@ -1207,6 +1207,14 @@ void Minecraft::init()
 
 	options.load();
 
+	// Load saved language
+	int langIndex = options.getIntValue(OPTIONS_LANGUAGE);
+	const char* languages[] = {"en_US", "es_ES"};
+	if(langIndex >= 0 && langIndex < 2) {
+		std::string langCode = languages[langIndex];
+		I18n::loadLanguage(platform(), langCode);
+	}
+
 	setIsCreativeMode(false); // false means it's Survival Mode
 	reloadOptions();
 }
@@ -1681,4 +1689,16 @@ void Minecraft::optionUpdated(OptionId option, int value ) {
         // reapply screen scaling using current window size
         setSize(width, height);
     }
+    if(option == OPTIONS_LANGUAGE) {
+        // Map index to language code
+        const char* languages[] = {"en_US", "es_ES"};
+        if(value >= 0 && value < 2) {
+            std::string langCode = languages[value];
+            I18n::loadLanguage(platform(), langCode);
+        }
+    }
+}
+
+void Minecraft::optionUpdated(OptionId option, const std::string& value) {
+    // No longer used for language
 }

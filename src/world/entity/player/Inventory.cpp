@@ -1,3 +1,5 @@
+#define NOMINMAX
+
 #include "Inventory.h"
 #include "../../level/material/Material.h"
 #include "../../level/tile/QuartzBlockTile.h"

@@ -17,6 +17,7 @@
 #include "../../../../util/Mth.h"
 #include "../../../../world/item/ItemInstance.h"
 #include "../../../../world/entity/player/Player.h"
+#include "../../../../locale/I18n.h"
 #include "../../../../world/item/crafting/Recipe.h"
 #include "../../../player/input/touchscreen/TouchAreaModel.h"
 #include "../ArmorScreen.h"
@@ -84,12 +85,12 @@ IngameBlockSelectionScreen::IngameBlockSelectionScreen()
 :	selectedItem(0),
 	_blockList(NULL),
 	_pendingClose(false),
-	bArmor  (4, "Armor"),
-	bDone   (3, ""),
+	bArmor  (4, I18n::get("gui.armor")),
+	bDone   (3, I18n::get("gui.done")),
 	//bDone   (3, "Done"),
-	bMenu   (2, "Menu"),
-	bCraft  (1, "Craft"),
-	bHeader (0, "Select blocks"),
+	bMenu   (2, I18n::get("gui.menu")),
+	bCraft  (1, I18n::get("gui.craft")),
+	bHeader (0, I18n::get("gui.selectBlocks")),
 	currentCategory(0),
 	numCategories(4),
 	selectedCategoryButton(NULL),
