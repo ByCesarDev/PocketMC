@@ -364,14 +364,17 @@ LocalPlayer::LocalPlayer(Minecraft* minecraft, Level* level, const std::string& 
 #ifndef STANDALONE_SERVER
 
 	if (minecraft->options.getStringValue(OPTIONS_USERNAME).size() != 0) {
-		textureName = "mob/char.png";
-
 		this->name = minecraft->options.getStringValue(OPTIONS_USERNAME);
-		printf("test \n");
-		// Fetch user skin and cape from Mojang servers in the background (avoids blocking the main thread)
-		// TODO: Fix this memory leak
-		new CThread(fetchSkinForPlayer, this);
-		new CThread(fetchCapeForPlayer, this);
+		std::string chosenSkin = minecraft->options.getStringValue(OPTIONS_SKIN);
+		
+		if (chosenSkin == "Default" || chosenSkin == "") {
+			textureName = "mob/char.png";
+			// Fetch user skin and cape from Mojang servers in the background
+			new CThread(fetchSkinForPlayer, this);
+			new CThread(fetchCapeForPlayer, this);
+		} else {
+			textureName = chosenSkin;
+		}
 	}
 #endif
 }

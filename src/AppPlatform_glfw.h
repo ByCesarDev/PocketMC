@@ -73,8 +73,12 @@ public:
 
 		TextureData out;
 
-		std::string filename = textureFolder? "data/images/" + filename_
-								: filename_;
+		std::string filename = filename_;
+		if (textureFolder) {
+			if (filename_.rfind("games/", 0) != 0 && filename_.rfind("data/", 0) != 0) {
+				filename = "data/images/" + filename_;
+			}
+		}
 		std::ifstream source(filename.c_str(), std::ios::binary);
 
 		if (!source) {

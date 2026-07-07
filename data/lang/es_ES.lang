@@ -5,6 +5,9 @@ language.code=es_ES
 
 gui.done=Hecho
 gui.cancel=Cancelar
+gui.import=Importar
+gui.rename=Renombrar
+gui.newPack=Nuevo Pack
 gui.toMenu=Volver a la pantalla de título
 gui.up=Arriba
 gui.down=Abajo
@@ -53,6 +56,12 @@ menu.skindex=Vestidor
 menu.options=Ajustes
 menu.quit=Cerrar Juego
 menu.quitAndSaveLocally=Salir y copiar mapa
+
+skindex.title=Vestidor - Elige tu Skin
+skindex.default=Predeterminada
+
+gui.done=Confirmar
+gui.cancel=Cancelar
 menu.gameMenu=Menú de Juego
 menu.serverVisible=Servidor visible
 menu.serverInvisible=Servidor invisible

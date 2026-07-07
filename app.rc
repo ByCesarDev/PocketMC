@@ -1,0 +1,2 @@
+// Windows resource file - sets the .exe icon
+IDI_ICON1 ICON "@PROJECT_ROOT@/app.ico"

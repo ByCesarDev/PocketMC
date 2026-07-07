@@ -37,6 +37,7 @@ if (${PLATFORM} STREQUAL "Desktop")
         add_definitions(-D_CRT_SECURE_NO_WARNINGS)
         include_directories(misc/windows)
         set(EXTRA_LIBS ws2_32 winhttp)
+        list(APPEND EXTRA_LIBS comdlg32)
     elseif(UNIX)
         find_library(pthread NAMES pthread)
         set(EXTRA_LIBS pthread m)
@@ -227,6 +228,7 @@ file(GLOB CLIENT_SOURCES
     "${PROJECT_ROOT}/src/client/gui/screens/*.cpp"
     "${PROJECT_ROOT}/src/client/gui/screens/crafting/*.cpp"
     "${PROJECT_ROOT}/src/client/gui/screens/touch/*.cpp"
+    # Added SkindexScreen
 
     "${PROJECT_ROOT}/src/client/model/*.cpp"
     "${PROJECT_ROOT}/src/client/model/geom/*.cpp"
@@ -330,6 +332,16 @@ if(UNIX AND NOT ANDROID)
     target_link_libraries("${PROJECT_NAME}-server" ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
+if(WIN32)
+    # Generate app_configured.rc with the absolute path to app.ico baked in
+    configure_file(
+        "${PROJECT_ROOT}/app.rc"
+        "${CMAKE_CURRENT_BINARY_DIR}/app_configured.rc"
+        @ONLY
+    )
+    list(APPEND CLIENT_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/app_configured.rc")
+endif()
+
 add_executable(${PROJECT_NAME} ${CLIENT_SOURCES})
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${PLATFORM_CPP})
@@ -419,3 +431,4 @@ endif()
 
 message(STATUS "Compiling with the flags:")
 message(STATUS "  PLATFORM=" ${PLATFORM_CPP})
+# Trigger CMake reconfiguration for new screen cpp files

@@ -5,6 +5,9 @@ language.code=en_US
 
 gui.done=Done
 gui.cancel=Cancel
+gui.import=Import
+gui.rename=Rename
+gui.newPack=New Pack
 gui.toMenu=Back to title screen
 gui.up=Up
 gui.down=Down
@@ -53,6 +56,12 @@ menu.skindex=Dressing Room
 menu.options=Settings
 menu.quit=Quit Game
 menu.quitAndSaveLocally=Quit and copy map
+
+skindex.title=Dressing Room - Choose your Skin
+skindex.default=Default
+
+gui.done=Done
+gui.cancel=Cancel
 menu.gameMenu=Game menu
 menu.serverVisible=Server is visible
 menu.serverInvisible=Server is invisible

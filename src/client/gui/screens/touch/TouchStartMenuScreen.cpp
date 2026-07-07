@@ -1,8 +1,10 @@
 #include "TouchStartMenuScreen.h"
+#include <algorithm>
 #include "../ProgressScreen.h"
 #include "../OptionsScreen.h"
 #include "../PauseScreen.h"
 #include "../UsernameScreen.h"
+#include "../SkindexScreen.h"
 
 #include "../../Font.h"
 #include "../../components/GuiElement.h"
@@ -11,6 +13,7 @@
 #include "../../../renderer/Tesselator.h"
 #include "../../../renderer/Textures.h"
 #include "../../../renderer/TextureData.h"
+#include "../../../model/HumanoidModel.h"
 #include "../../../../SharedConstants.h"
 #include "../../../../AppPlatform.h"
 #include "../../../../LicenseCodes.h"
@@ -84,6 +87,14 @@ void StartMenuScreen::init()
 }
 
 void StartMenuScreen::setupPositions() {
+	bHost.width = (std::max)(160, font->width(bHost.msg) + 16);
+	bOptions.width = (std::max)(160, font->width(bOptions.msg) + 16);
+	bJoin.width = (std::max)(160, font->width(bJoin.msg) + 16);
+	bQuit.width = (std::max)(160, font->width(bQuit.msg) + 16);
+	
+	bProfile.width = (std::max)(60, font->width(bProfile.msg) + 16);
+	bSkindex.width = (std::max)(60, font->width(bSkindex.msg) + 16);
+
 	// Four center buttons stacked vertically
 	int totalH = 4 * 24 + 3 * 4; // 4 buttons + 3 gaps
 	int yBase = (height - totalH) / 2;
@@ -138,7 +149,7 @@ void StartMenuScreen::buttonClicked(::Button* button) {
 	}
 	if (button->id == bSkindex.id)
 	{
-		// TODO: Vestidor/Skindex screen
+		minecraft->setScreen(new SkindexScreen());
 	}
 	if (button->id == bQuit.id)
 	{
@@ -169,25 +180,76 @@ void StartMenuScreen::render( int xm, int ym, float a )
 	if (data) {
 		minecraft->textures->bind(id);
 
+		const float maxW = 274.0f;
+		const float scale = Mth::Min((float)width * 0.85f, maxW) / maxW;
+		const float w = maxW * scale;
+		const float h = w * ((float)data->h / (float)data->w);
+		
 		const float x = (float)width / 2;
-		const float y = height / 8.0f;
-		const float wh = Mth::Min((float)width / 2.0f, (float)data->w / 2);
-		const float scale = 2.0f * wh / (float)data->w;
-		const float h = scale * (float)data->h;
+		const float y = height / 16;
 
+		// Render title text
 		Tesselator& t = Tesselator::instance;
 		glColor4f2(1, 1, 1, 1);
 		t.begin();
-			t.vertexUV(x-wh, y+h, blitOffset, 0, 1);
-			t.vertexUV(x+wh, y+h, blitOffset, 1, 1);
-			t.vertexUV(x+wh, y+0, blitOffset, 1, 0);
-			t.vertexUV(x-wh, y+0, blitOffset, 0, 0);
+		t.vertexUV(x - w/2, y + h, blitOffset, 0, 1);
+		t.vertexUV(x + w/2, y + h, blitOffset, 1, 1);
+		t.vertexUV(x + w/2, y, blitOffset, 1, 0);
+		t.vertexUV(x - w/2, y, blitOffset, 0, 0);
 		t.draw();
 	}
 
 	// version bottom-right, copyright bottom-left
 	drawString(font, version,   width - font->width(version) - 2,   height - 10, 0xffcccccc);
 	drawString(font, copyright, 2, height - 10, 0xffffff);
+
+	// Draw skin preview above bSkindex button
+	{
+		std::string skinPath = minecraft->options.getStringValue(OPTIONS_SKIN);
+		if (skinPath.empty() || skinPath == "Default") skinPath = "mob/char.png";
+
+		TextureId skinTexId = minecraft->textures->loadTexture(skinPath);
+
+		int skinW = 64, skinH = 64;
+		const TextureData* tdata = minecraft->textures->getTemporaryTextureData(skinTexId);
+		if (tdata) { skinW = tdata->w; skinH = tdata->h; }
+
+		int centerX = bSkindex.x + bSkindex.width / 2;
+		int centerY = bSkindex.y - 45;
+
+		// Username label above the skin
+		std::string uname = minecraft->options.getStringValue(OPTIONS_USERNAME);
+		if (!uname.empty()) {
+			int textW = font->width(uname);
+			fill(centerX - textW / 2 - 3, centerY - 35 - 2, centerX + textW / 2 + 3, centerY - 35 + 10, 0x50000000);
+			drawCenteredString(font, uname, centerX, centerY - 35, 0xffffff);
+		}
+
+		minecraft->textures->bind(skinTexId);
+
+		glEnable2(GL_DEPTH_TEST);
+		glPushMatrix();
+		glTranslatef((float)centerX, (float)centerY, -100);
+		float ss = 25.0f; // Slightly larger
+		glScalef(-ss, ss, ss);
+		glRotatef(180.0f, 0, 1, 0);
+		glRotatef(10.0f, 1, 0, 0); // Pitch
+		glRotatef(20.0f, 0, 1, 0); // Yaw for 3D effect
+		float diffX = (float)(centerX - xm);
+		float diffY = (float)((centerY - 35) - ym);
+		float headYaw = diffX * 0.5f;
+		float headPitch = -diffY * 0.5f;
+		if (headYaw > 45.0f) headYaw = 45.0f;
+		if (headYaw < -45.0f) headYaw = -45.0f;
+		if (headPitch > 45.0f) headPitch = 45.0f;
+		if (headPitch < -45.0f) headPitch = -45.0f;
+
+		glColor4f2(1.0f, 1.0f, 1.0f, 1.0f);
+		HumanoidModel skinModel(0.0f, 0.0f, skinW, skinH);
+		skinModel.render(nullptr, 0, 0, 0, headYaw, headPitch, 0.0625f);
+		glPopMatrix();
+		glDisable2(GL_DEPTH_TEST);
+	}
 
 	Screen::render(xm, ym, a);
     glDisable2(GL_BLEND);
