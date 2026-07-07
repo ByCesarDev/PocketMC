@@ -36,7 +36,7 @@ OptionsScreen::~OptionsScreen() {
 		btnCredits = NULL;
 	}
 
-	for (std::vector<Touch::TButton*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
+	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
 		if (*it != NULL) {
 			delete* it;
 			*it = NULL;
@@ -66,20 +66,20 @@ void OptionsScreen::init() {
 	def.setSrc(IntRectangle(150, 0, (int)def.width, (int)def.height));
 	btnClose->setImageDef(def, true);
 
-	categoryButtons.push_back(new Touch::TButton(2, I18n::get("options.tab.general")));
-	categoryButtons.push_back(new Touch::TButton(3, I18n::get("options.tab.game")));
-	categoryButtons.push_back(new Touch::TButton(4, I18n::get("options.tab.controls")));
-	categoryButtons.push_back(new Touch::TButton(5, I18n::get("options.tab.graphics")));
-	categoryButtons.push_back(new Touch::TButton(6, I18n::get("options.tab.tweaks")));
-	categoryButtons.push_back(new Touch::TButton(7, I18n::get("options.tab.language")));
+	categoryButtons.push_back(new Button(2, I18n::get("options.tab.general")));
+	categoryButtons.push_back(new Button(3, I18n::get("options.tab.game")));
+	categoryButtons.push_back(new Button(4, I18n::get("options.tab.controls")));
+	categoryButtons.push_back(new Button(5, I18n::get("options.tab.graphics")));
+	categoryButtons.push_back(new Button(6, I18n::get("options.tab.tweaks")));
+	categoryButtons.push_back(new Button(7, I18n::get("options.tab.language")));
 
-	btnCredits = new Touch::TButton(11, I18n::get("options.credits"));
+	btnCredits = new Button(11, I18n::get("options.credits"));
 
 	buttons.push_back(bHeader);
 	buttons.push_back(btnClose);
 	buttons.push_back(btnCredits);
 
-	for (std::vector<Touch::TButton*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
+	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
 		buttons.push_back(*it);
 		tabButtons.push_back(*it);
 	}
@@ -97,10 +97,12 @@ void OptionsScreen::setupPositions() {
 
 	int offsetNum = 1;
 
-	for (std::vector<Touch::TButton*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
+	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
 
 		(*it)->x = 0;
 		(*it)->y = offsetNum * buttonHeight;
+		(*it)->width = (std::max)(100, font->width((*it)->msg) + 16);
+		(*it)->height = 24;
 		(*it)->selected = false;
 
 		offsetNum++;
@@ -113,6 +115,8 @@ void OptionsScreen::setupPositions() {
 
 	// Credits button (bottom-right)
 	if (btnCredits != NULL) {
+		btnCredits->width = (std::max)(100, font->width(btnCredits->msg) + 16);
+		btnCredits->height = 24;
 		btnCredits->x = width - btnCredits->width;
 		btnCredits->y = height - btnCredits->height;
 	}
@@ -219,7 +223,7 @@ void OptionsScreen::buttonClicked(Button* button) {
 void OptionsScreen::selectCategory(int index) {
 	int currentIndex = 0;
 
-	for (std::vector<Touch::TButton*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
+	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
 
 		if (index == currentIndex)
 			(*it)->selected = true;

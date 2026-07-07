@@ -332,6 +332,11 @@ void SelectWorldScreen::init()
 
 void SelectWorldScreen::setupPositions() {
 	//#ifdef ANDROID
+	bCreate.width = (std::max)(100, font->width(bCreate.msg) + 16);
+	bBack.width = (std::max)(100, font->width(bBack.msg) + 16);
+	bCreate.height = 24;
+	bBack.height = 24;
+
 	bCreate.y =	0;
 	bBack.y   = 0;
 	bHeader.y = 0;

@@ -106,9 +106,9 @@ private:
 	std::string getUniqueLevelName(const std::string& level);
 
 	ImageButton bDelete;
-	TButton bCreate;
+	Button bCreate;
 	THeader bHeader;
-	TButton bBack;
+	Button bBack;
 	Button bWorldView;
 	TouchWorldSelectionList* worldsList;
 	LevelSummaryList levels;

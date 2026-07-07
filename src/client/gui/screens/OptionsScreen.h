@@ -41,7 +41,7 @@ private:
 	std::vector<Button*> languageButtons;
 	Button* btnApplyLanguage;
 
-	std::vector<Touch::TButton*> categoryButtons;
+	std::vector<Button*> categoryButtons;
 	std::vector<OptionsGroup*> optionPanes;
 
 	OptionsGroup* currentOptionsGroup;

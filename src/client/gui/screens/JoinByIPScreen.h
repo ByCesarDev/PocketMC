@@ -23,6 +23,6 @@ public:
 private:
     TextBox tIP;
     Touch::THeader bHeader;
-	Touch::TButton bJoin;
+	Button bJoin;
 	ImageButton bBack;
 };

@@ -105,11 +105,16 @@ void JoinGameScreen::setupPositions() {
 	bHeader.y   = 0;
 	//#endif
 
+	bBack.width = (std::max)(100, font->width(bBack.msg) + 16);
+	bJoinByIp.width = (std::max)(100, font->width(bJoinByIp.msg) + 16);
+	bBack.height = 24;
+	bJoinByIp.height = 24;
+
 	// Center buttons
 	//bJoin.x = width / 2 - 4 - bJoin.w;
 	bBack.x = 0;//width / 2 + 4;
 	bJoinByIp.x = width - bJoinByIp.width;;
-	bHeader.x = bJoinByIp.width;
+	bHeader.x = bBack.width;
 	bHeader.width = width - (bBack.width + bJoinByIp.width);
 }
 

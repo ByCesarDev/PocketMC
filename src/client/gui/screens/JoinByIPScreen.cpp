@@ -89,6 +89,9 @@ void JoinByIPScreen::init()
 void JoinByIPScreen::setupPositions() {
     int tIpDiff = 40;
     
+	bJoin.width = (std::max)(160, font->width(bJoin.msg) + 16);
+	bJoin.height = 24;
+
 	bJoin.y   = height * 2 / 3;
 	bBack.y   = 0;
 	bHeader.y = 0;

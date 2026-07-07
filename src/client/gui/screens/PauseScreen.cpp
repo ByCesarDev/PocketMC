@@ -49,21 +49,11 @@ PauseScreen::~PauseScreen() {
 }
 
 void PauseScreen::init() {
-	if (/* minecraft->useTouchscreen() */ true) {
-		bContinue = new Touch::TButton(1, I18n::get("menu.returnToGame"));
-		bOptions = new Touch::TButton(5, I18n::get("menu.options"));
-		bQuit = new Touch::TButton(2, I18n::get("menu.returnToMenu"));
-		bQuitAndSaveLocally = new Touch::TButton(3, I18n::get("menu.quitAndSaveLocally"));
-		bServerVisibility = new Touch::TButton(4, "");
-//		bThirdPerson = new Touch::TButton(5, "Toggle 3:rd person view");
-	} else {
-		bContinue = new Button(1, I18n::get("menu.returnToGame"));
-		bOptions = new Button(5, I18n::get("menu.options"));
-		bQuit = new Button(2, I18n::get("menu.returnToMenu"));
-		bQuitAndSaveLocally = new Button(3, I18n::get("menu.quitAndSaveLocally"));
-		bServerVisibility = new Button(4, "");
-//		bThirdPerson = new Button(5, "Toggle 3:rd person view");
-	}
+	bContinue = new Button(1, I18n::get("menu.returnToGame"));
+	bOptions = new Button(5, I18n::get("menu.options"));
+	bQuit = new Button(2, I18n::get("menu.returnToMenu"));
+	bQuitAndSaveLocally = new Button(3, I18n::get("menu.quitAndSaveLocally"));
+	bServerVisibility = new Button(4, "");
 
 	buttons.push_back(bContinue);
 	buttons.push_back(bQuit);

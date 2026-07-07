@@ -57,15 +57,9 @@ void SimpleChooseLevelScreen::init()
         def.setSrc(IntRectangle(150, 0, (int)def.width, (int)def.height));
         bBack->setImageDef(def, true);
     }
-    if (/* minecraft->useTouchscreen() */ true) {
-        bGamemode = new Touch::TButton(1, I18n::get("selectWorld.survivalMode"));
-        bCheats  = new Touch::TButton(4, I18n::get("selectWorld.cheatsOff"));
-        bCreate  = new Touch::TButton(3, I18n::get("gui.createButton"));
-    } else {
-        bGamemode = new Button(1, I18n::get("selectWorld.survivalMode"));
-        bCheats  = new Button(4, I18n::get("selectWorld.cheatsOff"));
-        bCreate  = new Button(3, I18n::get("gui.createButton"));
-    }
+    bGamemode = new Button(1, I18n::get("selectWorld.survivalMode"));
+    bCheats  = new Button(4, I18n::get("selectWorld.cheatsOff"));
+    bCreate  = new Button(3, I18n::get("gui.createButton"));
 
     buttons.push_back(bHeader);
     buttons.push_back(bBack);

@@ -32,9 +32,8 @@ void UsernameScreen::setupPositions()
     int cx = width / 2;
     int cy = height / 2;
 
-    // Make the done button match the touch-style option tabs
-    _btnDone.width  = 66;
-    _btnDone.height = 26;
+    _btnDone.width  = (std::max)(100, font->width(_btnDone.msg) + 16);
+    _btnDone.height = 24;
     _btnDone.x = (width - _btnDone.width) / 2;
     _btnDone.y = height / 2 + 52;
 
