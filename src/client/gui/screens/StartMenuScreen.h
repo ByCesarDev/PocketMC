@@ -35,6 +35,7 @@ private:
 	int versionPosX;
 
 	std::string username;
+	int panoramaTicks;
 };
 
 #endif /*NET_MINECRAFT_CLIENT_GUI_SCREENS__StartMenuScreen_H__*/

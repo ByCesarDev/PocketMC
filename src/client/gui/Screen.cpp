@@ -185,6 +185,61 @@ void Screen::renderDirtBackground( int vo )
 	t.draw();
 }
 
+void Screen::renderPanorama(int ticks, float a)
+{
+	Tesselator& t = Tesselator::instance;
+
+	glDisable2(GL_DEPTH_TEST);
+	glDisable2(GL_FOG);
+	glDisable2(GL_ALPHA_TEST);
+	glDisable2(GL_CULL_FACE);
+	glDisable2(GL_BLEND);
+	
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluPerspective(90.0f, (float)width / (float)height, 0.05f, 10.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glColor4f2(1.0f, 1.0f, 1.0f, 1.0f);
+	
+	// Rotations
+	glRotatef(15.0f, 1.0f, 0.0f, 0.0f);
+	glRotatef((ticks + a) * 0.1f, 0.0f, 1.0f, 0.0f);
+
+	for (int i = 0; i < 6; i++) {
+		minecraft->textures->loadAndBindTexture("gui/panorama/panorama_" + std::to_string(i) + ".png");
+
+		glPushMatrix();
+		if (i == 1) glRotatef(-90.0f, 0.0f, 1.0f, 0.0f);
+		if (i == 2) glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+		if (i == 3) glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+		if (i == 4) glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+		if (i == 5) glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+
+		t.begin();
+		t.vertexUV(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f);
+		t.vertexUV( 1.0f, -1.0f, -1.0f, 1.0f, 1.0f);
+		t.vertexUV( 1.0f,  1.0f, -1.0f, 1.0f, 0.0f);
+		t.vertexUV(-1.0f,  1.0f, -1.0f, 0.0f, 0.0f);
+		t.draw();
+
+		glPopMatrix();
+	}
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+	glEnable2(GL_DEPTH_TEST);
+	glEnable2(GL_CULL_FACE);
+	glEnable2(GL_ALPHA_TEST);
+}
+
 bool Screen::isPauseScreen()
 {
 	return true;

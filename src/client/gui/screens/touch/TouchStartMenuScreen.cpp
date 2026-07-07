@@ -31,7 +31,8 @@ StartMenuScreen::StartMenuScreen()
 :	bHost(    2, I18n::get("menu.startGame")),
 	bJoin(    3, I18n::get("menu.joinGame")),
 	bOptions( 4, I18n::get("menu.options")),
-	bQuit(    5, "")
+	bQuit(    5, ""),
+	panoramaTicks(0)
 {
 	ImageDef def;
 	bJoin.width = 75;
@@ -163,9 +164,13 @@ void StartMenuScreen::buttonClicked(::Button* button) {
 
 bool StartMenuScreen::isInGameScreen() { return false; }
 
+void StartMenuScreen::tick() {
+	panoramaTicks++;
+}
+
 void StartMenuScreen::render( int xm, int ym, float a )
 {
-	renderBackground();
+	renderPanorama(panoramaTicks, a);
 
 	// Show current username in the top-left corner
 	drawString(font, username, 2, 2, 0xffffffff);
