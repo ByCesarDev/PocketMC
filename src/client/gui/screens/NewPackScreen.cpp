@@ -95,6 +95,6 @@ void NewPackScreen::buttonClicked(Button* button) {
 
 void NewPackScreen::render(int xm, int ym, float a) {
     renderBackground();
-    drawCenteredString(font, "Nuevo Paquete de Skins", width / 2, height / 2 - 50, 0xffffff);
+    drawCenteredString(font, I18n::get("skindex.newPackTitle"), width / 2, height / 2 - 50, 0xffffff);
     super::render(xm, ym, a);
 }

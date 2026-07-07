@@ -229,7 +229,7 @@ void SkindexScreen::render(int xm, int ym, float a) {
 	drawCenteredString(font, displayName, width / 2, height / 2 - 80, 0xffff00);
 
 	std::string packText = "Pack: " + activePack.name;
-	drawCenteredString(font, packText, width / 2, btnPackPrev.y + 6, 0xffffff);
+	drawCenteredString(font, I18n::get("skindex.pack") + activePack.name, width / 2, btnPackPrev.y + 6, 0xffffff);
 
 	// Controls validation
 	bool isBuiltin = false;
@@ -278,7 +278,7 @@ void SkindexScreen::render(int xm, int ym, float a) {
 		glPopMatrix();
 		glDisable2(GL_DEPTH_TEST);
 	} else {
-		drawCenteredString(font, "Sin Skins en este Pack", width / 2, height / 2 - 10, 0xffaaaaaa);
+		drawCenteredString(font, I18n::get("skindex.noSkins"), width / 2, height / 2 - 10, 0xffaaaaaa);
 	}
 }
 

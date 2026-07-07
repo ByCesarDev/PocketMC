@@ -59,6 +59,10 @@ menu.quitAndSaveLocally=Salir y copiar mapa
 
 skindex.title=Vestidor - Elige tu Skin
 skindex.default=Predeterminada
+skindex.pack=Pack: 
+skindex.noSkins=Sin Skins en este Pack
+skindex.renameTitle=Renombrar Skin
+skindex.newPackTitle=Nuevo Paquete de Skins
 
 gui.done=Confirmar
 gui.cancel=Cancelar

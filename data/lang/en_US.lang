@@ -59,6 +59,10 @@ menu.quitAndSaveLocally=Quit and copy map
 
 skindex.title=Dressing Room - Choose your Skin
 skindex.default=Default
+skindex.pack=Pack: 
+skindex.noSkins=No skins in this pack
+skindex.renameTitle=Rename Skin
+skindex.newPackTitle=New Skin Pack
 
 gui.done=Done
 gui.cancel=Cancel

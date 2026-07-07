@@ -125,6 +125,6 @@ void RenameSkinScreen::buttonClicked(Button* button) {
 
 void RenameSkinScreen::render(int xm, int ym, float a) {
     renderBackground();
-    drawCenteredString(font, "Renombrar Skin", width / 2, height / 2 - 50, 0xffffff);
+    drawCenteredString(font, I18n::get("skindex.renameTitle"), width / 2, height / 2 - 50, 0xffffff);
     super::render(xm, ym, a);
 }
