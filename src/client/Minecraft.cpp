@@ -362,14 +362,22 @@ void Minecraft::prepareLevel(const std::string& title) {
 	if (!level->isNew())
 		level->setUpdateLights(false);
 
-	int Max = CHUNK_CACHE_WIDTH * CHUNK_CACHE_WIDTH;
+	// Generate chunks around spawn point for infinite world
+	int spawnRadius = 16; // Generate 16x16 chunks around spawn
+	int Max = spawnRadius * spawnRadius * 4;
 	int pp = 0;
-	for (int x = 8; x < (CHUNK_CACHE_WIDTH * CHUNK_WIDTH); x += CHUNK_WIDTH) {
-        for (int z = 8; z < (CHUNK_CACHE_WIDTH * CHUNK_WIDTH); z += CHUNK_WIDTH) {
+	Pos spawnPos = level->getSharedSpawnPos();
+	int spawnX = spawnPos.x / CHUNK_WIDTH;
+	int spawnZ = spawnPos.z / CHUNK_WIDTH;
+	
+	for (int x = -spawnRadius; x <= spawnRadius; x++) {
+        for (int z = -spawnRadius; z <= spawnRadius; z++) {
+            int worldX = (spawnX + x) * CHUNK_WIDTH + 8;
+            int worldZ = (spawnZ + z) * CHUNK_WIDTH + 8;
             progressStagePercentage = 100 * pp++ / Max;
             //printf("level generation progress %d\n", progressStagePercentage);
 			B.start();
-            level->getTile(x, 64, z);
+            level->getTile(worldX, 64, worldZ);
 			B.stop();
 			L.start();
 			if (level->isNew())
@@ -382,11 +390,11 @@ void Minecraft::prepareLevel(const std::string& title) {
 	level->setUpdateLights(true);
 
 	C.start();
-	for (int x = 0; x < CHUNK_CACHE_WIDTH; x++)
+	for (int x = -spawnRadius; x <= spawnRadius; x++)
 	{
-		for (int z = 0; z < CHUNK_CACHE_WIDTH; z++)
+		for (int z = -spawnRadius; z <= spawnRadius; z++)
 		{
-			LevelChunk* chunk = level->getChunk(x, z);
+			LevelChunk* chunk = level->getChunk(spawnX + x, spawnZ + z);
 			if (chunk && !chunk->createdFromSave)
 			{
 				chunk->unsaved = false;

@@ -66,7 +66,7 @@ LevelRenderer::LevelRenderer( Minecraft* mc)
 	destroyProgress(0)
 {
 #ifdef OPENGL_ES
-	int maxChunksWidth = 2 * LEVEL_WIDTH / CHUNK_SIZE + 1;
+	int maxChunksWidth = 2 * VIEW_DISTANCE_CHUNKS * CHUNK_WIDTH / CHUNK_SIZE + 1;
 	// reserve twice as many (main + alt atlas)
 	numListsOrBuffers = maxChunksWidth * maxChunksWidth * (128/CHUNK_SIZE) * 6;
 	chunkBuffers = new GLuint[numListsOrBuffers];
@@ -1352,27 +1352,114 @@ void LevelRenderer::renderSky(float alpha) {
 	_renderSunOrMoon(alpha, true);  // moon
 }
 
-void LevelRenderer::renderClouds( float alpha ) {
-	//if (!mc->level->dimension->isNaturalDimension()) return;
-	glEnable2(GL_TEXTURE_2D);
-	glDisable(GL_CULL_FACE);
-	float yOffs = (float) (mc->player->yOld + (mc->player->y - mc->player->yOld) * alpha);
-	int s = 32;
-	int d = 256 / s;
-	Tesselator& t = Tesselator::instance;
+void LevelRenderer::generateCloudMesh(float cr, float cg, float cb) {
+	isCloudMeshGenerated = true;
 
-	//glBindTexture(GL_TEXTURE_2D, texturesloadTexture("/environment/clouds.png"));
-	textures->loadAndBindTexture("environment/clouds.png");
+	TextureId cloudTexId = textures->loadTexture("environment/clouds.png");
+	const TextureData* texData = textures->getTemporaryTextureData(cloudTexId);
+
+	if (!texData || !texData->data || texData->w <= 0 || texData->h <= 0) {
+		LOGI("Could not generate 3D clouds: texture data missing\n");
+		return;
+	}
+
+	Tesselator& t = Tesselator::instance;
+	t.begin();
+
+	int width = texData->w;
+	int height = texData->h;
+	float scale = 8.0f;
+	float cHeight = 4.0f;
+
+	auto getAlpha = [&](int px, int pz) -> unsigned char {
+		if (px < 0) px += width;
+		if (px >= width) px -= width;
+		if (pz < 0) pz += height;
+		if (pz >= height) pz -= height;
+		int idx = (pz * width + px) * 4;
+		if (texData->format == TEXF_UNCOMPRESSED_8888) {
+			return texData->data[idx + 3];
+		} else {
+			return (texData->data[idx] > 10) ? 255 : 0;
+		}
+	};
+
+	for (int cx = 0; cx < width; cx++) {
+		for (int cz = 0; cz < height; cz++) {
+			unsigned char alpha = getAlpha(cx, cz);
+			if (alpha < 10) continue;
+
+			float x0 = cx * scale;
+			float z0 = cz * scale;
+			float x1 = x0 + scale;
+			float z1 = z0 + scale;
+			float y0 = 0.0f;
+			float y1 = cHeight;
+
+			// Top face (brightest)
+			t.color(cr, cg, cb, 0.8f);
+			t.vertex(x0, y1, z1);
+			t.vertex(x1, y1, z1);
+			t.vertex(x1, y1, z0);
+			t.vertex(x0, y1, z0);
+
+			// Bottom face (darkest)
+			t.color(cr * 0.7f, cg * 0.7f, cb * 0.7f, 0.8f);
+			t.vertex(x0, y0, z0);
+			t.vertex(x1, y0, z0);
+			t.vertex(x1, y0, z1);
+			t.vertex(x0, y0, z1);
+
+			// Side faces (medium brightness)
+			t.color(cr * 0.85f, cg * 0.85f, cb * 0.85f, 0.8f);
+
+			if (getAlpha(cx - 1, cz) < 10) {
+				t.vertex(x0, y0, z1);
+				t.vertex(x0, y1, z1);
+				t.vertex(x0, y1, z0);
+				t.vertex(x0, y0, z0);
+			}
+			if (getAlpha(cx + 1, cz) < 10) {
+				t.vertex(x1, y0, z0);
+				t.vertex(x1, y1, z0);
+				t.vertex(x1, y1, z1);
+				t.vertex(x1, y0, z1);
+			}
+			if (getAlpha(cx, cz - 1) < 10) {
+				t.vertex(x0, y0, z0);
+				t.vertex(x0, y1, z0);
+				t.vertex(x1, y1, z0);
+				t.vertex(x1, y0, z0);
+			}
+			if (getAlpha(cx, cz + 1) < 10) {
+				t.vertex(x1, y0, z1);
+				t.vertex(x1, y1, z1);
+				t.vertex(x0, y1, z1);
+				t.vertex(x0, y0, z1);
+			}
+		}
+	}
+
+	GLuint vbo = 0;
+#ifdef USE_VBO
+	glGenBuffers2(1, &vbo);
+#endif
+	cloudRenderChunk = t.end(true, vbo);
+}
+
+void LevelRenderer::renderClouds( float alpha ) {
+	glDisable2(GL_TEXTURE_2D);  // Clouds are solid color, no texture needed
+	glEnable(GL_CULL_FACE);
+	float yOffs = (float) (mc->player->yOld + (mc->player->y - mc->player->yOld) * alpha);
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	Vec3 cc = level->getCloudColor(alpha);
-	float cr = (float) cc.x;
-	float cg = (float) cc.y;
-	float cb = (float) cc.z;
-
-	float scale = 1 / 2048.0f;
+	
+	if (!isCloudMeshGenerated) {
+		generateCloudMesh((float)cc.x, (float)cc.y, (float)cc.z);
+	}
 
 	float time = (ticks + alpha);
 	float xo = mc->player->xo + (mc->player->x - mc->player->xo) * alpha + time * 0.03f;
@@ -1382,23 +1469,47 @@ void LevelRenderer::renderClouds( float alpha ) {
 	xo -= xOffs * 2048;
 	zo -= zOffs * 2048;
 
-	float yy = /*level.dimension.getCloudHeight()*/ 128 - yOffs + 0.33f;//mc->player->y + 1;
-	float uo = (float) (xo * scale);
-	float vo = (float) (zo * scale);
-	t.begin();
+	float yy = 128 - yOffs + 0.33f;
 
-	t.color(cr, cg, cb, 0.8f);
-	for (int xx = -s * d; xx < +s * d; xx += s) {
-		for (int zz = -s * d; zz < +s * d; zz += s) {
-			t.vertexUV((float)xx, yy, (float)zz + s, xx * scale + uo, (zz + s) * scale + vo);
-			t.vertexUV((float)xx + s, yy, (float)zz + s, (xx + s) * scale + uo, (zz + s) * scale + vo);
-			t.vertexUV((float)xx + s, yy, (float)zz, (xx + s) * scale + uo, zz * scale + vo);
-			t.vertexUV((float)xx, yy, (float)zz, xx * scale + uo, zz * scale + vo);
+	if (cloudRenderChunk.vertexCount > 0) {
+#ifdef USE_VBO
+		const int Stride = VertexSizeBytes;
+		glBindBuffer2(GL_ARRAY_BUFFER, cloudRenderChunk.vboId);
+
+		glEnableClientState2(GL_VERTEX_ARRAY);
+		glEnableClientState2(GL_COLOR_ARRAY);
+
+		glVertexPointer2    (3, GL_FLOAT, Stride,  0);
+		glColorPointer2     (4, GL_UNSIGNED_BYTE, Stride, (GLvoid*) (5 * 4));
+#endif
+
+		int i0 = (xo < 1024) ? -1 : 0;
+		int j0 = (zo < 1024) ? -1 : 0;
+
+		for (int i = i0; i <= i0 + 1; i++) {
+			for (int j = j0; j <= j0 + 1; j++) {
+				glPushMatrix2();
+				glTranslatef2(-xo + i * 2048.0f, yy, -zo + j * 2048.0f);
+
+#ifdef USE_VBO
+				glDrawArrays2(GL_TRIANGLES, 0, cloudRenderChunk.vertexCount);
+#endif
+
+				glPopMatrix2();
+			}
 		}
+
+#ifdef USE_VBO
+		glDisableClientState2(GL_VERTEX_ARRAY);
+		glDisableClientState2(GL_COLOR_ARRAY);
+		
+		glBindBuffer2(GL_ARRAY_BUFFER, 0);
+#endif
 	}
-	t.endOverrideAndDraw();
+
 	glColor4f(1, 1, 1, 1.0f);
 	glDisable(GL_BLEND);
+	glEnable2(GL_TEXTURE_2D);  // Restore texture for rest of rendering
 	glEnable(GL_CULL_FACE);
 }
 

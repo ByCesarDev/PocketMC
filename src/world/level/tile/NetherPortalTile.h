@@ -43,7 +43,7 @@ public:
         // Enforce 1 portal block max in the Nether
         if (level->dimension && level->dimension->id == -1) {
             int existingX = 0, existingY = 0, existingZ = 0;
-            if (findExistingPortal(level, existingX, existingY, existingZ)) {
+            if (findExistingPortal(level, x, z, existingX, existingY, existingZ)) {
                 if (existingX != x || existingY != y || existingZ != z) {
                     level->setTile(x, y, z, Tile::obsidian->id);
                 }
@@ -51,9 +51,12 @@ public:
         }
     }
 
-    bool findExistingPortal(Level* level, int& outX, int& outY, int& outZ) {
-        for (int cx = CHUNK_CACHE_MIN; cx <= CHUNK_CACHE_MAX; cx++) {
-            for (int cz = CHUNK_CACHE_MIN; cz <= CHUNK_CACHE_MAX; cz++) {
+    bool findExistingPortal(Level* level, int startX, int startZ, int& outX, int& outY, int& outZ) {
+        int centerCx = startX >> 4;
+        int centerCz = startZ >> 4;
+        int r = 8;
+        for (int cx = centerCx - r; cx <= centerCx + r; cx++) {
+            for (int cz = centerCz - r; cz <= centerCz + r; cz++) {
                 LevelChunk* chunk = level->getChunk(cx, cz);
                 if (!chunk) continue;
                 for (int x = 0; x < 16; ++x) {
@@ -128,7 +131,7 @@ public:
 
         // Find if there is already a portal in the destination world
         int destX = 0, destY = 0, destZ = 0;
-        if (findExistingPortal(level, destX, destY, destZ)) {
+        if (findExistingPortal(level, (int)player->x, (int)player->z, destX, destY, destZ)) {
             // Teleport player on top of the existing portal block (2 blocks up)
             player->setPos((float)destX + 0.5f, (float)destY + 2.0f, (float)destZ + 0.5f);
         } else {

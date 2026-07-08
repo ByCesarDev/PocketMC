@@ -5,20 +5,20 @@ const int SECTOR_BYTES = 4096;
 const int SECTOR_INTS = SECTOR_BYTES / 4;
 const int SECTOR_COLS = 32;
 
-static const char* const REGION_DAT_NAME = "chunks.dat";
-
 static void logAssert(int actual, int expected) {
 	if (actual != expected) {
 		LOGI("ERROR: I/O operation failed (%d vs %d)\n", actual, expected);
 	}
 }
 
-RegionFile::RegionFile(const std::string& basePath)
-:	file(NULL)
+RegionFile::RegionFile(const std::string& basePath, int regionX_, int regionZ_)
+:	file(NULL),
+	regionX(regionX_),
+	regionZ(regionZ_)
 {
-	filename = basePath;
-	filename += "/";
-	filename += REGION_DAT_NAME;
+	char buffer[128];
+	sprintf(buffer, "%s/r.%d.%d.dat", basePath.c_str(), regionX, regionZ);
+	filename = buffer;
 
 	offsets = new int[SECTOR_INTS];
 
@@ -96,7 +96,10 @@ void RegionFile::close()
 
 bool RegionFile::readChunk(int x, int z, RakNet::BitStream** destChunkData)
 {
-	int offset = offsets[x + z * SECTOR_COLS];
+	// Convert chunk coordinates to local region coordinates (0-31)
+	int localX = x & 31;
+	int localZ = z & 31;
+	int offset = offsets[localX + localZ * SECTOR_COLS];
 
 	if (offset == 0)
 	{
@@ -127,9 +130,13 @@ bool RegionFile::readChunk(int x, int z, RakNet::BitStream** destChunkData)
 
 bool RegionFile::writeChunk(int x, int z, RakNet::BitStream& chunkData)
 {
+	// Convert chunk coordinates to local region coordinates (0-31)
+	int localX = x & 31;
+	int localZ = z & 31;
+	
 	int size = chunkData.GetNumberOfBytesUsed() + sizeof(int);
 
-	int offset = offsets[x + z * SECTOR_COLS];
+	int offset = offsets[localX + localZ * SECTOR_COLS];
 	int sectorNum = offset >> 8;
 	int sectorCount = offset & 0xff;
 	int sectorsNeeded = (size / SECTOR_BYTES) + 1;
@@ -185,7 +192,7 @@ bool RegionFile::writeChunk(int x, int z, RakNet::BitStream& chunkData)
 				sectorFree[slot + i] = true;
 			}
 		}
-		offsets[x + z * SECTOR_COLS] = (slot << 8) | sectorsNeeded;
+		offsets[localX + localZ * SECTOR_COLS] = (slot << 8) | sectorsNeeded;
 		// mark slots as taken
 		for (int i = 0; i < sectorsNeeded; i++)
 		{
@@ -196,8 +203,8 @@ bool RegionFile::writeChunk(int x, int z, RakNet::BitStream& chunkData)
 		write(slot, chunkData);
 
 		// write sector data
-		fseek(file, (x + z * SECTOR_COLS) * sizeof(int), SEEK_SET);
-		fwrite(&offsets[x + z * SECTOR_COLS], sizeof(int), 1, file);
+		fseek(file, (localX + localZ * SECTOR_COLS) * sizeof(int), SEEK_SET);
+		fwrite(&offsets[localX + localZ * SECTOR_COLS], sizeof(int), 1, file);
 	}
 
 

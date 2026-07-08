@@ -7,8 +7,11 @@
 #include "../chunk/LevelChunk.h"
 
 static bool existsReactorOrPortalElsewhere(Level* level, int x, int y, int z) {
-	for (int cx = CHUNK_CACHE_MIN; cx <= CHUNK_CACHE_MAX; cx++) {
-		for (int cz = CHUNK_CACHE_MIN; cz <= CHUNK_CACHE_MAX; cz++) {
+	int centerCx = x >> 4;
+	int centerCz = z >> 4;
+	int r = 8;
+	for (int cx = centerCx - r; cx <= centerCx + r; cx++) {
+		for (int cz = centerCz - r; cz <= centerCz + r; cz++) {
 			LevelChunk* chunk = level->getChunk(cx, cz);
 			if (!chunk) continue;
 			unsigned char* blocks = chunk->getBlockData();

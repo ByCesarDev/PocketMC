@@ -35,18 +35,6 @@
 
 static MultiPlayerLevel* mpcast(Level* l) { return (MultiPlayerLevel*) l; }
 
-static inline bool isChunkCoordInRange(int c) {
-	return c >= CHUNK_CACHE_MIN && c <= CHUNK_CACHE_MAX;
-}
-
-static inline int toChunkStorageCoord(int c) {
-	return c - CHUNK_CACHE_MIN;
-}
-
-static inline int getChunkLoadedIndex(int x, int z) {
-	return toChunkStorageCoord(x) * CHUNK_CACHE_WIDTH + toChunkStorageCoord(z);
-}
-
 ClientSideNetworkHandler::ClientSideNetworkHandler(Minecraft* minecraft, IRakNetInstance* raknetInstance)
 :	minecraft(minecraft),
 	raknetInstance(raknetInstance),
@@ -79,17 +67,16 @@ void ClientSideNetworkHandler::requestNextChunk()
 
 bool ClientSideNetworkHandler::areAllChunksLoaded()
 {
-	return (requestNextChunkPosition >= (CHUNK_CACHE_WIDTH * CHUNK_CACHE_WIDTH));
+	// With infinite worlds, this concept doesn't apply the same way
+	// Chunks are loaded dynamically as needed
+	return true;
 }
 
 bool ClientSideNetworkHandler::isChunkLoaded(int x, int z)
 {
-	if (!isChunkCoordInRange(x) || !isChunkCoordInRange(z)) {
-		LOGE("Error: Tried to request chunk (%d, %d)\n", x, z);
-		return true;
-	}
-	return chunksLoaded[getChunkLoadedIndex(x, z)];
-	//return areAllChunksLoaded();
+	// With infinite worlds, check if chunk exists in the level
+	if (!level) return false;
+	return level->hasChunk(x, z);
 }
 
 void ClientSideNetworkHandler::onConnect(const RakNet::RakNetGUID& hostGuid)
@@ -591,8 +578,13 @@ void ClientSideNetworkHandler::handle(const RakNet::RakNetGUID& source, ChunkDat
 	//chunk->terrainPopulated = true;
 	chunk->unsaved = false;
 
-	if (isChunkCoordInRange(packet->x) && isChunkCoordInRange(packet->z)) {
-		chunksLoaded[getChunkLoadedIndex(packet->x, packet->z)] = true;
+	// With infinite worlds, track loaded chunks differently
+	// For now, just mark as loaded if within reasonable bounds
+	if (packet->x >= -16 && packet->x <= 15 && packet->z >= -16 && packet->z <= 15) {
+		int index = (packet->x + 16) * 32 + (packet->z + 16);
+		if (index >= 0 && index < NumRequestChunks) {
+			chunksLoaded[index] = true;
+		}
 	}
 
 	if (areAllChunksLoaded())
@@ -934,13 +926,14 @@ void ClientSideNetworkHandler::clearChunksLoaded()
 	requestNextChunkPosition = 0;
 	requestNextChunkIndex = 0;
 
-	// Init the chunk positions
+	// Init the chunk positions for infinite world
+	// Initialize a reasonable area around spawn
 	int i = 0;
-	for (int z = CHUNK_CACHE_MIN; z <= CHUNK_CACHE_MAX; ++z) {
-		for (int x = CHUNK_CACHE_MIN; x <= CHUNK_CACHE_MAX; ++x) {
+	for (int z = -16; z <= 15; ++z) {
+		for (int x = -16; x <= 15; ++x) {
 			requestNextChunkIndexList[i].x = x;
 			requestNextChunkIndexList[i].y = z;
-			chunksLoaded[getChunkLoadedIndex(x, z)] = false;
+			chunksLoaded[i] = false;
 			++i;
 		}
 	}

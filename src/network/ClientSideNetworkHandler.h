@@ -97,7 +97,7 @@ private:
 	BlockUpdateList	bufferedBlockUpdates;
 	int	requestNextChunkPosition;
 
-    static const int NumRequestChunks = CHUNK_CACHE_WIDTH * CHUNK_CACHE_WIDTH;
+    static const int NumRequestChunks = 1024; // Maximum chunks to request at once
     
     int requestNextChunkIndex;
     IntPair requestNextChunkIndexList[NumRequestChunks];

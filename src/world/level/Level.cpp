@@ -279,8 +279,8 @@ void Level::tickTiles() {
 		for (int i = 0; i < pollChunkOffsetsSize; i += 2) {
 			const int xp = xx + pollChunkOffsets[i];
 			const int zp = zz + pollChunkOffsets[i+1];
-            if (xp >= CHUNK_CACHE_MIN && xp <= CHUNK_CACHE_MAX &&
-                zp >= CHUNK_CACHE_MIN && zp <= CHUNK_CACHE_MAX)
+            if (xp >= (WORLD_MIN_X / 16) && xp <= (WORLD_MAX_X / 16) &&
+                zp >= (WORLD_MIN_Z / 16) && zp <= (WORLD_MAX_Z / 16))
 				_chunksToPoll.insert(ChunkPos(xp, zp));
 		}
     }
@@ -436,10 +436,10 @@ void Level::setInitialSpawn() {
         xSpawn += random.nextInt(32) - random.nextInt(32);
         zSpawn += random.nextInt(32) - random.nextInt(32);
 
-		if (xSpawn < LEVEL_MIN_X + 4) xSpawn += 32;
-		if (xSpawn > LEVEL_MAX_X - 4) xSpawn -= 32;
-		if (zSpawn < LEVEL_MIN_Z + 4) zSpawn += 32;
-		if (zSpawn > LEVEL_MAX_Z - 4) zSpawn -= 32;
+		if (xSpawn < WORLD_MIN_X + 4) xSpawn += 32;
+		if (xSpawn > WORLD_MAX_X - 4) xSpawn -= 32;
+		if (zSpawn < WORLD_MIN_Z + 4) zSpawn += 32;
+		if (zSpawn > WORLD_MAX_Z - 4) zSpawn -= 32;
     }
     levelData.setSpawn(xSpawn, ySpawn, zSpawn);
     isFindingSpawn = false;
@@ -456,10 +456,10 @@ void Level::validateSpawn() {
         xSpawn += random.nextInt(8) - random.nextInt(8);
         zSpawn += random.nextInt(8) - random.nextInt(8);
 
-        if (xSpawn < LEVEL_MIN_X + 4) xSpawn += 8;
-        if (xSpawn > LEVEL_MAX_X - 4) xSpawn -= 8;
-        if (zSpawn < LEVEL_MIN_Z + 4) zSpawn += 8;
-        if (zSpawn > LEVEL_MAX_Z - 4) zSpawn -= 8;
+        if (xSpawn < WORLD_MIN_X + 4) xSpawn += 8;
+        if (xSpawn > WORLD_MAX_X - 4) xSpawn -= 8;
+        if (zSpawn < WORLD_MIN_Z + 4) zSpawn += 8;
+        if (zSpawn > WORLD_MAX_Z - 4) zSpawn -= 8;
     }
     levelData.setXSpawn(xSpawn);
     levelData.setZSpawn(zSpawn);
@@ -1012,7 +1012,7 @@ HitResult Level::clip(const Vec3& A, const Vec3& b, bool liquid /*= false*/, boo
 		if (solidOnly && tile != NULL && tile->getAABB(this, xTile0, yTile0, zTile0) == NULL) {
 			// No collision
         } else if (t > 0 && tile->mayPick(data, liquid)) {
-            if (xTile0 >= LEVEL_MIN_X && xTile0 <= LEVEL_MAX_X && zTile0 >= LEVEL_MIN_Z && zTile0 <= LEVEL_MAX_Z) {
+            if (xTile0 >= WORLD_MIN_X && xTile0 <= WORLD_MAX_X && zTile0 >= WORLD_MIN_Z && zTile0 <= WORLD_MAX_Z) {
 				HitResult r = tile->clip(this, xTile0, yTile0, zTile0, a, b);
 				if (r.isHit()) return r;
 			}
@@ -2294,9 +2294,9 @@ void Level::setNightMode( bool isNightMode ) {
 }
 
 bool Level::inRange( int x, int y, int z ) {
-    return x >= LEVEL_MIN_X && x <= LEVEL_MAX_X
+    return x >= WORLD_MIN_X && x <= WORLD_MAX_X
 		&& y >= 0 && y < LEVEL_HEIGHT
-        && z >= LEVEL_MIN_Z && z <= LEVEL_MAX_Z;
+        && z >= WORLD_MIN_Z && z <= WORLD_MAX_Z;
 }
 
 //

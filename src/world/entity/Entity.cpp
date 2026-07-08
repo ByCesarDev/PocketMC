@@ -871,8 +871,8 @@ bool Entity::load( CompoundTag* tag )
 
     // Add a small padding if standing next to the world edges
     const float padding = bbWidth * 0.5f + 0.001f;
-	xx = Mth::clamp(xx, (float)LEVEL_MIN_X + padding, (float)LEVEL_MAX_X + 1.0f - padding);
-	zz = Mth::clamp(zz, (float)LEVEL_MIN_Z + padding, (float)LEVEL_MAX_Z + 1.0f - padding);
+	xx = Mth::clamp(xx, (float)WORLD_MIN_X + padding, (float)WORLD_MAX_X + 1.0f - padding);
+	zz = Mth::clamp(zz, (float)WORLD_MIN_Z + padding, (float)WORLD_MAX_Z + 1.0f - padding);
 
     xo = xOld = x = xx;
     yo = yOld = y = yy;

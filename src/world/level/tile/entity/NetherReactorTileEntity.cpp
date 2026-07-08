@@ -29,7 +29,7 @@ void spawnHorde(NetherReactorTileEntity* reactor, int normalSize, int bruteSize)
 	for (int i = 0; i < normalSize; ++i) {
 		Mob* mob = MobFactory::CreateMob(MobTypes::PigZombie, reactor->level);
 		Vec3 enemyPosition = reactor->getSpawnPosition(3, 4, -1);
-		while (enemyPosition.x < LEVEL_MIN_X || enemyPosition.z < LEVEL_MIN_Z || enemyPosition.x > LEVEL_MAX_X || enemyPosition.z > LEVEL_MAX_Z) {
+		while (enemyPosition.x < WORLD_MIN_X || enemyPosition.z < WORLD_MIN_Z || enemyPosition.x > WORLD_MAX_X || enemyPosition.z > WORLD_MAX_Z) {
 			enemyPosition = reactor->getSpawnPosition(3, 4, -1);
 		}
 		MobSpawner::addMob(reactor->level, mob, enemyPosition.x, enemyPosition.y, enemyPosition.z, 0, 0, true);
@@ -38,7 +38,7 @@ void spawnHorde(NetherReactorTileEntity* reactor, int normalSize, int bruteSize)
 	for (int i = 0; i < bruteSize; ++i) {
 		Mob* mob = MobFactory::CreateMob(MobTypes::PigZombieBrute, reactor->level);
 		Vec3 enemyPosition = reactor->getSpawnPosition(3, 4, -1);
-		while (enemyPosition.x < LEVEL_MIN_X || enemyPosition.z < LEVEL_MIN_Z || enemyPosition.x > LEVEL_MAX_X || enemyPosition.z > LEVEL_MAX_Z) {
+		while (enemyPosition.x < WORLD_MIN_X || enemyPosition.z < WORLD_MIN_Z || enemyPosition.x > WORLD_MAX_X || enemyPosition.z > WORLD_MAX_Z) {
 			enemyPosition = reactor->getSpawnPosition(3, 4, -1);
 		}
 		MobSpawner::addMob(reactor->level, mob, enemyPosition.x, enemyPosition.y, enemyPosition.z, 0, 0, true);
@@ -237,7 +237,7 @@ Vec3 NetherReactorTileEntity::getSpawnPosition( float minDistance, float varible
 void NetherReactorTileEntity::spawnEnemy() {
 	Mob* mob = MobFactory::CreateMob(MobTypes::PigZombie, level);
 	Vec3 enemyPosition = getSpawnPosition(3, 4, -1);
-	while (enemyPosition.x < LEVEL_MIN_X || enemyPosition.z < LEVEL_MIN_Z || enemyPosition.x > LEVEL_MAX_X || enemyPosition.z > LEVEL_MAX_Z) {
+	while (enemyPosition.x < WORLD_MIN_X || enemyPosition.z < WORLD_MIN_Z || enemyPosition.x > WORLD_MAX_X || enemyPosition.z > WORLD_MAX_Z) {
 		enemyPosition = getSpawnPosition(3, 4, -1);
 	}
 	MobSpawner::addMob(level, mob, enemyPosition.x, enemyPosition.y, enemyPosition.z, 0, 0, true);
@@ -247,7 +247,7 @@ void NetherReactorTileEntity::spawnEnemy() {
 
 void NetherReactorTileEntity::spawnItem() {
 	Vec3 itemPosition= getSpawnPosition(3, 4, -1);
-	while (itemPosition.x < LEVEL_MIN_X || itemPosition.z < LEVEL_MIN_Z || itemPosition.x > LEVEL_MAX_X || itemPosition.z > LEVEL_MAX_Z) {
+	while (itemPosition.x < WORLD_MIN_X || itemPosition.z < WORLD_MIN_Z || itemPosition.x > WORLD_MAX_X || itemPosition.z > WORLD_MAX_Z) {
 		itemPosition = getSpawnPosition(3, 4, -1);
 	}
 	ItemEntity* item = new ItemEntity(level, itemPosition.x, itemPosition.y, itemPosition.z, getSpawnItem());

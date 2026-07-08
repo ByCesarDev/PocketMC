@@ -511,7 +511,7 @@ void LocalPlayer::aiStep() {
 		if (sprintDoubleTapTimer > 0) sprintDoubleTapTimer--;
 		prevForwardHeld = forwardHeld;
 	}
-	if (input->sneaking || abilities.flying)
+	if (input->sneaking)
 		sprinting = false;
 
 	setSharedFlag(SharedFlagsInformation::FLAG_SPRINTING, sprinting);

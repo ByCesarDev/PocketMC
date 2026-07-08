@@ -10,12 +10,15 @@ typedef std::map<int, bool> FreeSectorMap;
 class RegionFile
 {
 public:
-	RegionFile(const std::string& basePath);
+	RegionFile(const std::string& basePath, int regionX, int regionZ);
 	virtual ~RegionFile();
 
 	bool open();
 	bool readChunk(int x, int z, RakNet::BitStream** destChunkData);
 	bool writeChunk(int x, int z, RakNet::BitStream& chunkData);
+	
+	int getRegionX() const { return regionX; }
+	int getRegionZ() const { return regionZ; }
 private:
 	bool write(int sector, RakNet::BitStream& chunkData);
 	void close();
@@ -25,6 +28,8 @@ private:
 	int* offsets;
 	int* emptyChunk;
 	FreeSectorMap sectorFree;
+	int regionX;
+	int regionZ;
 };
 
 

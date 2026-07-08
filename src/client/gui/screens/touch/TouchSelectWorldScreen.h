@@ -3,120 +3,73 @@
 
 #include "../ConfirmScreen.h"
 #include "../../Screen.h"
-#include "../../TweenData.h"
-#include "../../components/ImageButton.h"
 #include "../../components/Button.h"
-#include "../../components/RolledSelectionListH.h"
+#include "../../components/TextBox.h"
 #include "../../../Minecraft.h"
 #include "../../../../world/level/storage/LevelStorageSource.h"
-
+// Reuse the vertical-list widget from the desktop screen
+#include "../SelectWorldScreen.h"
 
 namespace Touch {
 
-class SelectWorldScreen;
-
 //
-// Scrolling World selection list
-//
-class TouchWorldSelectionList : public RolledSelectionListH
-{
-public:
-	TouchWorldSelectionList(Minecraft* _minecraft, int _width, int _height);
-	virtual void tick();
-	void stepLeft();
-	void stepRight();
-
-	void commit();
-protected:
-	virtual int getNumberOfItems();
-	virtual void selectItem(int item, bool doubleClick);
-	virtual bool isSelectedItem(int item);
-
-	virtual void renderBackground() {}
-	virtual void renderItem(int i, int x, int y, int h, Tesselator& t);
-	virtual float getPos(float alpha);
-	virtual void touched() { mode = 0; }
-	virtual bool capXPosition();
-
-	virtual void selectStart(int item, int localX, int localY);
-	virtual void selectCancel();
-private:
-	TweenData td;
-	void tweenInited();
-
-	int selectedItem;
-	bool _newWorldSelected; // Is the PLUS button pressed?
-	int _height;
-	LevelSummaryList levels;
-	std::vector<StringVector> _descriptions;
-	StringVector _imageNames;
-	
-	bool hasPickedLevel;
-	LevelSummary pickedLevel;
-	int pickedIndex;
-
-	int stoppedTick;
-	int currentTick;
-	float accRatio;
-	int mode;
-	
-	friend class SelectWorldScreen;
-};
-
-//
-// Delete World screen
+// Delete confirmation screen
 //
 class TouchDeleteWorldScreen: public ConfirmScreen
 {
 public:
-	TouchDeleteWorldScreen(const LevelSummary& levelId);
+    TouchDeleteWorldScreen(const LevelSummary& level);
 protected:
-	virtual void postResult(bool isOk);
+    virtual void postResult(bool isOk);
 private:
-	LevelSummary _level;
+    LevelSummary _level;
 };
 
 
 //
-// Select world screen
+// Select world screen (Java-edition vertical list layout)
 //
 class SelectWorldScreen: public Screen
 {
 public:
-	SelectWorldScreen();
-	virtual ~SelectWorldScreen();
+    SelectWorldScreen();
+    virtual ~SelectWorldScreen();
 
-	virtual void init() override;
-	virtual void setupPositions() override;
+    virtual void init() override;
+    virtual void setupPositions() override;
+    virtual void tick() override;
+    virtual void render(int xm, int ym, float a) override;
 
-	virtual void tick() override;
-	virtual void render(int xm, int ym, float a) override;
+    virtual bool handleBackEvent(bool isDown) override;
+    virtual void buttonClicked(Button* button) override;
+    virtual void mouseClicked(int x, int y, int buttonNum) override;
+    virtual void keyPressed(int eventKey) override;
+    virtual void charPressed(char c) override;
 
-	virtual bool isIndexValid(int index);
-	virtual bool handleBackEvent(bool isDown) override;
-	virtual void buttonClicked(Button* button) override;
-	virtual void keyPressed(int eventKey) override;
+    virtual void mouseWheel(int dx, int dy, int xm, int ym) override;
+    bool isInGameScreen() override;
 
-	// support for mouse wheel when desktop code uses touch variant
-	virtual void mouseWheel(int dx, int dy, int xm, int ym) override;
-
-	bool isInGameScreen() override;
 private:
-	void loadLevelSource();
-	std::string getUniqueLevelName(const std::string& level);
+    void loadLevels();
+    std::string getUniqueLevelName(const std::string& base);
+    void updateButtonStates();
 
-	ImageButton bDelete;
-	Button bCreate;
-	THeader bHeader;
-	Button bBack;
-	Button bWorldView;
-	TouchWorldSelectionList* worldsList;
-	LevelSummaryList levels;
+    // Buttons matching reference image (ids 1-6)
+    Button bPlay;       // 1  Play Selected World
+    Button bCreate;     // 2  Create New World
+    Button bEdit;       // 3  Edit
+    Button bDelete;     // 4  Delete
+    Button bRecreate;   // 5  Re-Create
+    Button bCancel;     // 6  Cancel
 
-	bool _mouseHasBeenUp;
-	bool _hasStartedLevel;
-	//LevelStorageSource* levels;
+    TextBox tSearch;
+
+    WorldListWidget* worldList;
+    LevelSummaryList levels;
+
+    bool _hasStartedLevel;
 };
-};
+
+} // namespace Touch
 
 #endif /*NET_MINECRAFT_CLIENT_GUI_SCREENS_TOUCH__TouchSelectWorldScreen_H__*/

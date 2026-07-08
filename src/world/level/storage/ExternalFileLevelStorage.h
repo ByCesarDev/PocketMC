@@ -7,6 +7,8 @@
 
 #include <vector>
 #include <list>
+#include <unordered_map>
+#include <string>
 
 //#include "com/mojang/nbt/CompoundTag.h"
 #include "LevelStorage.h"
@@ -16,6 +18,25 @@ class Player;
 class Dimension;
 class RegionFile;
 
+// Region key for hash map
+struct RegionKey {
+    int x;
+    int z;
+    
+    bool operator==(const RegionKey& other) const {
+        return x == other.x && z == other.z;
+    }
+};
+
+// Hash function for RegionKey
+namespace std {
+    template<>
+    struct hash<RegionKey> {
+        size_t operator()(const RegionKey& k) const {
+            return ((size_t)(uint32_t)k.x << 32) | (uint32_t)k.z;
+        }
+    };
+}
 
 typedef struct UnsavedLevelChunk
 {
@@ -70,10 +91,12 @@ public:
 	virtual void tick();
 	virtual void flush() {}
 private:
+	RegionFile* getRegionFile(int chunkX, int chunkZ);
+	
 	std::string levelId;
 	std::string levelPath;
 	LevelData* loadedLevelData;
-	RegionFile* regionFile;
+	std::unordered_map<RegionKey, RegionFile*> regionFiles;
 	RegionFile* netherRegionFile;
 	RegionFile* entitiesFile;
 

@@ -51,9 +51,19 @@ int MobSpawner::tick(Level* level, bool spawnEnemies, bool spawnFriendlies) {
 	// Spawn friendlies == loop over whole map, and disable Monster spawning this tick
 	if (spawnFriendlies) {
 		spawnEnemies = false;
-		for (int cz = CHUNK_CACHE_MIN; cz <= CHUNK_CACHE_MAX; ++cz)
-		for (int cx = CHUNK_CACHE_MIN; cx <= CHUNK_CACHE_MAX; ++cx)
-			chunksToPoll.insert(std::make_pair(ChunkPos(cx, cz), false));
+		for (size_t i = 0; i < level->players.size(); i++) {
+			Player* p = level->players[i];
+			int xx = Mth::floor(p->x / 16);
+			int zz = Mth::floor(p->z / 16);
+			int r = 128 / 16;
+			for (int x = -r; x <= r; x++)
+			for (int z = -r; z <= r; z++) {
+				const int cx = xx + x;
+				const int cz = zz + z;
+				if (cx >= (WORLD_MIN_X / 16) && cx <= (WORLD_MAX_X / 16) && cz >= (WORLD_MIN_Z / 16) && cz <= (WORLD_MAX_Z / 16))
+					chunksToPoll.insert(std::make_pair(ChunkPos(cx, cz), false));
+			}
+		}
 
 	} else {
 		// Only spawn mobs, check around one player per tick (@todo: optimize the "count instances of"?)
@@ -68,7 +78,7 @@ int MobSpawner::tick(Level* level, bool spawnEnemies, bool spawnFriendlies) {
 			for (int z = -r; z <= r; z++) {
 				const int cx = xx + x;
 				const int cz = zz + z;
-				if (cx >= CHUNK_CACHE_MIN && cx <= CHUNK_CACHE_MAX && cz >= CHUNK_CACHE_MIN && cz <= CHUNK_CACHE_MAX)
+				if (cx >= (WORLD_MIN_X / 16) && cx <= (WORLD_MAX_X / 16) && cz >= (WORLD_MIN_Z / 16) && cz <= (WORLD_MAX_Z / 16))
 					chunksToPoll.insert(std::make_pair(ChunkPos(cx, cz), false ));
 			}
 		}

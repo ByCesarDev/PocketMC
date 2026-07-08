@@ -3,17 +3,19 @@
 
 
 const int LEVEL_HEIGHT = 128;
-const int CHUNK_CACHE_WIDTH = 32; // in chunks (was 16)
 const int CHUNK_WIDTH = 16; // in blocks
 const int CHUNK_DEPTH = 16;
-const int CHUNK_CACHE_MIN = -(CHUNK_CACHE_WIDTH / 2);
-const int CHUNK_CACHE_MAX = CHUNK_CACHE_MIN + CHUNK_CACHE_WIDTH - 1;
-const int LEVEL_WIDTH = CHUNK_CACHE_WIDTH * CHUNK_WIDTH;
-const int LEVEL_DEPTH = CHUNK_CACHE_WIDTH * CHUNK_DEPTH;
-const int LEVEL_MIN_X = CHUNK_CACHE_MIN * CHUNK_WIDTH;
-const int LEVEL_MAX_X = LEVEL_MIN_X + LEVEL_WIDTH - 1;
-const int LEVEL_MIN_Z = CHUNK_CACHE_MIN * CHUNK_DEPTH;
-const int LEVEL_MAX_Z = LEVEL_MIN_Z + LEVEL_DEPTH - 1;
+
+// World limits (±30,000,000 blocks to avoid floating-point precision issues)
+const int WORLD_LIMIT = 30000000;
+const int WORLD_MIN_X = -WORLD_LIMIT;
+const int WORLD_MAX_X = WORLD_LIMIT;
+const int WORLD_MIN_Z = -WORLD_LIMIT;
+const int WORLD_MAX_Z = WORLD_LIMIT;
+
+// View distance in chunks (adjustable)
+const int VIEW_DISTANCE_CHUNKS = 16;
+
 const int CHUNK_COLUMNS = CHUNK_WIDTH * CHUNK_DEPTH;
 const int CHUNK_BLOCK_COUNT = CHUNK_COLUMNS * LEVEL_HEIGHT;
 

@@ -6,6 +6,7 @@
 #include "../../world/level/LevelListener.h"
 #include "../../world/phys/Vec3.h"
 #include "RenderList.h"
+#include "RenderChunk.h"
 #include "gles.h"
 #include <vector>
 
@@ -44,6 +45,7 @@ public:
 
 	void renderSky(float alpha);
 	void renderClouds(float alpha);
+	void generateCloudMesh(float cr, float cg, float cb);
 	void renderEntities(Vec3 cam, Culler* culler, float a);
     void renderSameAsLast(int layer, float alpha);
 	void renderHit(Player* player, const HitResult& h, int mode, /*ItemInstance*/void* inventoryItem, float a);
@@ -117,8 +119,10 @@ private:
 	int lastViewDistance;
 
 	int ticks;
-    int starList, skyList, darkList;
-
+	int starList, skyList, darkList;
+	
+	bool isCloudMeshGenerated = false;
+	RenderChunk cloudRenderChunk;
 	int numListsOrBuffers;
 	GLuint* chunkBuffers;
 	GLuint skyBuffer;
