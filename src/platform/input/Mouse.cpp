@@ -50,7 +50,7 @@ void MouseDevice::reset() {
 }
 
 char MouseDevice::getButtonState(int buttonId) {
-	if (buttonId < MouseAction::ACTION_LEFT || buttonId > MouseAction::ACTION_WHEEL)
+	if (buttonId < MouseAction::ACTION_LEFT || buttonId > MouseAction::ACTION_MIDDLE)
 		return 0;
 	return _buttonStates[buttonId];
 }

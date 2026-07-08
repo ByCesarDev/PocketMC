@@ -706,6 +706,45 @@ void Minecraft::tickInput() {
 			}
 		}
 		*/
+
+		if (Mouse::getEventButton() == MouseAction::ACTION_MIDDLE && Mouse::getEventButtonState()) {
+			if (hitResult.type == HitResultType::TILE) {
+				int tileId = level->getTile(hitResult.x, hitResult.y, hitResult.z);
+				int data = level->getData(hitResult.x, hitResult.y, hitResult.z);
+				if (tileId > 0) {
+					int invSlot = player->inventory->getSlot(tileId, data);
+					if (invSlot < 0) {
+						invSlot = player->inventory->getSlot(tileId);
+					}
+					if (invSlot >= 0) {
+						bool inHotbar = false;
+						for (int i = 0; i < player->inventory->numLinkedSlots; ++i) {
+							if (player->inventory->linkedSlots[i].inventorySlot == invSlot) {
+								player->inventory->selectSlot(i);
+								inHotbar = true;
+								break;
+							}
+						}
+						if (!inHotbar) {
+							int targetSlot = player->inventory->selected;
+							ItemInstance* currentLinked = player->inventory->getLinked(targetSlot);
+							if (currentLinked && !currentLinked->isNull()) {
+								for (int i = 0; i < player->inventory->numLinkedSlots; ++i) {
+									ItemInstance* linkedItem = player->inventory->getLinked(i);
+									if (!linkedItem || linkedItem->isNull()) {
+										targetSlot = i;
+										break;
+									}
+								}
+							}
+							player->inventory->linkSlot(targetSlot, invSlot, false);
+							player->inventory->selectSlot(targetSlot);
+						}
+						gui.resetItemNameOverlay();
+					}
+				}
+			}
+		}
 	}
 
 	TIMER_POP_PUSH("keyboard");

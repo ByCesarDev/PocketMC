@@ -64,9 +64,9 @@ public:
 	int getNonEmptySlot(int tileId, int data) const;
 	int getNumEmptySlots();
 	int getNumLinkedSlots();
-protected:
 	int getSlot(int tileId) const;
 	int getNonEmptySlot(int tileId) const;
+protected:
 	int getSlotWithRemainingSpace(const ItemInstance& item);
 	int getFreeSlot() const;
 

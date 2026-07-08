@@ -13,6 +13,7 @@ public:
 	static const char ACTION_LEFT = 1;
 	static const char ACTION_RIGHT = 2;
 	static const char ACTION_WHEEL = 3;
+	static const char ACTION_MIDDLE = 4;
 
 	static const char DATA_UP = 0;
 	static const char DATA_DOWN = 1;
@@ -38,7 +39,7 @@ typedef MouseActionVec::const_iterator MouseActionCIt;
 class MouseDevice
 {
 public:
-	static const int MAX_NUM_BUTTONS = 4;
+	static const int MAX_NUM_BUTTONS = 5;
 
 	MouseDevice();
 	

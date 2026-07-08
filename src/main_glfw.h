@@ -195,6 +195,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (button == GLFW_MOUSE_BUTTON_RIGHT) {
 		Mouse::feed( MouseAction::ACTION_RIGHT, action, xpos, ypos);
 	}
+
+	if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+		Mouse::feed( MouseAction::ACTION_MIDDLE, action, xpos, ypos);
+	}
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
