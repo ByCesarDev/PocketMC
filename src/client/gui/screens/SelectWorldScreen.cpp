@@ -86,7 +86,7 @@ void WorldListWidget::mouseClicked(int xm, int ym, int btn)
 void WorldListWidget::render(int xm, int ym, float /*a*/)
 {
     // Dark panel background
-    fill(_x, _y, _x + _w, _y + _h, 0xAA000000);
+    fill(_x, _y, _x + _w, _y + _h, 0x80000000);
 
     // clip by only drawing slots that overlap the widget area
     int startSlot = _scrollOffset / SLOT_H;
@@ -100,8 +100,8 @@ void WorldListWidget::render(int xm, int ym, float /*a*/)
     }
 
     // thin top / bottom gradient to hint at scroll
-    fillGradient(_x, _y,           _x + _w, _y + 4,  0xAA000000, 0x00000000);
-    fillGradient(_x, _y + _h - 4,  _x + _w, _y + _h, 0x00000000, 0xAA000000);
+    fillGradient(_x, _y,           _x + _w, _y + 4,  0x60000000, 0x00000000);
+    fillGradient(_x, _y + _h - 4,  _x + _w, _y + _h, 0x00000000, 0x60000000);
 }
 
 void WorldListWidget::drawSlot(int idx, int slotY, bool isSelected, int /*xm*/, int /*ym*/)
@@ -110,8 +110,8 @@ void WorldListWidget::drawSlot(int idx, int slotY, bool isSelected, int /*xm*/, 
 
     // Selection highlight
     if (isSelected) {
-        fill(_x,     slotY,          _x + _w, slotY + SLOT_H, 0xFF3399FF); // blue border
-        fill(_x + 1, slotY + 1,      _x + _w - 1, slotY + SLOT_H - 1, 0xFF222222);
+        fill(_x,     slotY,          _x + _w, slotY + SLOT_H, 0x60FFFFFF); // soft white border
+        fill(_x + 1, slotY + 1,      _x + _w - 1, slotY + SLOT_H - 1, 0xC0222222);
     } else {
         // Subtle alternating row shading
         int shade = (idx % 2 == 0) ? 0x55000000 : 0x33000000;
@@ -165,18 +165,23 @@ SelectWorldScreen::~SelectWorldScreen()
 
 void SelectWorldScreen::init()
 {
+    int listW = width - 60;  // leave 30px margin on each side
+    if (listW > 400) listW = 400; // cap max width
+    int listX = width / 2 - listW / 2;
+
     worldList = new WorldListWidget(minecraft,
-        width / 2 - 154, 45,        // x, y (started at 45 to leave room for search box)
-        308,                        // width
+        listX,                      // x
+        45,                         // y (started at 45 to leave room for search box)
+        listW,                      // width
         height - 45 - 64 - 4        // height: leave room for buttons
     );
 
     loadLevels();
 
     // Search textbox
-    tSearch.x     = width / 2 - 154;
+    tSearch.x     = listX;
     tSearch.y     = 22;
-    tSearch.width = 308;
+    tSearch.width = listW;
     tSearch.height= 18;
     tSearch.active= true;
     tSearch.visible = true;

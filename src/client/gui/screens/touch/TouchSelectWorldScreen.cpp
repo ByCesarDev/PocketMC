@@ -52,19 +52,23 @@ SelectWorldScreen::~SelectWorldScreen()
 
 void SelectWorldScreen::init()
 {
+    int listW = width - 60;  // leave 30px margin on each side
+    if (listW > 400) listW = 400; // cap max width
+    int listX = width / 2 - listW / 2;
+
     worldList = new WorldListWidget(minecraft,
-        width / 2 - 154,   // x
+        listX,              // x
         45,                 // y (started at 45 to leave room for search box)
-        308,               // width
+        listW,              // width
         height - 45 - 64 - 4  // height: leave room for buttons
     );
 
     loadLevels();
 
     // Search textbox
-    tSearch.x      = width / 2 - 154;
+    tSearch.x      = listX;
     tSearch.y      = 22;
-    tSearch.width  = 308;
+    tSearch.width  = listW;
     tSearch.height = 18;
     tSearch.active = true;
     tSearch.visible= true;
