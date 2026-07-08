@@ -568,24 +568,7 @@ void GameRenderer::setupFog(int i) {
     glFogfv(GL_FOG_COLOR, (GLfloat*)fogBuffer);
     glColor4f2(1, 1, 1, 1);
 
-    if (player->isUnderLiquid(Material::water)) {
-        glFogx(GL_FOG_MODE, GL_EXP);
-        glFogf(GL_FOG_DENSITY, 0.1f); // was 0.06
-
-//        float rr = 0.4f;
-//        float gg = 0.4f;
-//        float bb = 0.9f;
-//
-//        if (mc->options.anaglyph3d) {
-//            float rrr = (rr * 30 + gg * 59 + bb * 11) / 100;
-//            float ggg = (rr * 30 + gg * 70) / (100);
-//            float bbb = (rr * 30 + bb * 70) / (100);
-//
-//            rr = rrr;
-//            gg = ggg;
-//            bb = bbb;
-//        }
-    } else if (player->isUnderLiquid(Material::lava)) {
+    if (player->isUnderLiquid(Material::lava)) {
         glFogx(GL_FOG_MODE, GL_EXP);
         glFogf(GL_FOG_DENSITY, 2.f); // was 0.06
 //        float rr = 0.4f;
@@ -860,9 +843,9 @@ void GameRenderer::setupClearColor(float a) {
     fb += (sb - fb) * whiteness;
 
     if (player->isUnderLiquid(Material::water)) {
-        fr = 0.02f;
-        fg = 0.02f;
-        fb = 0.2f;
+        fr = 0.05f;
+        fg = 0.3f;
+        fb = 0.7f;
     } else if (player->isUnderLiquid(Material::lava)) {
         fr = 0.6f;
         fg = 0.1f;
