@@ -29,6 +29,7 @@ private:
 	Button bOptions;
 	Button bProfile;
 	Button bSkindex;
+	Button bMods;
 	Button bQuit;
 
 	std::string copyright;

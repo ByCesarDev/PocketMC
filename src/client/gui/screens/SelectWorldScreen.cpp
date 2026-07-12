@@ -32,8 +32,19 @@ static bool strContainsCI(const std::string& haystack, const std::string& needle
 
 WorldListWidget::WorldListWidget(Minecraft* mc, int x, int y, int w, int h)
     : _mc(mc), _x(x), _y(y), _w(w), _h(h),
-      _selected(-1), _scrollOffset(0)
+      _selected(-1), _scrollOffset(0), _lastClickIndex(-1),
+      _lastClickTime(std::chrono::steady_clock::now())
 {}
+
+void WorldListWidget::setBounds(int x, int y, int w, int h)
+{
+    _x = x;
+    _y = y;
+    _w = w;
+    _h = h;
+    int maxScroll = std::max(0, (int)_filtered.size() * SLOT_H - _h);
+    if (_scrollOffset > maxScroll) _scrollOffset = maxScroll;
+}
 
 void WorldListWidget::loadLevels(const LevelSummaryList& levels)
 {
@@ -72,15 +83,29 @@ void WorldListWidget::scroll(int delta)
     if (_scrollOffset > maxScroll) _scrollOffset = maxScroll;
 }
 
-void WorldListWidget::mouseClicked(int xm, int ym, int btn)
+bool WorldListWidget::mouseClicked(int xm, int ym, int btn)
 {
-    if (xm < _x || xm > _x + _w) return;
-    if (ym < _y || ym > _y + _h) return;
+    if (btn != 1) return false; // Only respond to left click
+    if (xm < _x || xm > _x + _w) return false;
+    if (ym < _y || ym > _y + _h) return false;
 
     int relY = ym - _y + _scrollOffset;
     int idx  = relY / SLOT_H;
-    if (idx >= 0 && idx < (int)_filtered.size())
+    if (idx >= 0 && idx < (int)_filtered.size()) {
+        const auto now = std::chrono::steady_clock::now();
+        const int elapsedMs = (int)std::chrono::duration_cast<std::chrono::milliseconds>(now - _lastClickTime).count();
+        bool activate = false;
+#if defined(ANDROID) || defined(__APPLE__)
+        activate = true;
+#else
+        activate = (_selected == idx && _lastClickIndex == idx && elapsedMs > 0 && elapsedMs <= 500);
+#endif
         _selected = idx;
+        _lastClickIndex = idx;
+        _lastClickTime = now;
+        return activate;
+    }
+    return false;
 }
 
 void WorldListWidget::render(int xm, int ym, float /*a*/)
@@ -199,6 +224,19 @@ void SelectWorldScreen::init()
 
 void SelectWorldScreen::setupPositions()
 {
+    int listW = width - 60;
+    if (listW > 400) listW = 400;
+    if (listW < 220) listW = width - 12;
+    int listX = width / 2 - listW / 2;
+
+    tSearch.x      = listX;
+    tSearch.y      = 22;
+    tSearch.width  = listW;
+    tSearch.height = 18;
+
+    if (worldList)
+        worldList->setBounds(listX, 45, listW, std::max(36, height - 45 - 64 - 4));
+
     // Row 1 (top button row): Play + Create
     const int BW = 150;
     const int BH = 20;
@@ -357,7 +395,8 @@ void SelectWorldScreen::mouseClicked(int x, int y, int buttonNum)
 {
     Screen::mouseClicked(x, y, buttonNum);
     if (worldList) {
-        worldList->mouseClicked(x, y, buttonNum);
+        if (worldList->mouseClicked(x, y, buttonNum) && worldList->hasSelection())
+            buttonClicked(&bPlay);
     }
 }
 

@@ -143,6 +143,8 @@ file(GLOB SERVER_SOURCES
     "${PROJECT_ROOT}/src/main.cpp"
     "${PROJECT_ROOT}/src/main_dedicated.cpp"
 
+    "${PROJECT_ROOT}/src/mods/*.cpp"
+
     "${PROJECT_ROOT}/src/nbt/Tag.cpp"
 
     "${PROJECT_ROOT}/src/network/ClientSideNetworkHandler.cpp"
@@ -249,6 +251,8 @@ file(GLOB CLIENT_SOURCES
     
     "${PROJECT_ROOT}/src/locale/*.cpp"
     
+    "${PROJECT_ROOT}/src/mods/*.cpp"
+
     "${PROJECT_ROOT}/src/nbt/*.cpp"
 
     "${PROJECT_ROOT}/src/network/*.cpp"

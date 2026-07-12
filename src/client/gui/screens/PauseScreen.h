@@ -34,6 +34,7 @@ private:
 	Button* bQuitAndSaveLocally;
 	Button* bServerVisibility;
 	Button* bOptions;
+	Button* bDressingRoom;
 
 	//	Button* bThirdPerson;
 

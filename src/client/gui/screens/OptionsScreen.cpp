@@ -14,21 +14,16 @@
 #include "../../sound/SoundEngine.h"
 
 OptionsScreen::OptionsScreen()
-	: btnClose(NULL),
-	bHeader(NULL),
+	: btnDone(NULL),
 	btnCredits(NULL),
-	selectedCategory(0) {
+	selectedCategory(-1),
+	inSubMenu(false) {
 }
 
 OptionsScreen::~OptionsScreen() {
-	if (btnClose != NULL) {
-		delete btnClose;
-		btnClose = NULL;
-	}
-
-	if (bHeader != NULL) {
-		delete bHeader;
-		bHeader = NULL;
+	if (btnDone != NULL) {
+		delete btnDone;
+		btnDone = NULL;
 	}
 
 	if (btnCredits != NULL) {
@@ -54,17 +49,7 @@ OptionsScreen::~OptionsScreen() {
 }
 
 void OptionsScreen::init() {
-	bHeader = new Touch::THeader(0, I18n::get("options.title"));
-
-	btnClose = new ImageButton(1, "");
-
-	ImageDef def;
-	def.name = "gui/touchgui.png";
-	def.width = 34;
-	def.height = 26;
-
-	def.setSrc(IntRectangle(150, 0, (int)def.width, (int)def.height));
-	btnClose->setImageDef(def, true);
+	btnDone = new Button(1, I18n::get("gui.done"));
 
 	categoryButtons.push_back(new Button(2, I18n::get("options.tab.general")));
 	categoryButtons.push_back(new Button(3, I18n::get("options.tab.game")));
@@ -75,8 +60,7 @@ void OptionsScreen::init() {
 
 	btnCredits = new Button(11, I18n::get("options.credits"));
 
-	buttons.push_back(bHeader);
-	buttons.push_back(btnClose);
+	buttons.push_back(btnDone);
 	buttons.push_back(btnCredits);
 
 	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
@@ -85,71 +69,60 @@ void OptionsScreen::init() {
 	}
 
 	generateOptionScreens();
-	// start with first category selected
-	selectCategory(0);
+	// start in main menu
+	inSubMenu = false;
+	selectCategory(-1);
 }
 
 void OptionsScreen::setupPositions() {
-	int buttonHeight = btnClose->height;
+	int buttonW = 150;
+	int buttonH = 20;
+	int gap = 4;
+	int startY = height / 6;
 
-	btnClose->x = width - btnClose->width;
-	btnClose->y = 0;
-
-	int offsetNum = 1;
-
-	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
-
-		(*it)->x = 0;
-		(*it)->y = offsetNum * buttonHeight;
-		(*it)->width = (std::max)(100, font->width((*it)->msg) + 16);
-		(*it)->height = 24;
-		(*it)->selected = false;
-
-		offsetNum++;
-	}
-
-	bHeader->x = 0;
-	bHeader->y = 0;
-	bHeader->width = width - btnClose->width;
-	bHeader->height = btnClose->height;
-
-	// Credits button (bottom-right)
-	if (btnCredits != NULL) {
-		btnCredits->width = (std::max)(100, font->width(btnCredits->msg) + 16);
-		btnCredits->height = 24;
-		btnCredits->x = width - btnCredits->width;
-		btnCredits->y = height - btnCredits->height;
-	}
-
-	for (std::vector<OptionsGroup*>::iterator it = optionPanes.begin(); it != optionPanes.end(); ++it) {
-
-		if (categoryButtons.size() > 0 && categoryButtons[0] != NULL) {
-
-			(*it)->x = categoryButtons[0]->width;
-			(*it)->y = bHeader->height;
-			(*it)->width = width - categoryButtons[0]->width;
-
-			// make the options pane take the available vertical space and allow scrolling
-			int availableHeight = height - bHeader->height;
+	if (!inSubMenu) {
+		for (size_t i = 0; i < categoryButtons.size(); i++) {
+			Button* b = categoryButtons[i];
+			int col = i % 2;
+			int row = i / 2;
+			b->width = buttonW;
+			b->height = buttonH;
+			b->x = width / 2 - buttonW - gap / 2 + col * (buttonW + gap);
+			b->y = startY + row * (buttonH + gap);
+		}
+	} else {
+		for (std::vector<OptionsGroup*>::iterator it = optionPanes.begin(); it != optionPanes.end(); ++it) {
+			(*it)->x = 0;
+			(*it)->y = 30;
+			(*it)->width = width;
+			int availableHeight = height - 60; // Space for header and done button
 			if (btnCredits != NULL) availableHeight -= btnCredits->height;
-			availableHeight -= 6; // small padding
 			(*it)->height = availableHeight;
-
 			(*it)->setupPositions();
 		}
 	}
 
-	// don't override user selection on resize
-}
+	if (btnCredits != NULL) {
+		btnCredits->width = (std::max)(100, font->width(btnCredits->msg) + 16);
+		btnCredits->height = 20;
+		btnCredits->x = width - btnCredits->width;
+		btnCredits->y = height - btnCredits->height;
+	}
 
+	btnDone->width = 200;
+	btnDone->height = 20;
+	btnDone->x = width / 2 - 100;
+	btnDone->y = height - 28;
+}
 
 void OptionsScreen::render(int xm, int ym, float a) {
 	renderBackground();
+	drawCenteredString(font, I18n::get("options.title"), width / 2, 10, 0xffffff);
 
 	int xmm = xm * width / minecraft->width;
 	int ymm = ym * height / minecraft->height - 1;
 
-	if (currentOptionsGroup != NULL)
+	if (inSubMenu && currentOptionsGroup != NULL)
 		currentOptionsGroup->render(minecraft, xmm, ymm);
 
 	super::render(xm, ym, a);
@@ -159,17 +132,25 @@ void OptionsScreen::removed() {
 }
 
 void OptionsScreen::buttonClicked(Button* button) {
-	if (button == btnClose) {
+	if (button == btnDone) {
 		minecraft->options.save();
-		if (minecraft->screen != NULL) {
-			minecraft->setScreen(NULL);
+		if (inSubMenu) {
+			inSubMenu = false;
+			selectCategory(-1);
+			setupPositions();
 		} else {
-			minecraft->screenChooser.setScreen(SCREEN_STARTMENU);
+			if (minecraft->screen != NULL) {
+				minecraft->setScreen(NULL);
+			} else {
+				minecraft->screenChooser.setScreen(SCREEN_STARTMENU);
+			}
 		}
 	}
 	else if (button->id > 1 && button->id < 8) {
 		int categoryButton = button->id - categoryButtons[0]->id;
+		inSubMenu = true;
 		selectCategory(categoryButton);
+		setupPositions();
 	}
 	else if (button == btnCredits) {
 		minecraft->setScreen(new CreditsScreen());
@@ -233,8 +214,10 @@ void OptionsScreen::selectCategory(int index) {
 		currentIndex++;
 	}
 
-	if (index < (int)optionPanes.size())
+	if (index >= 0 && index < (int)optionPanes.size())
 		currentOptionsGroup = optionPanes[index];
+	else
+		currentOptionsGroup = NULL;
 
 	selectedCategory = index;
 }

@@ -8,6 +8,10 @@
 #include "client/Options.h"
 #include "client/gui/components/Button.h"
 #include "client/gui/screens/OptionsScreen.h"
+#include "client/gui/screens/SkindexScreen.h"
+#include "client/model/HumanoidModel.h"
+#include "client/renderer/TextureData.h"
+#include "client/renderer/Textures.h"
 #include "../../../locale/I18n.h"
 
 PauseScreen::PauseScreen(bool wasBackPaused)
@@ -16,6 +20,7 @@ PauseScreen::PauseScreen(bool wasBackPaused)
 	bContinue(0),
 	bQuit(0),
 	bOptions(0),
+	bDressingRoom(0),
 	bQuitAndSaveLocally(0),
 	bServerVisibility(0),
 //	bThirdPerson(0),
@@ -45,19 +50,23 @@ PauseScreen::~PauseScreen() {
 	delete bQuitAndSaveLocally;
 	delete bServerVisibility;
 	delete bOptions;
+	delete bDressingRoom;
 //	delete bThirdPerson;
 }
 
 void PauseScreen::init() {
-	bContinue = new Button(1, I18n::get("menu.returnToGame"));
-	bOptions = new Button(5, I18n::get("menu.options"));
-	bQuit = new Button(2, I18n::get("menu.returnToMenu"));
-	bQuitAndSaveLocally = new Button(3, I18n::get("menu.quitAndSaveLocally"));
-	bServerVisibility = new Button(4, "");
+	bContinue = new Button(1, "Resume Game");
+	bOptions = new Button(5, "Options");
+	bQuit = new Button(2, "Save and Exit");
+	bQuitAndSaveLocally = new Button(3, "Save and Exit");
+	bServerVisibility = new Button(4, "Open to LAN");
+	bDressingRoom = new Button(6, "Dressing Room");
 
 	buttons.push_back(bContinue);
-	buttons.push_back(bQuit);
 	buttons.push_back(bOptions);
+	buttons.push_back(bQuit);
+	buttons.push_back(bServerVisibility);
+	buttons.push_back(bDressingRoom);
 	// bSound.updateImage(&minecraft->options);
 	bThirdPerson.updateImage(&minecraft->options);
 	bHideGui.updateImage(&minecraft->options);
@@ -73,11 +82,11 @@ void PauseScreen::init() {
 		if (minecraft->raknetInstance) {
 			if (minecraft->raknetInstance->isServer()) {
 				updateServerVisibilityText();
-				buttons.push_back(bServerVisibility);
+				bServerVisibility->active = true;
 			}
 			else {
                 #if !defined(DEMO_MODE)
-                buttons.push_back(bQuitAndSaveLocally);
+                bServerVisibility->active = false;
 				#endif
 			}
 		}
@@ -95,34 +104,55 @@ void PauseScreen::init() {
 
 void PauseScreen::setupPositions() {
     saveStep = 0;
-	int yBase = 16;
+	int buttonW = (std::min)(220, (std::max)(140, width / 3));
+	int buttonH = 26;
+	int gap = 6;
+	// Only 4 buttons in the left column (no Dressing Room)
+	int totalH = buttonH * 4 + gap * 3;
+	int yBase = (height - totalH) / 2;
+	if (yBase < 12) yBase = 12;
+	int leftX = width / 4 - buttonW / 2;
+	if (leftX < 12) leftX = 12;
 
-	bContinue->width = bOptions->width = bQuit->width = /*bThirdPerson->w =*/ 160;
-	bQuitAndSaveLocally->width = bServerVisibility->width = 160;
+	bContinue->width = bOptions->width = bQuit->width = buttonW;
+	bServerVisibility->width = buttonW;
+	bContinue->height = bOptions->height = bQuit->height = buttonH;
+	bServerVisibility->height = buttonH;
 
-	bContinue->x = (width - bContinue->width) / 2;
-	bContinue->y = yBase + 32 * 1;
+	bContinue->x = leftX;
+	bContinue->y = yBase;
 
-	bOptions->x = (width - bOptions->width) / 2;
-	bOptions->y = yBase + 32 * 2;
+	bOptions->x = leftX;
+	bOptions->y = bContinue->y + buttonH + gap;
 
-	bQuit->x = (width - bQuit->width) / 2;
-	bQuit->y = yBase + 32 * 3;
+	bQuit->x = leftX;
+	bQuit->y = bOptions->y + buttonH + gap;
 
 #if APPLE_DEMO_PROMOTION
     bQuit->y += 16;
 #endif
-    
-	bQuitAndSaveLocally->x = bServerVisibility->x = (width - bQuitAndSaveLocally->width) / 2;
-	bQuitAndSaveLocally->y = bServerVisibility->y = yBase + 32 * 4;
 
-	// bSound.y = bThirdPerson.y = 8;
-	// bSound.x = 4;
-	// bThirdPerson.x = bSound.x + 4 + bSound.width;
-	// bHideGui.x = bThirdPerson.x + 4 + bThirdPerson.width;
+	bServerVisibility->x = leftX;
+	bServerVisibility->y = bQuit->y + buttonH + gap;
 
-	//bThirdPerson->x = (width - bThirdPerson->w) / 2;
-	//bThirdPerson->y = yBase + 32 * 4;
+	bQuitAndSaveLocally->x = bQuit->x;
+	bQuitAndSaveLocally->y = bQuit->y;
+
+	// Dressing Room: placed below the skin model in the right half
+	int dressingW = (std::min)(160, buttonW);
+	int centerX = (width * 3) / 4;
+	// Skin model center Y: centered vertically in right half
+	float ss = (std::min)(34.0f, (float)height / 6.0f);
+	int modelHalfH = (int)(ss * 2.5f); // approx model height in screen pixels
+	int modelTopY  = height / 2 - modelHalfH;
+	int modelBotY  = height / 2 + modelHalfH;
+
+	bDressingRoom->width  = dressingW;
+	bDressingRoom->height = buttonH;
+	bDressingRoom->x = centerX - dressingW / 2;
+	bDressingRoom->y = modelBotY + 8;
+	if (bDressingRoom->y + buttonH > height - 4)
+		bDressingRoom->y = height - buttonH - 4;
 }
 
 void PauseScreen::tick() {
@@ -133,18 +163,60 @@ void PauseScreen::tick() {
 void PauseScreen::render(int xm, int ym, float a) {
 	renderBackground();
 
-	//bool isSaving = !minecraft->level.pauseSave(saveStep++);
-	//if (isSaving || visibleTime < 20) {
-	//	float col = ((visibleTime % 10) + a) / 10.0f;
-	//	col = Mth::sin(col * Mth::PI * 2) * 0.2f + 0.8f;
-	//	int br = (int) (255 * col);
-
-	//	drawString(font, "Saving level..", 8, height - 16, br << 16 | br << 8 | br);
-	//}
-
-	drawCenteredString(font, I18n::get("menu.gameMenu"), width / 2, 24, 0xffffff);
+	drawCenteredString(font, "Game Menu", width / 4, 18, 0xffffff);
 
 	super::render(xm, ym, a);
+
+	// --- Right-side skin preview (after UI so it draws on top) ---
+	std::string skinPath = minecraft->options.getStringValue(OPTIONS_SKIN);
+	if (skinPath.empty() || skinPath == "Default") skinPath = "mob/char.png";
+
+	TextureId skinTexId = minecraft->textures->loadTexture(skinPath);
+	int skinW = 64, skinH = 64;
+	const TextureData* tdata = minecraft->textures->getTemporaryTextureData(skinTexId);
+	if (tdata) { skinW = tdata->w; skinH = tdata->h; }
+
+	float ss    = (std::min)(34.0f, (float)height / 6.0f);
+	int centerX = (width * 3) / 4;
+	// Place model center at ~40% of height so there's room for username above & button below
+	int modelHalfH = (int)(ss * 2.5f);
+	int centerY = (height / 2) - modelHalfH / 2;
+	if (centerY < modelHalfH + 16) centerY = modelHalfH + 16;
+
+	// Username label just above the model
+	std::string uname = minecraft->options.getStringValue(OPTIONS_USERNAME);
+	if (!uname.empty()) {
+		int textW = font->width(uname);
+		int labelY = centerY - modelHalfH - 12;
+		fill(centerX - textW / 2 - 4, labelY - 2, centerX + textW / 2 + 4, labelY + 10, 0x70000000);
+		drawCenteredString(font, uname, centerX, labelY, 0xffffff);
+	}
+
+	// Clear depth so the model isn't hidden behind the game world geometry
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	minecraft->textures->bind(skinTexId);
+	glEnable2(GL_DEPTH_TEST);
+	glPushMatrix();
+	glTranslatef((float)centerX, (float)centerY, -100);
+	glScalef(-ss, ss, ss);
+	glRotatef(180.0f, 0, 1, 0);
+	glRotatef(10.0f, 1, 0, 0);
+	glRotatef(20.0f, 0, 1, 0);
+	// Head follows cursor (same as StartMenuScreen)
+	float diffX     = (float)(centerX - xm);
+	float diffY     = (float)(centerY  - ym);
+	float headYaw   = diffX * 0.5f;
+	float headPitch = -diffY * 0.5f;
+	if (headYaw   >  45.0f) headYaw   =  45.0f;
+	if (headYaw   < -45.0f) headYaw   = -45.0f;
+	if (headPitch >  45.0f) headPitch =  45.0f;
+	if (headPitch < -45.0f) headPitch = -45.0f;
+	glColor4f2(1.0f, 1.0f, 1.0f, 1.0f);
+	HumanoidModel skinModel(0.0f, 0.0f, skinW, skinH);
+	skinModel.render(nullptr, 0, 0, 0, headYaw, headPitch, 0.0625f);
+	glPopMatrix();
+	glDisable2(GL_DEPTH_TEST);
 }
 
 void PauseScreen::buttonClicked(Button* button) {
@@ -160,6 +232,9 @@ void PauseScreen::buttonClicked(Button* button) {
 	}
 	if (button->id == bOptions->id) {
 		minecraft->setScreen(new OptionsScreen());
+	}
+	if (button->id == bDressingRoom->id) {
+		minecraft->setScreen(new SkindexScreen());
 	}
 	if (button->id == bServerVisibility->id) {
 		if (minecraft->raknetInstance && minecraft->netCallback && minecraft->raknetInstance->isServer()) {

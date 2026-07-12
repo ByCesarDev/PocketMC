@@ -86,6 +86,19 @@ void SelectWorldScreen::init()
 
 void SelectWorldScreen::setupPositions()
 {
+    int listW = width - 60;
+    if (listW > 400) listW = 400;
+    if (listW < 220) listW = width - 12;
+    int listX = width / 2 - listW / 2;
+
+    tSearch.x      = listX;
+    tSearch.y      = 22;
+    tSearch.width  = listW;
+    tSearch.height = 18;
+
+    if (worldList)
+        worldList->setBounds(listX, 45, listW, std::max(36, height - 45 - 64 - 4));
+
     const int BW  = 150;
     const int BH  = 20;
     const int CX  = width / 2;
@@ -242,7 +255,8 @@ void SelectWorldScreen::mouseClicked(int x, int y, int buttonNum)
 {
     Screen::mouseClicked(x, y, buttonNum);
     if (worldList) {
-        worldList->mouseClicked(x, y, buttonNum);
+        if (worldList->mouseClicked(x, y, buttonNum) && worldList->hasSelection())
+            buttonClicked(&bPlay);
     }
 }
 

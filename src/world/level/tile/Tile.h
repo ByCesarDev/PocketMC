@@ -21,10 +21,14 @@ class LeafTile;
 class FireTile;
 class FlowerTile;
 
+class ModRegistry; // Forward declaration for friend access
+
 // @Note: Got a memory leak in initTiles? You probably didn't call
 //        Tile::init after constructing the tile!
 class Tile
 {
+    friend class ModRegistry; // Allow ModRegistry to access private/protected members
+
     static const std::string TILE_DESCRIPTION_PREFIX;
 
 public:

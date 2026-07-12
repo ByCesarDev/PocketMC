@@ -30,6 +30,7 @@
 #include "../../item/StoneSlabTileItem.h"
 #include "../../item/SaplingTileItem.h"
 #include "../../item/ItemCategory.h"
+#include "../../../mods/ModRegistry.h"
 
 const int Tile::RENDERLAYER_OPAQUE          = 0;
 const int Tile::RENDERLAYER_ALPHATEST       = 1;
@@ -333,6 +334,7 @@ void Tile::initTiles() {
 	//
 	// Initialize extra/community tiles (planks, deepslate, etc.)
 	Tile::initExtraTiles();
+	ModRegistry::registerBuiltInTiles();
 
     // Special case for certain items since they can have different icons
 	// @note: Make sure those different items are handled in ItemInHandRenderer::renderItem

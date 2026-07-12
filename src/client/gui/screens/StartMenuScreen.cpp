@@ -7,6 +7,7 @@
 #include "OptionsScreen.h"
 #include "PauseScreen.h"
 #include "SkindexScreen.h"
+#include "ModListScreen.h"
 #include "PrerenderTilesScreen.h" // test button
 #include "../components/ImageButton.h"
 
@@ -33,6 +34,7 @@ StartMenuScreen::StartMenuScreen()
 	bOptions( 4, 0, 0, 160, 24, I18n::get("menu.options")),
 	bProfile( 6, 0, 0, 60, 24, I18n::get("menu.profile")),
 	bSkindex(7, 0, 0, 60, 24, I18n::get("menu.skindex")),
+	bMods(8, 0, 0, 60, 24, "Mods"),
 	bQuit(    5, 0, 0, 160, 24, I18n::get("menu.quit")),
 	panoramaTicks(0)
 {
@@ -56,6 +58,7 @@ void StartMenuScreen::init()
 	buttons.push_back(&bQuit);
 	buttons.push_back(&bProfile);
 	buttons.push_back(&bSkindex);
+	buttons.push_back(&bMods);
 
 	tabButtons.push_back(&bHost);
 	tabButtons.push_back(&bOptions);
@@ -63,15 +66,14 @@ void StartMenuScreen::init()
 	tabButtons.push_back(&bQuit);
 	tabButtons.push_back(&bProfile);
 	tabButtons.push_back(&bSkindex);
+	tabButtons.push_back(&bMods);
 
-	copyright = "\xffMojang AB";//. Do not distribute!";
+	copyright = "\xffMojang AB";
 
-	// always show base version string, suffix was previously added for Android builds
 	std::string versionString = Common::getGameVersionString();
 
 	std::string _username = minecraft->options.getStringValue(OPTIONS_USERNAME);
 	if (_username.empty()) _username = "unknown";
-
 	username = "Username: " + _username;
 
 	#ifdef DEMO_MODE
@@ -82,7 +84,7 @@ void StartMenuScreen::init()
 	#endif
 	#else
 		#ifdef RPI
-			version = "v0.1.1 alpha";//(MCPE " + versionString + " compatible)";
+			version = "v0.1.1 alpha";
 		#else
 			version = versionString;
 		#endif
@@ -90,34 +92,53 @@ void StartMenuScreen::init()
 }
 
 void StartMenuScreen::setupPositions() {
-	bHost.width = (std::max)(160, font->width(bHost.msg) + 16);
-	bOptions.width = (std::max)(160, font->width(bOptions.msg) + 16);
-	bJoin.width = (std::max)(160, font->width(bJoin.msg) + 16);
-	bQuit.width = (std::max)(160, font->width(bQuit.msg) + 16);
-	
+	// Full-width buttons
+	int fullW = (std::max)(160, (std::min)(200, width / 2));
+	int btnH  = 24;
+	int gap   = 4;
+
+	bHost.width  = fullW;  bHost.height  = btnH;
+	bJoin.width  = fullW;  bJoin.height  = btnH;
+	bQuit.width  = fullW;  bQuit.height  = btnH;
+
+	// Half-width buttons for the Mods|Options row
+	int halfGap = 4;
+	int halfW   = (fullW - halfGap) / 2;
+	bMods.width    = halfW;  bMods.height    = btnH;
+	bOptions.width = halfW;  bOptions.width  = fullW - halfW - halfGap;
+	bOptions.height = btnH;
+
+	// Layout: 4 rows (Singleplayer, Multiplayer, Mods+Options, Quit)
+	int totalH = btnH * 4 + gap * 3;
+	int yBase  = (height - totalH) / 2;
+	int cx     = width / 2;
+
+	// Row 1 – Singleplayer
+	bHost.x = cx - fullW / 2;
+	bHost.y = yBase;
+
+	// Row 2 – Multiplayer
+	bJoin.x = cx - fullW / 2;
+	bJoin.y = bHost.y + btnH + gap;
+
+	// Row 3 – Mods (left) | Options (right), same combined width as full-width buttons
+	bMods.x    = cx - fullW / 2;
+	bMods.y    = bJoin.y + btnH + gap;
+	bOptions.x = bMods.x + bMods.width + halfGap;
+	bOptions.y = bMods.y;
+
+	// Row 4 – Save and Quit
+	bQuit.x = cx - fullW / 2;
+	bQuit.y = bMods.y + btnH + gap;
+
+	// Bottom-corner buttons (skin widget row)
 	bProfile.width = (std::max)(60, font->width(bProfile.msg) + 16);
 	bSkindex.width = (std::max)(60, font->width(bSkindex.msg) + 16);
-
-	// Four center buttons stacked vertically
-	int totalH = 4 * 24 + 3 * 4; // 4 buttons + 3 gaps
-	int yBase = (height - totalH) / 2;
-
-	bHost.y = yBase;
-	bOptions.y = bHost.y + 24 + 4;
-	bJoin.y = bOptions.y + 24 + 4;
-	bQuit.y = bJoin.y + 24 + 4;
-
-	// Center buttons
-	bHost.x = (width - bHost.width) / 2;
-	bOptions.x = (width - bOptions.width) / 2;
-	bJoin.x = (width - bJoin.width) / 2;
-	bQuit.x = (width - bQuit.width) / 2;
-
+	bProfile.height = 20;  bSkindex.height = 20;
 	bProfile.x = 2;
-	bProfile.y = height - 24 - 20;
-
+	bProfile.y = height - bProfile.height - 2;
 	bSkindex.x = width - bSkindex.width - 2;
-	bSkindex.y = height - 24 - 20;
+	bSkindex.y = height - bSkindex.height - 2;
 }
 
 void StartMenuScreen::tick() {
@@ -150,6 +171,10 @@ void StartMenuScreen::buttonClicked(Button* button) {
 	if (button->id == bSkindex.id)
 	{
 		minecraft->setScreen(new SkindexScreen());
+	}
+	if (button->id == bMods.id)
+	{
+		minecraft->setScreen(new ModListScreen());
 	}
 	if (button->id == bQuit.id)
 	{

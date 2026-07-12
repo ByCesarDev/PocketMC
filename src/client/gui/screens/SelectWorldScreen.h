@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <chrono>
 
 class SelectWorldScreen;
 
@@ -22,8 +23,9 @@ public:
 
     void setFilter(const std::string& filter);
     void render(int xm, int ym, float a);
-    void mouseClicked(int xm, int ym, int btn);
+    bool mouseClicked(int xm, int ym, int btn);
     void scroll(int delta);
+    void setBounds(int x, int y, int w, int h);
 
     int  selectedIndex() const { return _selected; }
     bool hasSelection() const  { return _selected >= 0 && _selected < (int)_filtered.size(); }
@@ -44,6 +46,8 @@ private:
 
     int  _selected;
     int  _scrollOffset;    // pixels scrolled
+    int  _lastClickIndex;
+    std::chrono::steady_clock::time_point _lastClickTime;
     static const int SLOT_H = 36;
 };
 

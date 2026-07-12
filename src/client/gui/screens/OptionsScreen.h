@@ -34,8 +34,7 @@ public:
 	virtual void tick();
 
 private:
-	Touch::THeader* bHeader;
-	ImageButton* btnClose;
+	Button* btnDone;
 
 	Button* btnCredits;
 	std::vector<Button*> languageButtons;
@@ -47,6 +46,7 @@ private:
 	OptionsGroup* currentOptionsGroup;
 
 	int selectedCategory;
+	bool inSubMenu;
 };
 
 #endif /*NET_MINECRAFT_CLIENT_GUI_SCREENS__OptionsScreen_H__*/
