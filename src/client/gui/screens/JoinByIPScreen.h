@@ -24,5 +24,5 @@ private:
     TextBox tIP;
     Touch::THeader bHeader;
 	Button bJoin;
-	ImageButton bBack;
+	Button bBack;
 };

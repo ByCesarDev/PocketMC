@@ -5,12 +5,23 @@
 #include "../../../network/RakNetInstance.h"
 #include "../../../locale/I18n.h"
 
+#include "CustomServerList.h"
+#include "JoinByIPScreen.h"
+#include "AddServerScreen.h"
+
 JoinGameScreen::JoinGameScreen()
-:	bJoin(  2, I18n::get("menu.joinGame")),
-	bBack(  3, I18n::get("gui.back")),
+:	bJoin(  2, I18n::get("selectServer.select")),
+	bDirect(3, I18n::get("selectServer.direct")),
+	bAdd(   4, I18n::get("selectServer.add")),
+	bEdit(  5, I18n::get("selectServer.edit")),
+	bDelete(6, I18n::get("selectServer.delete")),
+	bRefresh(7, I18n::get("selectServer.refresh")),
+	bCancel(8, I18n::get("gui.cancel")),
 	gamesList(NULL)
 {
 	bJoin.active = false;
+	bEdit.active = false;
+	bDelete.active = false;
 	//gamesList->yInertia = 0.5f;
 }
 
@@ -29,17 +40,46 @@ void JoinGameScreen::buttonClicked(Button* button)
 			minecraft->joinMultiplayer(selectedServer);
 			{
 				bJoin.active = false;
-				bBack.active = false;
+				bCancel.active = false;
 				minecraft->setScreen(new ProgressScreen());
 			}
 		}
-		//minecraft->locateMultiplayer();
-		//minecraft->setScreen(new JoinGameScreen());
 	}
-	if (button->id == bBack.id)
+	if (button->id == bCancel.id)
 	{
 		minecraft->cancelLocateMultiplayer();
 		minecraft->screenChooser.setScreen(SCREEN_STARTMENU);
+	}
+	if (button->id == bDirect.id)
+	{
+		minecraft->cancelLocateMultiplayer();
+		minecraft->screenChooser.setScreen(SCREEN_JOINBYIP);
+	}
+	if (button->id == bAdd.id)
+	{
+		minecraft->cancelLocateMultiplayer();
+		minecraft->setScreen(new AddServerScreen(-1));
+	}
+	if (button->id == bEdit.id)
+	{
+		if (isIndexValid(gamesList->selectedItem) && gamesList->selectedItem < (int)CustomServerList::servers.size())
+		{
+			minecraft->cancelLocateMultiplayer();
+			minecraft->setScreen(new AddServerScreen(gamesList->selectedItem));
+		}
+	}
+	if (button->id == bDelete.id)
+	{
+		if (isIndexValid(gamesList->selectedItem) && gamesList->selectedItem < CustomServerList::servers.size())
+		{
+			CustomServerList::servers.erase(CustomServerList::servers.begin() + gamesList->selectedItem);
+			CustomServerList::save(minecraft);
+			gamesList->selectedItem = -1;
+		}
+	}
+	if (button->id == bRefresh.id)
+	{
+		minecraft->raknetInstance->clearServerList();
 	}
 }
 
@@ -63,6 +103,9 @@ void JoinGameScreen::tick()
 {
 	const ServerList& orgServerList = minecraft->raknetInstance->getServerList();
 	ServerList serverList;
+	for (unsigned int i = 0; i < CustomServerList::servers.size(); ++i)
+		serverList.push_back(CustomServerList::servers[i]);
+
 	for (unsigned int i = 0; i < orgServerList.size(); ++i)
 		if (orgServerList[i].name.GetLength() > 0)
 			serverList.push_back(orgServerList[i]);
@@ -102,67 +145,61 @@ void JoinGameScreen::tick()
 	}
 
 	bJoin.active = isIndexValid(gamesList->selectedItem);
+	bEdit.active = isIndexValid(gamesList->selectedItem) && gamesList->selectedItem < CustomServerList::servers.size();
+	bDelete.active = bEdit.active;
 }
 
 void JoinGameScreen::init()
 {
 	buttons.push_back(&bJoin);
-	buttons.push_back(&bBack);
+	buttons.push_back(&bDirect);
+	buttons.push_back(&bAdd);
+	buttons.push_back(&bEdit);
+	buttons.push_back(&bDelete);
+	buttons.push_back(&bRefresh);
+	buttons.push_back(&bCancel);
 
+	CustomServerList::load(minecraft);
 	minecraft->raknetInstance->clearServerList();
 	gamesList = new AvailableGamesList(minecraft, width, height);
 
 #ifdef ANDROID
 	tabButtons.push_back(&bJoin);
-	tabButtons.push_back(&bBack);
+	tabButtons.push_back(&bDirect);
+	tabButtons.push_back(&bAdd);
+	tabButtons.push_back(&bEdit);
+	tabButtons.push_back(&bDelete);
+	tabButtons.push_back(&bRefresh);
+	tabButtons.push_back(&bCancel);
 #endif
 }
 
 void JoinGameScreen::setupPositions() {
-	int yBase = height - 26;
+	int yBase = height - 52;
+	int yBottom = height - 28;
 
-	//#ifdef ANDROID
-	bJoin.y =	yBase;
-	bBack.y =   yBase;
+	int btnWidth3 = 100;
+	int btnWidth4 = 74;
 
-	bBack.width = bJoin.width = 120;
-	//#endif
+	// Top row (Join, Direct, Add)
+	bJoin.y = yBase; bJoin.width = btnWidth3; bJoin.x = width / 2 - 154;
+	bDirect.y = yBase; bDirect.width = btnWidth3; bDirect.x = width / 2 - 50;
+	bAdd.y = yBase; bAdd.width = btnWidth3; bAdd.x = width / 2 + 54;
 
-	// Center buttons
-	bJoin.x = width / 2 - 4 - bJoin.width;
-	bBack.x = width / 2 + 4;
+	// Bottom row (Edit, Delete, Refresh, Cancel)
+	bEdit.y = yBottom; bEdit.width = btnWidth4; bEdit.x = width / 2 - 154;
+	bDelete.y = yBottom; bDelete.width = btnWidth4; bDelete.x = width / 2 - 76;
+	bRefresh.y = yBottom; bRefresh.width = btnWidth4; bRefresh.x = width / 2 + 2;
+	bCancel.y = yBottom; bCancel.width = btnWidth4; bCancel.x = width / 2 + 80;
 }
 
 void JoinGameScreen::render( int xm, int ym, float a )
 {
-	bool hasNetwork = minecraft->platform()->isNetworkEnabled(true);
-#ifdef WIN32
-	hasNetwork = hasNetwork && !GetAsyncKeyState(VK_TAB);
-#endif
-
 	renderBackground();
-	if (hasNetwork) gamesList->render(xm, ym, a);
+	gamesList->render(xm, ym, a);
 	Screen::render(xm, ym, a);
 
-	if (hasNetwork) {
-#ifdef RPI
-		std::string s = "Scanning for Local Network Games...";
-#else
-		std::string s = "Scanning for WiFi Games...";
-#endif
-		drawCenteredString(minecraft->font, s, width / 2, 8, 0xffffffff);
-
-		const int textWidth = minecraft->font->width(s);
-		const int spinnerX = width/2 + textWidth / 2 + 6;
-
-		static const char* spinnerTexts[] = {"-", "\\", "|", "/"};
-		int n = ((int)(5.5f * getTimeS()) % 4);
-		drawCenteredString(minecraft->font, spinnerTexts[n], spinnerX, 8, 0xffffffff);
-	} else {
-		std::string s = "WiFi is disabled";
-		const int yy = height / 2 - 8;
-		drawCenteredString(minecraft->font, s, width / 2, yy, 0xffffffff);
-	}
+	drawCenteredString(minecraft->font, I18n::get("selectServer.title"), width / 2, 8, 0xffffffff);
 }
 
 bool JoinGameScreen::isInGameScreen() { return false; }

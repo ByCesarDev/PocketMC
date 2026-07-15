@@ -12,13 +12,12 @@
 #include "../../../locale/I18n.h"
 
 JoinByIPScreen::JoinByIPScreen() :
-    tIP(0, I18n::get("gui.serverIp")),
-    bHeader(1, I18n::get("gui.joinOnServer")),
-	bJoin(  2, I18n::get("menu.joinGame")),
-	bBack(  3, I18n::get("gui.back"))
+    tIP(0, ""),
+    bHeader(1, I18n::get("selectServer.direct")),
+	bJoin(  2, I18n::get("selectServer.select")),
+	bBack(  3, I18n::get("gui.cancel"))
 {
 	bJoin.active = false;
-	//gamesList->yInertia = 0.5f;
 }
 
 JoinByIPScreen::~JoinByIPScreen()
@@ -43,7 +42,7 @@ void JoinByIPScreen::buttonClicked(Button* button)
 	if (button->id == bBack.id)
 	{
 		minecraft->cancelLocateMultiplayer();
-		minecraft->screenChooser.setScreen(SCREEN_STARTMENU);
+		minecraft->screenChooser.setScreen(SCREEN_JOINGAME);
 	}
 }
 
@@ -51,7 +50,7 @@ bool JoinByIPScreen::handleBackEvent(bool isDown)
 {
 	if (!isDown)
 	{
-		minecraft->screenChooser.setScreen(SCREEN_STARTMENU);
+		minecraft->screenChooser.setScreen(SCREEN_JOINGAME);
 	}
 	return true;
 }
@@ -64,63 +63,51 @@ void JoinByIPScreen::tick()
 
 void JoinByIPScreen::init()
 {
-    ImageDef def;
-	def.name = "gui/touchgui.png";
-	def.width = 34;
-	def.height = 26;
-
-	def.setSrc(IntRectangle(150, 0, (int)def.width, (int)def.height));
-	bBack.setImageDef(def, true);
-
 	buttons.push_back(&bJoin);
 	buttons.push_back(&bBack);
-	buttons.push_back(&bHeader);
     
     textBoxes.push_back(&tIP);
 #ifdef ANDROID
 	tabButtons.push_back(&bJoin);
 	tabButtons.push_back(&bBack);
-    tabButtons.push_back(&bHeader);
 #endif
 
 	tIP.text = minecraft->options.getStringValue(OPTIONS_LAST_IP);
 }
 
 void JoinByIPScreen::setupPositions() {
-    int tIpDiff = 40;
-    
-	bJoin.width = (std::max)(160, font->width(bJoin.msg) + 16);
-	bJoin.height = 24;
+    int yBase = height / 4 + 72 + 12;
 
-	bJoin.y   = height * 2 / 3;
-	bBack.y   = 0;
-	bHeader.y = 0;
+    bJoin.width = 100;
+    bJoin.height = 20;
+    bJoin.x = width / 2 - 100 - 2;
+    bJoin.y = yBase;
 
-	// Center buttons
-	//bJoin.x = width / 2 - 4 - bJoin.w;
-	bBack.x = width - bBack.width;//width / 2 + 4;
-    
-    bJoin.x = (width - bJoin.width) / 2;
-	
-    bHeader.x = 0;
-	bHeader.width = width - bBack.width;
+    bBack.width = 100;
+    bBack.height = 20;
+    bBack.x = width / 2 + 2;
+    bBack.y = yBase;
 
-    tIP.width = bJoin.width + tIpDiff;
-    tIP.height = 16;
-    tIP.x = bJoin.x - tIpDiff / 2;
-    tIP.y     = ((height - bJoin.height) / 2) - tIP.height - 4;
+    tIP.width = 200;
+    tIP.height = 20;
+    tIP.x = width / 2 - 100;
+    tIP.y = height / 4 + 36;
 }
 
 void JoinByIPScreen::render( int xm, int ym, float a )
 {
 	renderBackground();
+	
+	drawCenteredString(minecraft->font, "Direct Connection", width / 2, 17, 0xffffffff);
+	drawString(minecraft->font, "Server Address", width / 2 - 100, height / 4 + 36 - 10, 0xa0a0a0);
+
 	Screen::render(xm, ym, a);
 }
 
 void JoinByIPScreen::keyPressed(int eventKey)
 {
     if (eventKey == Keyboard::KEY_ESCAPE) {
-        minecraft->screenChooser.setScreen(SCREEN_STARTMENU);
+        minecraft->screenChooser.setScreen(SCREEN_JOINGAME);
         return;
     }
     // let base class handle navigation and text box keys

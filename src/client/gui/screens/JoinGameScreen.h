@@ -63,7 +63,12 @@ public:
 	bool isInGameScreen();
 private:
 	Button bJoin;
-	Button bBack;
+	Button bDirect;
+	Button bAdd;
+	Button bEdit;
+	Button bDelete;
+	Button bRefresh;
+	Button bCancel;
 	AvailableGamesList* gamesList;
 };
 

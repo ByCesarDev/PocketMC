@@ -3,43 +3,55 @@
 
 #include "../../Screen.h"
 #include "../../components/Button.h"
-#include "../../components/RolledSelectionListV.h"
+#include "../../components/TextBox.h"
 #include "../../../Minecraft.h"
 #include "../../../../platform/input/Multitouch.h"
 #include "../../../../network/RakNetInstance.h"
+#include "../CustomServerList.h"
+#include <chrono>
+#include <string>
+#include <vector>
+#include <algorithm>
 
 namespace Touch {
 
 class JoinGameScreen;
 
-class AvailableGamesList : public RolledSelectionListV
+class ServerListWidget : public GuiComponent
 {
-	int startSelected;
-	int selectedItem;
-	ServerList copiedServerList;
-
-	friend class JoinGameScreen;
-
 public:
-	AvailableGamesList(Minecraft* _minecraft, int _width, int _height)
-	:	RolledSelectionListV(_minecraft, _width, _height, 0, _width, 24, _height, 34),
-		selectedItem(-1),
-		startSelected(-1)
-	{
-	}
+    ServerListWidget(Minecraft* mc, int x, int y, int w, int h);
 
-protected:
+    void setFilter(const std::string& filter);
+    void render(int xm, int ym, float a);
+    bool mouseClicked(int xm, int ym, int btn);
+    void scroll(int delta);
+    void setBounds(int x, int y, int w, int h);
 
-	virtual int getNumberOfItems() { return (int)copiedServerList.size(); }
+    // Returns the index into CustomServerList::servers for the selected entry, or -1
+    int  selectedRealIndex() const { return (_selected >= 0 && _selected < (int)_filteredIndices.size()) ? _filteredIndices[_selected] : -1; }
+    bool hasSelection() const  { return _selected >= 0 && _selected < (int)_filtered.size(); }
+    PingedCompatibleServer selectedServer() const { return _filtered[_selected]; }
 
-	virtual void selectCancel();
-	virtual void selectStart(int item);
-	virtual void selectItem(int item, bool doubleClick);
+    void loadServers(const std::vector<PingedCompatibleServer>& servers);
 
-	virtual bool isSelectedItem(int item) { return item == selectedItem; }
+private:
+    void rebuildFiltered();
+    void drawSlot(int slotIndex, int slotY, bool isSelected, int xm, int ym);
 
-	virtual void renderBackground() {}
-	virtual void renderItem(int i, int x, int y, int h, Tesselator& t);
+    Minecraft*        _mc;
+    int _x, _y, _w, _h;
+
+    std::vector<PingedCompatibleServer> _all;
+    std::vector<PingedCompatibleServer> _filtered;
+    std::vector<int>                    _filteredIndices; // real index into _all
+    std::string       _filter;
+
+    int  _selected;
+    int  _scrollOffset;    
+    int  _lastClickIndex;
+    std::chrono::steady_clock::time_point _lastClickTime;
+    static const int SLOT_H = 36;
 };
 
 class JoinGameScreen: public Screen
@@ -59,14 +71,23 @@ public:
 	void render(int xm, int ym, float a);
 
 	void buttonClicked(Button* button);
+	virtual void mouseClicked(int x, int y, int buttonNum);
+	virtual void keyPressed(int eventKey);
+	virtual void charPressed(char c);
+	virtual void mouseWheel(int dx, int dy, int xm, int ym);
 
 	bool isInGameScreen();
 private:
 	Button bJoin;
-	Button bBack;
-	Button bJoinByIp;
-	THeader bHeader;
-	AvailableGamesList* gamesList;
+	Button bDirect;
+	Button bAdd;
+	Button bEdit;
+	Button bDelete;
+	Button bRefresh;
+	Button bCancel;
+	TextBox tSearch;
+	ServerListWidget* gamesList;
+	int selectedCustomIndex;
 };
 
 };

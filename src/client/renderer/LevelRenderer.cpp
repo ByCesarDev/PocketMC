@@ -94,6 +94,7 @@ LevelRenderer::~LevelRenderer()
 	deleteChunks();
 
 #ifdef OPENGL_ES
+	if (cloudRenderChunk.vboId) glDeleteBuffers(1, &cloudRenderChunk.vboId);
 	glDeleteBuffers(numListsOrBuffers, chunkBuffers);
 	glDeleteBuffers(1, &skyBuffer);
 	glDeleteBuffers(1, &starBuffer);
@@ -1363,9 +1364,6 @@ void LevelRenderer::generateCloudMesh(float cr, float cg, float cb) {
 		return;
 	}
 
-	Tesselator& t = Tesselator::instance;
-	t.begin();
-
 	int width = texData->w;
 	int height = texData->h;
 	float scale = 8.0f;
@@ -1384,6 +1382,40 @@ void LevelRenderer::generateCloudMesh(float cr, float cg, float cb) {
 		}
 	};
 
+	auto packColor = [](float r, float g, float b, float a) -> GLuint {
+		int ri = (int)(r * 255); if (ri > 255) ri = 255; if (ri < 0) ri = 0;
+		int gi = (int)(g * 255); if (gi > 255) gi = 255; if (gi < 0) gi = 0;
+		int bi = (int)(b * 255); if (bi > 255) bi = 255; if (bi < 0) bi = 0;
+		int ai = (int)(a * 255); if (ai > 255) ai = 255; if (ai < 0) ai = 0;
+		return (ai << 24) | (bi << 16) | (gi << 8) | ri;
+	};
+
+	std::vector<VERTEX> verts;
+	verts.reserve(width * height / 3);
+
+	GLuint topColor = packColor(cr, cg, cb, 0.8f);
+	GLuint bottomColor = packColor(cr * 0.7f, cg * 0.7f, cb * 0.7f, 0.8f);
+	GLuint sideColor = packColor(cr * 0.85f, cg * 0.85f, cb * 0.85f, 0.8f);
+
+	auto addQuad = [&](float ax0, float ay0, float az0,
+	                   float ax1, float ay1, float az1,
+	                   float ax2, float ay2, float az2,
+	                   float ax3, float ay3, float az3,
+	                   GLuint color) {
+		VERTEX v;
+		v.u = 0; v.v = 0;
+		v.nx = 0; v.ny = 0; v.nz = 0;
+		v.color = color;
+
+		v.x = ax0; v.y = ay0; v.z = az0; verts.push_back(v);
+		v.x = ax1; v.y = ay1; v.z = az1; verts.push_back(v);
+		v.x = ax2; v.y = ay2; v.z = az2; verts.push_back(v);
+
+		v.x = ax0; v.y = ay0; v.z = az0; verts.push_back(v);
+		v.x = ax2; v.y = ay2; v.z = az2; verts.push_back(v);
+		v.x = ax3; v.y = ay3; v.z = az3; verts.push_back(v);
+	};
+
 	for (int cx = 0; cx < width; cx++) {
 		for (int cz = 0; cz < height; cz++) {
 			unsigned char alpha = getAlpha(cx, cz);
@@ -1396,55 +1428,30 @@ void LevelRenderer::generateCloudMesh(float cr, float cg, float cb) {
 			float y0 = 0.0f;
 			float y1 = cHeight;
 
-			// Top face (brightest)
-			t.color(cr, cg, cb, 0.8f);
-			t.vertex(x0, y1, z1);
-			t.vertex(x1, y1, z1);
-			t.vertex(x1, y1, z0);
-			t.vertex(x0, y1, z0);
+			addQuad(x0,y1,z1, x1,y1,z1, x1,y1,z0, x0,y1,z0, topColor);
+			addQuad(x0,y0,z0, x1,y0,z0, x1,y0,z1, x0,y0,z1, bottomColor);
 
-			// Bottom face (darkest)
-			t.color(cr * 0.7f, cg * 0.7f, cb * 0.7f, 0.8f);
-			t.vertex(x0, y0, z0);
-			t.vertex(x1, y0, z0);
-			t.vertex(x1, y0, z1);
-			t.vertex(x0, y0, z1);
-
-			// Side faces (medium brightness)
-			t.color(cr * 0.85f, cg * 0.85f, cb * 0.85f, 0.8f);
-
-			if (getAlpha(cx - 1, cz) < 10) {
-				t.vertex(x0, y0, z1);
-				t.vertex(x0, y1, z1);
-				t.vertex(x0, y1, z0);
-				t.vertex(x0, y0, z0);
-			}
-			if (getAlpha(cx + 1, cz) < 10) {
-				t.vertex(x1, y0, z0);
-				t.vertex(x1, y1, z0);
-				t.vertex(x1, y1, z1);
-				t.vertex(x1, y0, z1);
-			}
-			if (getAlpha(cx, cz - 1) < 10) {
-				t.vertex(x0, y0, z0);
-				t.vertex(x0, y1, z0);
-				t.vertex(x1, y1, z0);
-				t.vertex(x1, y0, z0);
-			}
-			if (getAlpha(cx, cz + 1) < 10) {
-				t.vertex(x1, y0, z1);
-				t.vertex(x1, y1, z1);
-				t.vertex(x0, y1, z1);
-				t.vertex(x0, y0, z1);
-			}
+			if (getAlpha(cx - 1, cz) < 10)
+				addQuad(x0,y0,z1, x0,y1,z1, x0,y1,z0, x0,y0,z0, sideColor);
+			if (getAlpha(cx + 1, cz) < 10)
+				addQuad(x1,y0,z0, x1,y1,z0, x1,y1,z1, x1,y0,z1, sideColor);
+			if (getAlpha(cx, cz - 1) < 10)
+				addQuad(x0,y0,z0, x0,y1,z0, x1,y1,z0, x1,y0,z0, sideColor);
+			if (getAlpha(cx, cz + 1) < 10)
+				addQuad(x1,y0,z1, x1,y1,z1, x0,y1,z1, x0,y0,z1, sideColor);
 		}
 	}
 
+	if (verts.empty()) return;
+
 	GLuint vbo = 0;
-#ifdef USE_VBO
 	glGenBuffers2(1, &vbo);
-#endif
-	cloudRenderChunk = t.end(true, vbo);
+	glBindBuffer2(GL_ARRAY_BUFFER, vbo);
+	glBufferData2(GL_ARRAY_BUFFER, verts.size() * sizeof(VERTEX), verts.data(), GL_STATIC_DRAW);
+	glBindBuffer2(GL_ARRAY_BUFFER, 0);
+
+	cloudRenderChunk = RenderChunk(vbo, (int)verts.size());
+	LOGI("Cloud mesh: %d vertices\n", (int)verts.size());
 }
 
 void LevelRenderer::renderClouds( float alpha ) {
@@ -1469,7 +1476,7 @@ void LevelRenderer::renderClouds( float alpha ) {
 	xo -= xOffs * 2048;
 	zo -= zOffs * 2048;
 
-	float yy = 128 - yOffs + 0.33f;
+	float yy = 192 - yOffs + 0.33f;
 
 	if (cloudRenderChunk.vertexCount > 0) {
 #ifdef USE_VBO
@@ -1677,6 +1684,11 @@ void LevelRenderer::onGraphicsReset()
 {
 	generateSky();
 	generateStars(0x2A5AL);
+
+	// Regenerate cloud mesh with new GL context
+	if (cloudRenderChunk.vboId) glDeleteBuffers(1, &cloudRenderChunk.vboId);
+	cloudRenderChunk = RenderChunk();
+	isCloudMeshGenerated = false;
 
 	// Get new buffers
 #ifdef OPENGL_ES

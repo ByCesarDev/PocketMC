@@ -221,7 +221,7 @@ void SelectWorldScreen::init()
 
     updateButtonStates();
 }
-
+ 
 void SelectWorldScreen::setupPositions()
 {
     int listW = width - 60;
