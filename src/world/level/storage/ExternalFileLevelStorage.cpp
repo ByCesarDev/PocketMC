@@ -79,6 +79,7 @@ ExternalFileLevelStorage::ExternalFileLevelStorage(const std::string& levelId, c
 :	levelId(levelId),
 	levelPath(fullPath),
 	loadedLevelData(NULL),
+	currentDimensionId(0),
 	netherRegionFile(NULL),
 	entitiesFile(NULL),
 	tickCount(0),
@@ -151,6 +152,21 @@ LevelData* ExternalFileLevelStorage::prepareLevel(Level* _level)
 {
 	level = _level;
 	return loadedLevelData;
+}
+
+ChunkStorage* ExternalFileLevelStorage::createChunkStorage(Dimension* dimension) {
+	if (dimension) {
+		currentDimensionId = dimension->id;
+	}
+	clearRegionCache();
+	return this;
+}
+
+void ExternalFileLevelStorage::clearRegionCache() {
+	for (auto& pair : regionFiles) {
+		delete pair.second;
+	}
+	regionFiles.clear();
 }
 
 bool ExternalFileLevelStorage::readLevelData(const std::string& directory, LevelData& levelData)
@@ -320,8 +336,13 @@ RegionFile* ExternalFileLevelStorage::getRegionFile(int chunkX, int chunkZ)
 		return it->second;
 	}
 	
-	// Create new region file
-	std::string path = levelPath + "/region";
+	// Create new region file with dimension-aware path
+	std::string path;
+	if (currentDimensionId == -1) {
+		path = levelPath + "/DIM-1/region";
+	} else {
+		path = levelPath + "/region";
+	}
 	createFolderIfNotExists(path.c_str());
 	
 	RegionFile* newRegion = new RegionFile(path, regionX, regionZ);

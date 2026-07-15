@@ -594,7 +594,7 @@ void GameRenderer::setupFog(int i) {
         }
 
         if (mc->level->dimension->foggy) {
-            glFogf(GL_FOG_START, 0);
+            glFogf(GL_FOG_START, renderDistance * 0.3f);
         }
     }
 

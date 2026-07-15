@@ -18,11 +18,18 @@ public:
 	}
 
 	float getTimeOfDay(long time, float a) override {
-		return 0.5f;
+		return 0.0f;
 	}
 
 	Vec3 getFogColor(float td, float a) override {
-		return Vec3(0.2f, 0.03f, 0.03f);
+		return Vec3(0.5f, 0.15f, 0.1f);
+	}
+
+	void updateLightRamp(float gamma) override {
+		for (int i = 0; i <= 15; i++) {
+			float f = (float)i / 15.0f;
+			brightnessRamp[i] = f * 0.8f + 0.2f;
+		}
 	}
 };
 

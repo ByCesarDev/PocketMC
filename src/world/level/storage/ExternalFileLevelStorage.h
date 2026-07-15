@@ -62,7 +62,7 @@ public:
 	//throws LevelConflictException
     void checkSession() {}
 
-    ChunkStorage* createChunkStorage(Dimension* dimension) { return this; }
+    ChunkStorage* createChunkStorage(Dimension* dimension);
 
     void saveLevelData(LevelData& levelData, std::vector<Player*>* players);
     // PlayerIO getPlayerIO() { return this; }
@@ -91,6 +91,7 @@ public:
 	virtual void tick();
 	virtual void flush() {}
 private:
+	void clearRegionCache();
 	RegionFile* getRegionFile(int chunkX, int chunkZ);
 	
 	std::string levelId;
@@ -98,6 +99,7 @@ private:
 	LevelData* loadedLevelData;
 	std::unordered_map<RegionKey, RegionFile*> regionFiles;
 	RegionFile* netherRegionFile;
+	int currentDimensionId;
 	RegionFile* entitiesFile;
 
 	Level* level;
