@@ -313,7 +313,9 @@ void Minecraft::leaveGame(bool renameLevel /*=false*/)
 
 	raknetInstance->disconnect();
 	if (saveLevel) {
-		// If server or wanting to save level as client, save all unsaved chunks!
+		// Save player data (position, inventory, etc.) before saving chunks
+		level->saveGame();
+		// Save all unsaved chunks
 		level->getChunkSource()->saveAll(true);
 	}
 
