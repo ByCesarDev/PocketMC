@@ -9,6 +9,31 @@ include $(RPK_LOCAL_PATH)/../../lib_projects/raknet/jni/Android.mk
 LOCAL_PATH := $(RPK_LOCAL_PATH)
 
 # ============================================================================
+# libpng static library (built from source downloaded by build.sh)
+# ============================================================================
+include $(CLEAR_VARS)
+LOCAL_MODULE := libpng
+LOCAL_C_INCLUDES := $(LIBPNG_DIR)
+LOCAL_CFLAGS := -O2 -DNDEBUG
+LOCAL_SRC_FILES := \
+	$(LIBPNG_DIR)/png.c \
+	$(LIBPNG_DIR)/pngerror.c \
+	$(LIBPNG_DIR)/pngget.c \
+	$(LIBPNG_DIR)/pngmem.c \
+	$(LIBPNG_DIR)/pngpread.c \
+	$(LIBPNG_DIR)/pngread.c \
+	$(LIBPNG_DIR)/pngrio.c \
+	$(LIBPNG_DIR)/pngrtran.c \
+	$(LIBPNG_DIR)/pngrutil.c \
+	$(LIBPNG_DIR)/pngset.c \
+	$(LIBPNG_DIR)/pngtrans.c \
+	$(LIBPNG_DIR)/pngwio.c \
+	$(LIBPNG_DIR)/pngwrite.c \
+	$(LIBPNG_DIR)/pngwtran.c \
+	$(LIBPNG_DIR)/pngwutil.c
+include $(BUILD_STATIC_LIBRARY)
+
+# ============================================================================
 # MinecraftPE shared library
 # ============================================================================
 include $(CLEAR_VARS)
@@ -17,7 +42,8 @@ LOCAL_MODULE := minecraftpe
 
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)/../../../src \
-	$(LOCAL_PATH)/../../lib_projects/raknet/jni/RaknetSources
+	$(LOCAL_PATH)/../../lib_projects/raknet/jni/RaknetSources \
+	$(LIBPNG_DIR)
 
 # ---- Platform / App ----
 LOCAL_SRC_FILES := \
@@ -138,7 +164,7 @@ LOCAL_CPPFLAGS += -std=c++14 -frtti -fexceptions
 LOCAL_CPPFLAGS += -DANDROID -DOPENGL_ES -DNO_EGL -DPRE_ANDROID23
 
 # ---- Static libraries ----
-LOCAL_STATIC_LIBRARIES := RakNet
+LOCAL_STATIC_LIBRARIES := libpng RakNet
 
 # ---- System libraries (linked via LDLIBS, not SHARED_LIBRARIES) ----
 LOCAL_LDLIBS := \

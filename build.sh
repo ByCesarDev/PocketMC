@@ -234,6 +234,27 @@ function write_stub_file() {
   fi
 }
 
+function fetch_libpng() {
+  local libpng_version="1.6.37"
+  local src_dir="$BUILD_DIR/libpng"
+
+  if [[ -d "$src_dir" && -f "$src_dir/png.h" ]]; then
+    echo "  libpng already present"
+    return
+  fi
+
+  log_step "Fetching libpng $libpng_version"
+  local tarball="$BUILD_DIR/libpng-${libpng_version}.tar.gz"
+  curl -L -o "$tarball" \
+    "https://github.com/pnggroup/libpng/archive/refs/tags/v${libpng_version}.tar.gz"
+  tar -xzf "$tarball" -C "$BUILD_DIR"
+  mv "$BUILD_DIR/libpng-${libpng_version}" "$src_dir"
+
+  # Copy the prebuilt config header to the source root so #include <pnglibconf.h> works
+  cp "$src_dir/scripts/pnglibconf.h.prebuilt" "$src_dir/pnglibconf.h"
+  echo "  libpng $libpng_version ready"
+}
+
 function build_ndk_abi() {
   local abi="$1"
 
@@ -376,6 +397,9 @@ echo "  stubs OK"
 ########################################
 if [[ "$NO_CPP" == false && "$NO_BUILD" == false ]]; then
   log_step "NDK build ($TARGET_ABI)"
+
+  fetch_libpng
+  export LIBPNG_DIR="$BUILD_DIR/libpng"
 
   # the original windows build script used a junction to avoid long paths here
   # on linux, path lengths are *usually* fine, but we still keep things simple
