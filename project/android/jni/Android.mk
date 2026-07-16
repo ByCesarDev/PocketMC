@@ -4,7 +4,9 @@ LOCAL_PATH := $(call my-dir)
 # RakNet static library (built from project/lib_projects/raknet)
 # ============================================================================
 include $(CLEAR_VARS)
-include $(LOCAL_PATH)/../../lib_projects/raknet/jni/Android.mk
+RPK_LOCAL_PATH := $(LOCAL_PATH)
+include $(RPK_LOCAL_PATH)/../../lib_projects/raknet/jni/Android.mk
+LOCAL_PATH := $(RPK_LOCAL_PATH)
 
 # ============================================================================
 # MinecraftPE shared library
@@ -19,10 +21,10 @@ LOCAL_C_INCLUDES := \
 
 # ---- Platform / App ----
 LOCAL_SRC_FILES := \
-	src/NinecraftApp.cpp \
-	src/Performance.cpp \
-	src/SharedConstants.cpp \
-	src/main_android_java.cpp
+	$(LOCAL_PATH)/../../../src/NinecraftApp.cpp \
+	$(LOCAL_PATH)/../../../src/Performance.cpp \
+	$(LOCAL_PATH)/../../../src/SharedConstants.cpp \
+	$(LOCAL_PATH)/../../../src/main_android_java.cpp
 
 # ---- Client core ----
 LOCAL_SRC_FILES += \
@@ -129,13 +131,13 @@ LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/phys/*.cpp)
 LOCAL_SRC_FILES := $(filter-out %/OreFeature.cpp, $(LOCAL_SRC_FILES))
 
 # Extra manually-added sources (match CMake CLIENT_SOURCES appendices)
-LOCAL_SRC_FILES += src/world/item/crafting/ExtraRecipes.cpp
-LOCAL_SRC_FILES += src/world/item/crafting/StonecutterRecipe.cpp
-LOCAL_SRC_FILES += src/world/entity/monster/PigZombieBrute.cpp
-LOCAL_SRC_FILES += src/world/item/BucketItem.cpp
+LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/world/item/crafting/ExtraRecipes.cpp
+LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/world/item/crafting/StonecutterRecipe.cpp
+LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/world/entity/monster/PigZombieBrute.cpp
+LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/world/item/BucketItem.cpp
 
 # ---- Android audio backend ----
-LOCAL_SRC_FILES += src/platform/audio/SoundSystemSL.cpp
+LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/platform/audio/SoundSystemSL.cpp
 
 # ---- Compiler flags ----
 LOCAL_CFLAGS := -Wno-psabi
