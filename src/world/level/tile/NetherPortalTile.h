@@ -19,7 +19,9 @@
 #include "../../../client/renderer/GameRenderer.h"
 #include "../../../platform/time.h"
 #include "../../../platform/log.h"
+#ifndef ANDROID
 #include <GLFW/glfw3.h>
+#endif
 #endif
 
 class NetherPortalTile : public Tile {
@@ -111,11 +113,14 @@ public:
                 } else {
                     LOGI("[NetherPortalTile::teleport] WARNING: gameRenderer is NULL\n");
                 }
+#ifndef ANDROID
                 GLFWwindow* window = glfwGetCurrentContext();
                 if (window) {
                     LOGI("[NetherPortalTile::teleport] Swapping GLFW buffers directly\n");
                     glfwSwapBuffers(window);
-                } else {
+                } else
+#endif
+                {
                     LOGI("[NetherPortalTile::teleport] Swapping standard buffers\n");
                     mc->swapBuffers();
                 }
