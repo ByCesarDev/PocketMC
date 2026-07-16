@@ -14,7 +14,7 @@ LOCAL_PATH := $(RPK_LOCAL_PATH)
 include $(CLEAR_VARS)
 LOCAL_MODULE := libpng
 LOCAL_C_INCLUDES := $(LIBPNG_DIR)
-LOCAL_CFLAGS := -O2 -DNDEBUG
+LOCAL_CFLAGS := -O2 -DNDEBUG -DPNG_ARM_NEON_OPT=0
 LOCAL_SRC_FILES := \
 	$(LIBPNG_DIR)/png.c \
 	$(LIBPNG_DIR)/pngerror.c \
@@ -56,6 +56,7 @@ LOCAL_SRC_FILES := \
 LOCAL_SRC_FILES += \
 	$(LOCAL_PATH)/../../../src/client/IConfigListener.cpp \
 	$(LOCAL_PATH)/../../../src/client/Minecraft.cpp \
+	$(LOCAL_PATH)/../../../src/client/MouseHandler.cpp \
 	$(LOCAL_PATH)/../../../src/client/Option.cpp \
 	$(LOCAL_PATH)/../../../src/client/OptionStrings.cpp \
 	$(LOCAL_PATH)/../../../src/client/Options.cpp \
