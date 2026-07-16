@@ -570,7 +570,9 @@ void Minecraft::tick(int nTick, int maxTick) {
 					level->dimension->updateLightRamp(gamma);
 					lastGamma = gamma;
 					lastDimension = level->dimension;
+#ifndef STANDALONE_SERVER
 					if (levelRenderer) levelRenderer->allChanged();
+#endif
 				}
 			}
 
@@ -1718,7 +1720,9 @@ void Minecraft::optionUpdated(OptionId option, bool value ) {
 		useAmbientOcclusion =
 			options.getBooleanValue(OPTIONS_AMBIENT_OCCLUSION) ||
 			options.getBooleanValue(OPTIONS_SMOOTH_LIGHTNING);
+#ifndef STANDALONE_SERVER
 		if (level && levelRenderer) levelRenderer->allChanged();
+#endif
 	}
 }
 
@@ -1727,9 +1731,11 @@ void Minecraft::optionUpdated(OptionId option, float value ) {
 		if (level && level->dimension) {
 			level->dimension->updateLightRamp(value);
 		}
+#ifndef STANDALONE_SERVER
 		if (levelRenderer) {
 			levelRenderer->allChanged();
 		}
+#endif
 	}
 }
 
