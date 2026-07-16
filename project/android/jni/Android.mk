@@ -1,0 +1,159 @@
+LOCAL_PATH := $(call my-dir)
+
+# ============================================================================
+# RakNet static library (built from project/lib_projects/raknet)
+# ============================================================================
+include $(CLEAR_VARS)
+include $(LOCAL_PATH)/../../lib_projects/raknet/jni/Android.mk
+
+# ============================================================================
+# MinecraftPE shared library
+# ============================================================================
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := minecraftpe
+
+LOCAL_C_INCLUDES := \
+	$(LOCAL_PATH)/../../../src \
+	$(LOCAL_PATH)/../../lib_projects/raknet/jni/RaknetSources
+
+# ---- Platform / App ----
+LOCAL_SRC_FILES := \
+	src/NinecraftApp.cpp \
+	src/Performance.cpp \
+	src/SharedConstants.cpp \
+	src/main_android_java.cpp
+
+# ---- Client core ----
+LOCAL_SRC_FILES += \
+	src/client/IConfigListener.cpp \
+	src/client/Minecraft.cpp \
+	src/client/Option.cpp \
+	src/client/OptionStrings.cpp \
+	src/client/Options.cpp \
+	src/client/OptionsFile.cpp \
+	src/client/ServerProfiler.cpp
+
+# ---- Gamemodes ----
+LOCAL_SRC_FILES += \
+	src/client/gamemode/CreativeMode.cpp \
+	src/client/gamemode/GameMode.cpp \
+	src/client/gamemode/SurvivalMode.cpp
+
+# ---- Player ----
+LOCAL_SRC_FILES += \
+	src/client/player/LocalPlayer.cpp \
+	src/client/player/RemotePlayer.cpp \
+	src/client/player/input/KeyboardInput.cpp \
+	src/client/player/input/ControllerTurnInput.cpp \
+	src/client/player/input/XperiaPlayInput.cpp
+
+# ---- Touch input ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/player/input/touchscreen/*.cpp)
+
+# ---- GUI ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/gui/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/gui/components/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/gui/screens/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/gui/screens/crafting/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/gui/screens/touch/*.cpp)
+
+# ---- Model ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/model/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/model/geom/*.cpp)
+
+# ---- Particle ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/particle/*.cpp)
+
+# ---- Renderer ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/renderer/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/renderer/culling/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/renderer/entity/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/renderer/ptexture/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/renderer/tileentity/*.cpp)
+
+# ---- Sound ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/sound/*.cpp)
+
+# ---- Locale ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/locale/*.cpp)
+
+# ---- Mods ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/mods/*.cpp)
+
+# ---- NBT ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/nbt/*.cpp)
+
+# ---- Network ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/network/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/network/command/*.cpp)
+
+# ---- Platform ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/platform/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/platform/input/*.cpp)
+
+# ---- Server ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/server/*.cpp)
+
+# ---- Util ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/util/*.cpp)
+
+# ---- World ----
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/entity/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/entity/ai/control/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/entity/animal/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/entity/item/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/entity/monster/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/entity/player/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/entity/projectile/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/food/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/inventory/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/item/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/item/crafting/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/biome/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/chunk/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/dimension/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/levelgen/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/levelgen/feature/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/levelgen/synth/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/material/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/pathfinder/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/storage/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/tile/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/level/tile/entity/*.cpp)
+LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/phys/*.cpp)
+
+# Exclude OreFeature (same as CMake)
+LOCAL_SRC_FILES := $(filter-out %/OreFeature.cpp, $(LOCAL_SRC_FILES))
+
+# Extra manually-added sources (match CMake CLIENT_SOURCES appendices)
+LOCAL_SRC_FILES += src/world/item/crafting/ExtraRecipes.cpp
+LOCAL_SRC_FILES += src/world/item/crafting/StonecutterRecipe.cpp
+LOCAL_SRC_FILES += src/world/entity/monster/PigZombieBrute.cpp
+LOCAL_SRC_FILES += src/world/item/BucketItem.cpp
+
+# ---- Android audio backend ----
+LOCAL_SRC_FILES += src/platform/audio/SoundSystemSL.cpp
+
+# ---- Compiler flags ----
+LOCAL_CFLAGS := -Wno-psabi
+LOCAL_CPPFLAGS += -std=c++14 -frtti -fexceptions
+
+# ---- Preprocessor defines ----
+LOCAL_CPPFLAGS += -DANDROID -DOPENGL_ES -DNO_EGL -DPRE_ANDROID23
+
+# ---- Static libraries ----
+LOCAL_STATIC_LIBRARIES := RakNet
+
+# ---- Shared / system libraries ----
+LOCAL_SHARED_LIBRARIES := \
+	libEGL \
+	libGLESv1_CM \
+	libandroid \
+	liblog \
+	libOpenSLES \
+	libz
+
+include $(BUILD_SHARED_LIBRARY)

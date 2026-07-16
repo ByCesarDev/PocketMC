@@ -5,7 +5,6 @@
 #include "platform/input/Keyboard.h"
 #include "world/item/Item.h"
 #include "world/item/ItemInstance.h"
-#include "client/renderer/LevelRenderer.h"
 #include <string>
 #include <cstdlib>
 

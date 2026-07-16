@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Minecraft Pocket Edition</string>
+    <string name="gamemode_survival_summary">Survive and thrive in a blocky world.</string>
+    <string name="gamemode_creative_summary">Unlimited resources and free flight.</string>
+</resources>
