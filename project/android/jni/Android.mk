@@ -127,12 +127,6 @@ LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/world/phys/*.cpp)
 # Exclude OreFeature (same as CMake)
 LOCAL_SRC_FILES := $(filter-out %/OreFeature.cpp, $(LOCAL_SRC_FILES))
 
-# Extra manually-added sources (match CMake CLIENT_SOURCES appendices)
-LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/world/item/crafting/ExtraRecipes.cpp
-LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/world/item/crafting/StonecutterRecipe.cpp
-LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/world/entity/monster/PigZombieBrute.cpp
-LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/world/item/BucketItem.cpp
-
 # ---- Android audio backend ----
 LOCAL_SRC_FILES += $(LOCAL_PATH)/../../../src/platform/audio/SoundSystemSL.cpp
 
