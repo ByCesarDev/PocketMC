@@ -45,9 +45,7 @@ LOCAL_SRC_FILES += \
 LOCAL_SRC_FILES += \
 	$(LOCAL_PATH)/../../../src/client/player/LocalPlayer.cpp \
 	$(LOCAL_PATH)/../../../src/client/player/RemotePlayer.cpp \
-	$(LOCAL_PATH)/../../../src/client/player/input/KeyboardInput.cpp \
-	$(LOCAL_PATH)/../../../src/client/player/input/ControllerTurnInput.cpp \
-	$(LOCAL_PATH)/../../../src/client/player/input/XperiaPlayInput.cpp
+	$(LOCAL_PATH)/../../../src/client/player/input/KeyboardInput.cpp
 
 # ---- Touch input ----
 LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/player/input/touchscreen/*.cpp)
