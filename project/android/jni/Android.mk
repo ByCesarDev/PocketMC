@@ -147,13 +147,13 @@ LOCAL_CPPFLAGS += -DANDROID -DOPENGL_ES -DNO_EGL -DPRE_ANDROID23
 # ---- Static libraries ----
 LOCAL_STATIC_LIBRARIES := RakNet
 
-# ---- Shared / system libraries ----
-LOCAL_SHARED_LIBRARIES := \
-	libEGL \
-	libGLESv1_CM \
-	libandroid \
-	liblog \
-	libOpenSLES \
-	libz
+# ---- System libraries (linked via LDLIBS, not SHARED_LIBRARIES) ----
+LOCAL_LDLIBS := \
+	-lEGL \
+	-lGLESv1_CM \
+	-landroid \
+	-llog \
+	-lOpenSLES \
+	-lz
 
 include $(BUILD_SHARED_LIBRARY)
