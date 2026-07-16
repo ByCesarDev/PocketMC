@@ -33,8 +33,7 @@ LOCAL_SRC_FILES += \
 	$(LOCAL_PATH)/../../../src/client/Option.cpp \
 	$(LOCAL_PATH)/../../../src/client/OptionStrings.cpp \
 	$(LOCAL_PATH)/../../../src/client/Options.cpp \
-	$(LOCAL_PATH)/../../../src/client/OptionsFile.cpp \
-	$(LOCAL_PATH)/../../../src/client/ServerProfiler.cpp
+	$(LOCAL_PATH)/../../../src/client/OptionsFile.cpp
 
 # ---- Gamemodes ----
 LOCAL_SRC_FILES += \

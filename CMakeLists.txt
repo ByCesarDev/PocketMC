@@ -134,7 +134,7 @@ file(GLOB SERVER_SOURCES
     "${PROJECT_ROOT}/src/client/Option.cpp"
     "${PROJECT_ROOT}/src/client/Options.cpp"
     "${PROJECT_ROOT}/src/client/OptionsFile.cpp"
-    "${PROJECT_ROOT}/src/client/ServerProfiler.cpp"
+    "${PROJECT_ROOT}/src/util/ServerProfiler.cpp"
 
     "${PROJECT_ROOT}/src/client/gamemode/CreativeMode.cpp"
     "${PROJECT_ROOT}/src/client/gamemode/GameMode.cpp"

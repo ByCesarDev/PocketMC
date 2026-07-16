@@ -228,8 +228,11 @@ static int androidKeyToInternal(int androidKey) {
     switch(androidKey) {
         case AKEYCODE_DEL: return Keyboard::KEY_BACKSPACE;
         case AKEYCODE_ENTER:
+            return Keyboard::KEY_RETURN;
+#if __ANDROID_API__ >= 28
         case AKEYCODE_NUMPAD_ENTER:
             return Keyboard::KEY_RETURN;
+#endif
         // letters are delivered via nativeTextChar so no need to map here
         default:
             return androidKey; // fall back to raw code
