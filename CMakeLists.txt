@@ -101,6 +101,12 @@ else()
     )
 endif()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(ALSOFT_STATIC_CXX_RUNTIME OFF)
+else()
+    set(ALSOFT_STATIC_CXX_RUNTIME ON)
+endif()
+
 CPMAddPackage(
     NAME "openal"
     GIT_REPOSITORY "https://github.com/kcat/openal-soft.git"
@@ -111,8 +117,8 @@ CPMAddPackage(
         "ALSOFT_UTILS OFF"
         "LIBTYPE ${AL_LIBTYPE}"
         "ALSOFT_ENABLE_MODULES OFF"
-        "ALSOFT_STATIC_STDCXX ON"
-        "ALSOFT_STATIC_LIBGCC ON"
+        "ALSOFT_STATIC_STDCXX ${ALSOFT_STATIC_CXX_RUNTIME}"
+        "ALSOFT_STATIC_LIBGCC ${ALSOFT_STATIC_CXX_RUNTIME}"
 )
 
 # TODO: Clear this paths with *
