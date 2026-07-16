@@ -49,6 +49,8 @@ void glInit()
 void anGenBuffers(GLsizei n, GLuint* buffers) {
 #ifdef __EMSCRIPTEN__
     glGenBuffers(n, buffers);
+#elif defined(ANDROID)
+    glGenBuffers(n, buffers);
 #else
     static GLuint k = 1;
     for (int i = 0; i < n; ++i)

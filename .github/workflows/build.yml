@@ -56,7 +56,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm-mingw/bin/x86_64-w64-mingw32-clang++ \
             -DCMAKE_RC_COMPILER=$GITHUB_WORKSPACE/llvm-mingw/bin/x86_64-w64-mingw32-windres \
             -DALSOFT_BACKEND_PIPEWIRE=OFF \
-            -DALSOFT_STATIC=OFF \
+            -DALSOFT_STATIC=ON \
             -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
       - name: Build
@@ -70,7 +70,6 @@ jobs:
           path: |
             ${{github.workspace}}/build/MinecraftPE.exe
             ${{github.workspace}}/build/libpng16.dll
-            ${{github.workspace}}/build/OpenAL32.dll
             ${{github.workspace}}/build/libz.dll
 
   build-linux:
@@ -285,7 +284,7 @@ jobs:
       - name: Zip Windows Artifacts
         uses: vimtor/action-zip@v1.2
         with:
-          files: mcpe-windows/MinecraftPE.exe mcpe-windows/libpng16.dll mcpe-windows/OpenAL32.dll mcpe-windows/libz.dll
+          files: mcpe-windows/MinecraftPE.exe mcpe-windows/libpng16.dll mcpe-windows/libz.dll
           dest: minecraftpe-${{ steps.ref.outputs.hash }}-windows.zip
 
       - name: Zip Linux Artifacts
