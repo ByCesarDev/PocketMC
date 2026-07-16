@@ -28,27 +28,27 @@ LOCAL_SRC_FILES := \
 
 # ---- Client core ----
 LOCAL_SRC_FILES += \
-	src/client/IConfigListener.cpp \
-	src/client/Minecraft.cpp \
-	src/client/Option.cpp \
-	src/client/OptionStrings.cpp \
-	src/client/Options.cpp \
-	src/client/OptionsFile.cpp \
-	src/client/ServerProfiler.cpp
+	$(LOCAL_PATH)/../../../src/client/IConfigListener.cpp \
+	$(LOCAL_PATH)/../../../src/client/Minecraft.cpp \
+	$(LOCAL_PATH)/../../../src/client/Option.cpp \
+	$(LOCAL_PATH)/../../../src/client/OptionStrings.cpp \
+	$(LOCAL_PATH)/../../../src/client/Options.cpp \
+	$(LOCAL_PATH)/../../../src/client/OptionsFile.cpp \
+	$(LOCAL_PATH)/../../../src/client/ServerProfiler.cpp
 
 # ---- Gamemodes ----
 LOCAL_SRC_FILES += \
-	src/client/gamemode/CreativeMode.cpp \
-	src/client/gamemode/GameMode.cpp \
-	src/client/gamemode/SurvivalMode.cpp
+	$(LOCAL_PATH)/../../../src/client/gamemode/CreativeMode.cpp \
+	$(LOCAL_PATH)/../../../src/client/gamemode/GameMode.cpp \
+	$(LOCAL_PATH)/../../../src/client/gamemode/SurvivalMode.cpp
 
 # ---- Player ----
 LOCAL_SRC_FILES += \
-	src/client/player/LocalPlayer.cpp \
-	src/client/player/RemotePlayer.cpp \
-	src/client/player/input/KeyboardInput.cpp \
-	src/client/player/input/ControllerTurnInput.cpp \
-	src/client/player/input/XperiaPlayInput.cpp
+	$(LOCAL_PATH)/../../../src/client/player/LocalPlayer.cpp \
+	$(LOCAL_PATH)/../../../src/client/player/RemotePlayer.cpp \
+	$(LOCAL_PATH)/../../../src/client/player/input/KeyboardInput.cpp \
+	$(LOCAL_PATH)/../../../src/client/player/input/ControllerTurnInput.cpp \
+	$(LOCAL_PATH)/../../../src/client/player/input/XperiaPlayInput.cpp
 
 # ---- Touch input ----
 LOCAL_SRC_FILES += $(wildcard $(LOCAL_PATH)/../../../src/client/player/input/touchscreen/*.cpp)
