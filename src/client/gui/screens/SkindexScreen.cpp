@@ -21,7 +21,6 @@
 #endif
 
 #if defined(ANDROID)
-extern "C" void extractAsset_JNI(const char* asset, const char* dest);
 extern "C" void pickImage_JNI();
 #endif
 
@@ -61,11 +60,7 @@ void SkindexScreen::scanSkins() {
 	CopyFileA("data/images/skins/steve.png", "games/com.mojang/skins/Default/steve.png", FALSE);
 	CopyFileA("data/images/skins/cesar.png", "games/com.mojang/skins/Default/cesar.png", FALSE);
 	CopyFileA("data/images/skins/cesar malo.png", "games/com.mojang/skins/Default/cesar malo.png", FALSE);
-#elif defined(ANDROID)
-	extractAsset_JNI("images/skins/steve.png", "games/com.mojang/skins/Default/steve.png");
-	extractAsset_JNI("images/skins/cesar.png", "games/com.mojang/skins/Default/cesar.png");
-	extractAsset_JNI("images/skins/cesar malo.png", "games/com.mojang/skins/Default/cesar malo.png");
-#else
+#elif !defined(ANDROID)
 	auto copyFile = [](const std::string& src, const std::string& dest) {
 		std::ifstream source(src, std::ios::binary);
 		std::ofstream destination(dest, std::ios::binary);
@@ -104,7 +99,7 @@ void SkindexScreen::scanSkins() {
 		} while (FindNextFileA(hFindDir, &findDirData) != 0);
 		FindClose(hFindDir);
 	}
-#else
+#elif !defined(ANDROID)
 	DIR* dir = opendir("games/com.mojang/skins");
 	if (dir != NULL) {
 		struct dirent* ent;
@@ -135,7 +130,13 @@ void SkindexScreen::scanSkins() {
 	if (skinPacks.empty()) {
 		SkinPack pack;
 		pack.name = "Default";
+#ifdef ANDROID
+		pack.skins.push_back("images/skins/steve.png");
+		pack.skins.push_back("images/skins/cesar.png");
+		pack.skins.push_back("images/skins/cesar malo.png");
+#else
 		pack.skins.push_back("games/com.mojang/skins/Default/steve.png");
+#endif
 		skinPacks.push_back(pack);
 	}
 }
@@ -144,7 +145,11 @@ void SkindexScreen::init() {
 	scanSkins();
 
 	std::string currentSkin = minecraft->options.getStringValue(OPTIONS_SKIN);
+#ifdef ANDROID
+	if (currentSkin == "" || currentSkin == "Default") currentSkin = "images/skins/steve.png";
+#else
 	if (currentSkin == "" || currentSkin == "Default") currentSkin = "games/com.mojang/skins/Default/steve.png";
+#endif
 
 	currentPackIndex = 0;
 	currentSkinIndex = 0;
