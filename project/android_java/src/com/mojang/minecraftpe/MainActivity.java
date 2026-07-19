@@ -66,8 +66,43 @@ public class MainActivity extends Activity {
     // Legacy JNI methods that the native side expects on this class
     public static void saveScreenshot(String filename, int width, int height, int[] pixels) {}
     public void postScreenshotToFacebook(String filename, int width, int height, int[] pixels) {}
-    public int[] getImageData(String filename) { return null; }
-    public byte[] getFileDataBytes(String filename) { return null; }
+    public int[] getImageData(String filename) {
+        try {
+            InputStream is = getAssets().open(filename);
+            Bitmap bitmap = BitmapFactory.decodeStream(is);
+            is.close();
+            if (bitmap != null) {
+                int w = bitmap.getWidth();
+                int h = bitmap.getHeight();
+                int[] pixels = new int[w * h + 2];
+                pixels[0] = w;
+                pixels[1] = h;
+                bitmap.getPixels(pixels, 2, w, 0, 0, w, h);
+                bitmap.recycle();
+                return pixels;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public byte[] getFileDataBytes(String filename) {
+        try {
+            InputStream is = getAssets().open(filename);
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int nRead;
+            byte[] data = new byte[16384];
+            while ((nRead = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            is.close();
+            return buffer.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     public void playSound(String filename, float volume, float pitch) {}
     public void displayDialog(int dialogId) {}
     public void tick() {}
