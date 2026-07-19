@@ -63,7 +63,7 @@ DerivedData/
 *.ap_
 local.properties
 .gradle/
-project/
+.project
 
 # macOS
 .DS_Store
