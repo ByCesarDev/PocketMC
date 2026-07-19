@@ -89,43 +89,32 @@ public:
 	}
 
 private:
-	Tesselator(const Tesselator& rhs) {}
-	Tesselator& operator=(const Tesselator& rhs) { return *this; }
-	VERTEX* _varray;
-
-	int vertices;
-
-	float xo, yo, zo;
-	float u, v;
-	unsigned int _color;
-//	int _normal; // trying a new thing
-	float _nx, _ny, _nz; 
-
-	float _sx, _sy;
-
-	bool hasColor;
-	bool hasTexture;
-	bool hasNormal;
-	bool _noColor;
-	bool _voidBeginEnd;
-
-	int p;
-	int count;
-
-	bool tesselating;
-
-	bool vboMode;
-	int vboCounts;
-	int vboId;
-	GLuint* vboIds;
-
-	int size;
-	int totalSize;
-	int maxVertices;
-
-	int mode;
-	int accessMode;
-
+	Tesselator(const Tesselator& rhs);
+	Tesselator& operator=(const Tesselator& rhs);
+	VERTEX* _varray = nullptr;
+	int vertices = 0;
+	float xo = 0, yo = 0, zo = 0;
+	float u = 0, v = 0;
+	unsigned int _color = 0;
+	float _nx = 0, _ny = 0, _nz = 0; 
+	float _sx = 1.0f, _sy = 1.0f;
+	bool hasColor = false;
+	bool hasTexture = false;
+	bool hasNormal = false;
+	bool _noColor = false;
+	bool _voidBeginEnd = false;
+	int p = 0;
+	int count = 0;
+	bool tesselating = false;
+	bool vboMode = false;
+	int vboCounts = 0;
+	int vboId = -1;
+	GLuint* vboIds = nullptr;
+	int size = 0;
+	int totalSize = 0;
+	int maxVertices = 0;
+	int mode = 0;
+	int accessMode = 0;
 	IntGLMap map;
 };
 

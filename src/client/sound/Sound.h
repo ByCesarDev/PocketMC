@@ -9,7 +9,7 @@ class SoundDesc
 {
 public:
 	SoundDesc()
-	:	buffer(0)
+	:	buffer(nullptr), frames(nullptr), size(0), channels(0), byteWidth(0), frameRate(0), numFrames(0)
 	{}
 
     SoundDesc(char* data, int size, int channels, int width, int rate)
@@ -24,7 +24,7 @@ public:
     }
 
 	SoundDesc(char* data)
-	:	buffer(data)
+	:	buffer(data), frames(nullptr), size(0), channels(0), byteWidth(0), frameRate(0), numFrames(0)
 	{
 		// header [INT][Channels, BytePerSample, FrameRate, NumFrames]
 		channels  = *((int*)&data[0]);
@@ -48,17 +48,17 @@ public:
         }
     }
     
-	char* frames;
-    int size;
+	char* frames = nullptr;
+    int size = 0;
 
-	int channels;
-	int byteWidth;
-	int frameRate;
-	int numFrames;
+	int channels = 0;
+	int byteWidth = 0;
+	int frameRate = 0;
+	int numFrames = 0;
 
     std::string name;
 private:
-	mutable char* buffer;
+	mutable char* buffer = nullptr;
 };
 
 #if !defined(PRE_ANDROID23) && !defined(__APPLE__) && !defined(RPI)

@@ -1,4 +1,4 @@
-#include "EditServerScreen.h"
+﻿#include "EditServerScreen.h"
 #include "CustomServerList.h"
 #include "ScreenChooser.h"
 #include "../Font.h"

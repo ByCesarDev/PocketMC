@@ -89,19 +89,21 @@ PACKAGE_NAME="com.mojang.minecraftpe"
 
 # android tool binaries
 AAPT="$ANDROID_BUILD_TOOLS_DIR/aapt"
-[[ -x "${AAPT}.exe" ]] && AAPT="${AAPT}.exe"
+[[ -f "${AAPT}.exe" ]] && AAPT="${AAPT}.exe"
 
 ZIPALIGN="$ANDROID_BUILD_TOOLS_DIR/zipalign"
-[[ -x "${ZIPALIGN}.exe" ]] && ZIPALIGN="${ZIPALIGN}.exe"
+[[ -f "${ZIPALIGN}.exe" ]] && ZIPALIGN="${ZIPALIGN}.exe"
 
 APKSIGNER="$ANDROID_BUILD_TOOLS_DIR/apksigner"
-[[ -x "${APKSIGNER}.bat" ]] && APKSIGNER="${APKSIGNER}.bat"
+[[ -f "${APKSIGNER}.bat" ]] && APKSIGNER="${APKSIGNER}.bat"
+[[ -f "${APKSIGNER}.cmd" ]] && APKSIGNER="${APKSIGNER}.cmd"
 
 DEX_TOOL="$ANDROID_BUILD_TOOLS_DIR/d8"
-[[ -x "${DEX_TOOL}.bat" ]] && DEX_TOOL="${DEX_TOOL}.bat"
+[[ -f "${DEX_TOOL}.bat" ]] && DEX_TOOL="${DEX_TOOL}.bat"
+[[ -f "${DEX_TOOL}.cmd" ]] && DEX_TOOL="${DEX_TOOL}.cmd"
 
 ADB="${ADB:-$ANDROID_SDK_ROOT/platform-tools/adb}"
-[[ -x "${ADB}.exe" ]] && ADB="${ADB}.exe"
+[[ -f "${ADB}.exe" ]] && ADB="${ADB}.exe"
 
 # java tool binaries
 JAVA_HOME_DEFAULT="${JAVA_HOME:-}"  # may be empty
@@ -182,8 +184,8 @@ function require_cmd() {
 }
 
 # ensure required tools are available early
-require_cmd zip
-require_cmd unzip
+# require_cmd zip
+# require_cmd unzip
 
 function ensure_dir() {
   mkdir -p "$1"
@@ -267,8 +269,11 @@ function build_ndk_abi() {
     extra_flags+=( "APP_ARM_MODE=arm" "APP_ARM_NEON=true" )
   fi
 
+  local ndk_cmd="$ANDROID_NDK_PATH/ndk-build"
+  [[ -f "${ndk_cmd}.cmd" ]] && ndk_cmd="${ndk_cmd}.cmd"
+
   echo "  ndk-build for $abi..."
-  if ! "$ANDROID_NDK_PATH/ndk-build" \
+  if ! "$ndk_cmd" \
       NDK_PROJECT_PATH="$REPO_ROOT/project/android" \
       APP_BUILD_SCRIPT="$JNI_DIR/Android.mk" \
       "${extra_flags[@]}" \
@@ -330,23 +335,23 @@ APK_SIGNED="$BUILD_DIR/minecraftpe-${APK_SUFFIX}-debug.apk"
 ########################################
 KEYTOOL="$(find_keytool)"
 
-if [[ ! -x "$AAPT" ]]; then
+if [[ ! -f "$AAPT" ]]; then
   fail "aapt not found at $AAPT"
 fi
 
-if [[ ! -x "$ZIPALIGN" ]]; then
+if [[ ! -f "$ZIPALIGN" ]]; then
   fail "zipalign not found at $ZIPALIGN"
 fi
 
-if [[ ! -x "$APKSIGNER" ]]; then
+if [[ ! -f "$APKSIGNER" ]]; then
   fail "apksigner not found at $APKSIGNER"
 fi
 
-if [[ ! -x "$DEX_TOOL" ]]; then
+if [[ ! -f "$DEX_TOOL" ]]; then
   fail "d8 not found at $DEX_TOOL"
 fi
 
-if [[ ! -x "$ADB" ]]; then
+if [[ ! -f "$ADB" ]]; then
   fail "adb not found at $ADB"
 fi
 
@@ -468,13 +473,16 @@ rm -f "$APK_UNSIGNED" "$APK_ALIGNED" "$APK_SIGNED"
 # when building for "all" we pack both ABIs into the same APK so Android can
 # pick the right one at install time (fat APK). for a single-ABI build we
 # only include the one .so that was actually compiled.
+JAR_CMD="$(dirname "$JAVAC_CMD")/jar"
+[[ -x "${JAR_CMD}.exe" ]] && JAR_CMD="${JAR_CMD}.exe"
+
 pushd "$BUILD_DIR" >/dev/null
-zip -q "$APK_UNSIGNED" "classes.dex"
+"$JAR_CMD" uf "$APK_UNSIGNED" "classes.dex"
 if [[ "$TARGET_ABI" == "all" ]]; then
-  zip -q "$APK_UNSIGNED" "lib/arm64-v8a/libminecraftpe.so"
-  zip -q "$APK_UNSIGNED" "lib/armeabi-v7a/libminecraftpe.so"
+  "$JAR_CMD" uf "$APK_UNSIGNED" "lib/arm64-v8a/libminecraftpe.so"
+  "$JAR_CMD" uf "$APK_UNSIGNED" "lib/armeabi-v7a/libminecraftpe.so"
 else
-  zip -q "$APK_UNSIGNED" "lib/$TARGET_ABI/libminecraftpe.so"
+  "$JAR_CMD" uf "$APK_UNSIGNED" "lib/$TARGET_ABI/libminecraftpe.so"
 fi
 popd >/dev/null
 
@@ -483,7 +491,7 @@ TMP_ASSETS_DIR="$(mktemp -d)"
 mkdir -p "$TMP_ASSETS_DIR/assets"
 cp -r "$DATA_DIR/." "$TMP_ASSETS_DIR/assets/"
 pushd "$TMP_ASSETS_DIR" >/dev/null
-zip -q -r "$APK_UNSIGNED" assets
+"$JAR_CMD" uf "$APK_UNSIGNED" assets
 popd >/dev/null
 rm -rf "$TMP_ASSETS_DIR"
 

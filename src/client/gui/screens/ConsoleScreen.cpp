@@ -1,4 +1,4 @@
-#include "ConsoleScreen.h"
+﻿#include "ConsoleScreen.h"
 #include "../Gui.h"
 #include "../../Minecraft.h"
 #include "../../player/LocalPlayer.h"
@@ -222,7 +222,7 @@ std::string ConsoleScreen::processCommand(const std::string& raw)
             else if (val == "night")    t = 13000;
             else if (val == "midnight") t = 18000;
             else {
-                // numeric — accept positive integers only
+                // numeric â€” accept positive integers only
                 bool numeric = true;
                 for (char c : val)
                     if (!std::isdigit((unsigned char)c)) { numeric = false; break; }

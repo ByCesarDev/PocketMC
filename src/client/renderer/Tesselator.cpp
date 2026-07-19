@@ -24,6 +24,7 @@ Tesselator::Tesselator( int size )
 	_sx(1), _sy(1),
 
 	tesselating(false),
+	vboMode(false),
 	vboId(-1),
 	vboCounts(128),
 	totalSize(0),

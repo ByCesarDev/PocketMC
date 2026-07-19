@@ -56,7 +56,6 @@ jobs:
             -DCMAKE_CXX_COMPILER=$GITHUB_WORKSPACE/llvm-mingw/bin/x86_64-w64-mingw32-clang++ \
             -DCMAKE_RC_COMPILER=$GITHUB_WORKSPACE/llvm-mingw/bin/x86_64-w64-mingw32-windres \
             -DALSOFT_BACKEND_PIPEWIRE=OFF \
-            -DALSOFT_STATIC=ON \
             -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
       - name: Build
@@ -70,8 +69,33 @@ jobs:
           path: |
             ${{github.workspace}}/build/MinecraftPE.exe
             ${{github.workspace}}/build/libpng16.dll
+            ${{github.workspace}}/build/OpenAL32.dll
             ${{github.workspace}}/build/libz.dll
 
+  build-ios:
+  # credit to pengubow from deepfriedwaffles repo
+    name: Build iOS
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Build
+        run: |
+          cd project/iosproj
+          xcodebuild -scheme minecraftpe -derivedDataPath build -destination 'generic/platform=iOS' CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+          mkdir -p Payload
+          cp -R build/Build/Products/Debug-iphoneos/minecraftpe.app Payload/
+          zip -r minecraftpe.ipa Payload
+          rm -rf Payload
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: minecraftpe-ios
+          path: project/iosproj/minecraftpe.ipa
+          
   build-linux:
     name: Build Linux
     runs-on: ubuntu-latest
@@ -192,16 +216,6 @@ jobs:
           distribution: temurin
           java-version: 25
 
-      - name: Validate environment
-        run: |
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          echo "ANDROID_NDK_PATH=$ANDROID_NDK_PATH"
-          echo "JAVA_HOME=$JAVA_HOME"
-          echo "MATRIX_ABI=$MATRIX_ABI"
-          $ANDROID_SDK_ROOT/platform-tools/adb version || true
-          java -version
-          javac -version
-
       - name: Run Android build script
         run: |
           chmod +x ./build.sh
@@ -248,7 +262,7 @@ jobs:
         # access regardless of the host operating system
         shell: bash
         working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/emsdk-cache/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" -DALSOFT_STATIC=OFF
+        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -G Ninja -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/emsdk-cache/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
 
       - name: Build
         working-directory: ${{github.workspace}}/build
@@ -266,8 +280,7 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    needs: [ build-windows, build-linux, build-android, build-web ]
-    if: github.ref == 'refs/heads/main'
+    needs: [ build-windows, build-ios, build-linux, build-android, build-web ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -284,7 +297,7 @@ jobs:
       - name: Zip Windows Artifacts
         uses: vimtor/action-zip@v1.2
         with:
-          files: mcpe-windows/MinecraftPE.exe mcpe-windows/libpng16.dll mcpe-windows/libz.dll
+          files: mcpe-windows/MinecraftPE.exe mcpe-windows/libpng16.dll mcpe-windows/OpenAL32.dll mcpe-windows/libz.dll
           dest: minecraftpe-${{ steps.ref.outputs.hash }}-windows.zip
 
       - name: Zip Linux Artifacts
@@ -299,17 +312,10 @@ jobs:
           files: mcpe-linux/MinecraftPE-server
           dest: minecraftpe-server-${{ steps.ref.outputs.hash }}.zip
 
-      - name: Zip Android arm64-v8a Artifact
-        uses: vimtor/action-zip@v1.2
-        with:
-          files: minecraftpe-apk-arm64-v8a/minecraftpe-v8a-debug.apk
-          dest: minecraftpe-${{ steps.ref.outputs.hash }}-android-arm64-v8a.zip
-
-      - name: Zip Android armeabi-v7a Artifact
-        uses: vimtor/action-zip@v1.2
-        with:
-          files: minecraftpe-apk-armeabi-v7a/minecraftpe-v7a-debug.apk
-          dest: minecraftpe-${{ steps.ref.outputs.hash }}-android-armeabi-v7a.zip
+      - name: Rename Android Artifacts
+        run: |
+          mv minecraftpe-apk-arm64-v8a/minecraftpe-v8a-debug.apk minecraftpe-${{ steps.ref.outputs.hash }}-android-arm64-v8a.apk
+          mv minecraftpe-apk-armeabi-v7a/minecraftpe-v7a-debug.apk minecraftpe-${{ steps.ref.outputs.hash }}-android-armeabi-v7a.apk
 
       - name: Zip Web Artifact
         uses: vimtor/action-zip@v1.2
@@ -335,9 +341,9 @@ jobs:
             MinecraftPE development release for commit ${{ github.sha }}.
           files: |
             ./data.zip
+            ./minecraftpe-server-${{ steps.ref.outputs.hash }}.zip
             ./minecraftpe-${{ steps.ref.outputs.hash }}-windows.zip
             ./minecraftpe-${{ steps.ref.outputs.hash }}-linux.zip
-            ./minecraftpe-server-${{ steps.ref.outputs.hash }}.zip
-            ./minecraftpe-${{ steps.ref.outputs.hash }}-android-arm64-v8a.zip
-            ./minecraftpe-${{ steps.ref.outputs.hash }}-android-armeabi-v7a.zip
+            ./minecraftpe-${{ steps.ref.outputs.hash }}-android-arm64-v8a.apk
+            ./minecraftpe-${{ steps.ref.outputs.hash }}-android-armeabi-v7a.apk
             ./minecraftpe-${{ steps.ref.outputs.hash }}-web.zip

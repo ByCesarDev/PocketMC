@@ -1,4 +1,4 @@
-#include "NewPackScreen.h"
+﻿#include "NewPackScreen.h"
 #include "SkindexScreen.h"
 #include "../../Minecraft.h"
 #include "../Font.h"

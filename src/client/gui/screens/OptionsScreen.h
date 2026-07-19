@@ -3,50 +3,32 @@
 
 #include "../Screen.h"
 #include "../components/Button.h"
-#include "../components/OptionsGroup.h"
 
-class ImageButton;
-class OptionsPane;
-
-class OptionsScreen: public Screen
+class OptionsScreen : public Screen
 {
-	typedef Screen super;
-
-	void init();
-	void generateOptionScreens();
-
 public:
 	OptionsScreen();
-	~OptionsScreen();
+	virtual ~OptionsScreen();
 
-	void setupPositions();
-	void buttonClicked(Button* button);
-	void render(int xm, int ym, float a);
-	void removed();
-	void selectCategory(int index);
-
-	virtual void mouseClicked(int x, int y, int buttonNum);
-	virtual void mouseReleased(int x, int y, int buttonNum);
-    virtual void mouseWheel(int dx, int dy, int xm, int ym);
-	virtual void keyPressed(int eventKey);
-	virtual void charPressed(char inputChar);
-	
+	virtual void init();
+	virtual void setupPositions();
+	virtual void buttonClicked(Button* button);
+	virtual void render(int xm, int ym, float a);
 	virtual void tick();
+	virtual void keyPressed(int eventKey);
+    
+    virtual void renderBackground();
 
 private:
 	Button* btnDone;
-
-	Button* btnCredits;
-	std::vector<Button*> languageButtons;
-	Button* btnApplyLanguage;
-
-	std::vector<Button*> categoryButtons;
-	std::vector<OptionsGroup*> optionPanes;
-
-	OptionsGroup* currentOptionsGroup;
-
-	int selectedCategory;
-	bool inSubMenu;
+	Button* btnSkin;
+	Button* btnAudio;
+	Button* btnGraphics;
+	Button* btnControls;
+	Button* btnLanguage;
+	Button* btnChat;
+	Button* btnResourcePacks;
+	Button* btnAccessibility;
 };
 
-#endif /*NET_MINECRAFT_CLIENT_GUI_SCREENS__OptionsScreen_H__*/
+#endif

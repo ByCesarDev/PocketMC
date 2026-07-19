@@ -1,4 +1,4 @@
-#include "ChatScreen.h"
+﻿#include "ChatScreen.h"
 #include "DialogDefinitions.h"
 #include "../Gui.h"
 #include "../../Minecraft.h"

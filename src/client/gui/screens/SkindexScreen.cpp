@@ -1,4 +1,4 @@
-#include "SkindexScreen.h"
+﻿#include "SkindexScreen.h"
 #include "RenameSkinScreen.h"
 #include "NewPackScreen.h"
 #include <algorithm>

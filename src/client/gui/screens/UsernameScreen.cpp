@@ -1,4 +1,4 @@
-#include "UsernameScreen.h"
+﻿#include "UsernameScreen.h"
 #include "StartMenuScreen.h"
 #include "../../Minecraft.h"
 #include "../Font.h"
@@ -56,7 +56,7 @@ void UsernameScreen::keyPressed(int eventKey)
             buttonClicked(&_btnDone);
     }
 
-    // deliberately do NOT call super::keyPressed — that would close the screen on Escape
+    // deliberately do NOT call super::keyPressed â€” that would close the screen on Escape
     Screen::keyPressed(eventKey);
 
     // enable the Done button only when there is some text (and ensure it updates after backspace)

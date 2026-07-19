@@ -1,4 +1,4 @@
-#include "IngameBlockSelectionScreen.h"
+﻿#include "IngameBlockSelectionScreen.h"
 #include "../../../locale/I18n.h"
 #include "../../renderer/TileRenderer.h"
 #include "../../player/LocalPlayer.h"

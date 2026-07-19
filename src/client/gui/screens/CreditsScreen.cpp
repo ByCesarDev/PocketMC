@@ -1,4 +1,4 @@
-#include "CreditsScreen.h"
+﻿#include "CreditsScreen.h"
 #include "StartMenuScreen.h"
 #include "OptionsScreen.h"
 #include "../../Minecraft.h"

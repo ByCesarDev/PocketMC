@@ -1,351 +1,94 @@
-#include "OptionsScreen.h"
-
-#include "StartMenuScreen.h"
-#include "UsernameScreen.h"
-#include "DialogDefinitions.h"
+﻿#include "OptionsScreen.h"
 #include "../../Minecraft.h"
-#include "../../../AppPlatform.h"
-#include "CreditsScreen.h"
-#include "../../../locale/I18n.h"
+#include "../../Options.h"
+#include "locale/I18n.h"
+#include "SkinCustomizationScreen.h"
+#include "GraphicsScreen.h"
+#include "LanguageScreen.h"
+#include "ResourcePacksScreen.h"
+#include "MusicSoundScreen.h"
+#include "ControlsScreen.h"
+#include "ChatSettingsScreen.h"
+#include "AccessibilitySettingsScreen.h"
 
-#include "../components/ImageButton.h"
-#include "../components/OptionsGroup.h"
-#include "platform/input/Keyboard.h"
-#include "../../sound/SoundEngine.h"
-
-OptionsScreen::OptionsScreen()
-	: btnDone(NULL),
-	btnCredits(NULL),
-	selectedCategory(-1),
-	inSubMenu(false) {
+OptionsScreen::OptionsScreen() {
 }
 
 OptionsScreen::~OptionsScreen() {
-	if (btnDone != NULL) {
-		delete btnDone;
-		btnDone = NULL;
-	}
-
-	if (btnCredits != NULL) {
-		delete btnCredits;
-		btnCredits = NULL;
-	}
-
-	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
-		if (*it != NULL) {
-			delete* it;
-			*it = NULL;
-		}
-	}
-
-	for (std::vector<OptionsGroup*>::iterator it = optionPanes.begin(); it != optionPanes.end(); ++it) {
-		if (*it != NULL) {
-			delete* it;
-			*it = NULL;
-		}
-	}
-
-	categoryButtons.clear();
 }
 
 void OptionsScreen::init() {
-	btnDone = new Button(1, I18n::get("gui.done"));
-
-	categoryButtons.push_back(new Button(2, I18n::get("options.tab.general")));
-	categoryButtons.push_back(new Button(3, I18n::get("options.tab.game")));
-	categoryButtons.push_back(new Button(4, I18n::get("options.tab.controls")));
-	categoryButtons.push_back(new Button(5, I18n::get("options.tab.graphics")));
-	categoryButtons.push_back(new Button(6, I18n::get("options.tab.tweaks")));
-	categoryButtons.push_back(new Button(7, I18n::get("options.tab.language")));
-
-	btnCredits = new Button(11, I18n::get("options.credits"));
-
-	buttons.push_back(btnDone);
-	buttons.push_back(btnCredits);
-
-	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
-		buttons.push_back(*it);
-		tabButtons.push_back(*it);
-	}
-
-	generateOptionScreens();
-	// start in main menu
-	inSubMenu = false;
-	selectCategory(-1);
+    int w = 150;
+    int col1 = width / 2 - w - 5;
+    int col2 = width / 2 + 5;
+    
+    // Main columns
+    btnSkin = new Button(1, col1, height / 6 + 24, w, 20, I18n::get("options.skinCustomisation"));
+    btnAudio = new Button(2, col2, height / 6 + 24, w, 20, I18n::get("options.musicAndSounds"));
+    
+    btnGraphics = new Button(3, col1, height / 6 + 48, w, 20, I18n::get("options.video"));
+    btnControls = new Button(4, col2, height / 6 + 48, w, 20, I18n::get("options.controls"));
+    
+    btnLanguage = new Button(5, col1, height / 6 + 72, w, 20, I18n::get("options.language"));
+    btnChat = new Button(6, col2, height / 6 + 72, w, 20, I18n::get("options.chat.title"));
+    
+    btnResourcePacks = new Button(7, col1, height / 6 + 96, w, 20, I18n::get("options.resourcepack"));
+    btnAccessibility = new Button(8, col2, height / 6 + 96, w, 20, I18n::get("options.accessibility.title"));
+    
+    btnDone = new Button(0, width / 2 - 100, height / 6 + 168, 200, 20, I18n::get("gui.done"));
+    
+    buttons.push_back(btnSkin);
+    buttons.push_back(btnAudio);
+    buttons.push_back(btnGraphics);
+    buttons.push_back(btnControls);
+    buttons.push_back(btnLanguage);
+    buttons.push_back(btnChat);
+    buttons.push_back(btnResourcePacks);
+    buttons.push_back(btnAccessibility);
+    buttons.push_back(btnDone);
 }
 
 void OptionsScreen::setupPositions() {
-	int buttonW = 150;
-	int buttonH = 20;
-	int gap = 4;
-	int startY = height / 6;
-
-	if (!inSubMenu) {
-		for (size_t i = 0; i < categoryButtons.size(); i++) {
-			Button* b = categoryButtons[i];
-			int col = i % 2;
-			int row = i / 2;
-			b->width = buttonW;
-			b->height = buttonH;
-			b->x = width / 2 - buttonW - gap / 2 + col * (buttonW + gap);
-			b->y = startY + row * (buttonH + gap);
-		}
-	} else {
-		for (std::vector<OptionsGroup*>::iterator it = optionPanes.begin(); it != optionPanes.end(); ++it) {
-			(*it)->x = 0;
-			(*it)->y = 30;
-			(*it)->width = width;
-			int availableHeight = height - 60; // Space for header and done button
-			if (btnCredits != NULL) availableHeight -= btnCredits->height;
-			(*it)->height = availableHeight;
-			(*it)->setupPositions();
-		}
-	}
-
-	if (btnCredits != NULL) {
-		btnCredits->width = (std::max)(100, font->width(btnCredits->msg) + 16);
-		btnCredits->height = 20;
-		btnCredits->x = width - btnCredits->width;
-		btnCredits->y = height - btnCredits->height;
-	}
-
-	btnDone->width = 200;
-	btnDone->height = 20;
-	btnDone->x = width / 2 - 100;
-	btnDone->y = height - 28;
-}
-
-void OptionsScreen::render(int xm, int ym, float a) {
-	renderBackground();
-	drawCenteredString(font, I18n::get("options.title"), width / 2, 10, 0xffffff);
-
-	int xmm = xm * width / minecraft->width;
-	int ymm = ym * height / minecraft->height - 1;
-
-	if (inSubMenu && currentOptionsGroup != NULL)
-		currentOptionsGroup->render(minecraft, xmm, ymm);
-
-	super::render(xm, ym, a);
-}
-
-void OptionsScreen::removed() {
 }
 
 void OptionsScreen::buttonClicked(Button* button) {
-	if (button == btnDone) {
-		minecraft->options.save();
-		if (inSubMenu) {
-			inSubMenu = false;
-			selectCategory(-1);
-			setupPositions();
-		} else {
-			if (minecraft->screen != NULL) {
-				minecraft->setScreen(NULL);
-			} else {
-				minecraft->screenChooser.setScreen(SCREEN_STARTMENU);
-			}
-		}
-	}
-	else if (button->id > 1 && button->id < 8) {
-		int categoryButton = button->id - categoryButtons[0]->id;
-		inSubMenu = true;
-		selectCategory(categoryButton);
-		setupPositions();
-	}
-	else if (button == btnCredits) {
-		minecraft->setScreen(new CreditsScreen());
-	}
-	// Handle language selection buttons
-	else if (button->id >= 100 && button->id < 102) {
-		int langIndex = button->id - 100;
-		minecraft->options.set(OPTIONS_LANGUAGE, langIndex);
-		// Update button selection states
-		for(int i = 0; i < languageButtons.size(); i++) {
-			languageButtons[i]->selected = (i == langIndex);
-		}
-	}
-	// Handle apply button
-	else if (button == btnApplyLanguage) {
-		minecraft->options.save();
-		int langIndex = minecraft->options.getIntValue(OPTIONS_LANGUAGE);
-		const char* languages[] = {"en_US", "es_ES"};
-		if(langIndex >= 0 && langIndex < 2) {
-			I18n::loadLanguage(minecraft->platform(), languages[langIndex]);
-		}
-		// Update language button labels with new language
-		const char* langKeys[] = {"options.language.0", "options.language.1"};
-		for(int i = 0; i < languageButtons.size(); i++) {
-			languageButtons[i]->msg = I18n::get(langKeys[i]);
-		}
-		btnApplyLanguage->msg = I18n::get("options.applyLanguage");
-
-		// Refresh category tab labels
-		const char* categoryKeys[] = {"options.tab.general", "options.tab.game", "options.tab.controls", "options.tab.graphics", "options.tab.tweaks", "options.tab.language"};
-		const char* categoryFallbacks[] = {"General", "Game", "Controls", "Graphics", "Tweaks", "Language"};
-		for(int i = 0; i < (int)categoryButtons.size() && i < 6; i++) {
-			std::string label = I18n::get(categoryKeys[i]);
-			// If key not found (ends with '<'), use the hardcoded fallback
-			if (!label.empty() && label.back() == '<')
-				label = categoryFallbacks[i];
-			categoryButtons[i]->msg = label;
-		}
-
-		// Refresh option pane headers
-		const char* groupKeys[] = {"options.group.general", "options.group.game", "options.group.controls", "options.group.graphics", "options.group.tweaks", "options.group.language"};
-		for(int i = 0; i < (int)optionPanes.size() && i < 6; i++) {
-			std::string label = I18n::get(groupKeys[i]);
-			if (!label.empty() && label.back() == '<')
-				label = categoryFallbacks[i];
-			optionPanes[i]->setTitle(label);
-		}
-	}
+    if (button->id == 0) {
+        minecraft->popScreen();
+    } else if (button->id == 1) {
+        minecraft->pushScreen(new SkinCustomizationScreen());
+    } else if (button->id == 2) {
+        minecraft->pushScreen(new MusicSoundScreen());
+    } else if (button->id == 3) {
+        minecraft->pushScreen(new GraphicsScreen());
+    } else if (button->id == 4) {
+        minecraft->pushScreen(new ControlsScreen());
+    } else if (button->id == 5) {
+        minecraft->pushScreen(new LanguageScreen());
+    } else if (button->id == 6) {
+        minecraft->pushScreen(new ChatSettingsScreen());
+    } else if (button->id == 7) {
+        minecraft->pushScreen(new ResourcePacksScreen());
+    } else if (button->id == 8) {
+        minecraft->pushScreen(new AccessibilitySettingsScreen());
+    }
 }
 
-void OptionsScreen::selectCategory(int index) {
-	int currentIndex = 0;
-
-	for (std::vector<Button*>::iterator it = categoryButtons.begin(); it != categoryButtons.end(); ++it) {
-
-		if (index == currentIndex)
-			(*it)->selected = true;
-		else
-			(*it)->selected = false;
-
-		currentIndex++;
-	}
-
-	if (index >= 0 && index < (int)optionPanes.size())
-		currentOptionsGroup = optionPanes[index];
-	else
-		currentOptionsGroup = NULL;
-
-	selectedCategory = index;
+void OptionsScreen::render(int xm, int ym, float a) {
+    renderBackground();
+    drawCenteredString(font, I18n::get("menu.options"), width / 2, 15, 0xffffff);
+    Screen::render(xm, ym, a);
 }
 
-void OptionsScreen::generateOptionScreens() {
-	// how the fuck it works
-
-	optionPanes.push_back(new OptionsGroup("options.group.general"));
-	optionPanes.push_back(new OptionsGroup("options.group.game"));
-	optionPanes.push_back(new OptionsGroup("options.group.controls"));
-	optionPanes.push_back(new OptionsGroup("options.group.graphics"));
-	optionPanes.push_back(new OptionsGroup("options.group.tweaks"));
-	optionPanes.push_back(new OptionsGroup("options.group.language"));
-
-	// General Pane
-	optionPanes[0]->addOptionItem(OPTIONS_USERNAME, minecraft)
-		.addOptionItem(OPTIONS_SENSITIVITY, minecraft);
-
-	// Game Pane
-	optionPanes[1]->addOptionItem(OPTIONS_DIFFICULTY, minecraft)
-		.addOptionItem(OPTIONS_SERVER_VISIBLE, minecraft)
-		.addOptionItem(OPTIONS_THIRD_PERSON_VIEW, minecraft)
-		.addOptionItem(OPTIONS_GUI_SCALE, minecraft)
-		.addOptionItem(OPTIONS_SENSITIVITY, minecraft)
-		.addOptionItem(OPTIONS_MUSIC_VOLUME, minecraft)
-		.addOptionItem(OPTIONS_SOUND_VOLUME, minecraft)
-		.addOptionItem(OPTIONS_SMOOTH_CAMERA, minecraft)
-		.addOptionItem(OPTIONS_DESTROY_VIBRATION, minecraft)
-		.addOptionItem(OPTIONS_IS_LEFT_HANDED, minecraft);
-
-	// // Controls Pane
-	optionPanes[2]->addOptionItem(OPTIONS_INVERT_Y_MOUSE, minecraft)
-		.addOptionItem(OPTIONS_USE_TOUCHSCREEN, minecraft)
-		.addOptionItem(OPTIONS_AUTOJUMP, minecraft);
-
-	for (int i = OPTIONS_KEY_FORWARD; i <= OPTIONS_KEY_USE; i++) {
-		optionPanes[2]->addOptionItem((OptionId)i, minecraft);
-	}
-
-	// // Graphics Pane
-	optionPanes[3]->addOptionItem(OPTIONS_FANCY_GRAPHICS, minecraft)
-		.addOptionItem(OPTIONS_LIMIT_FRAMERATE, minecraft)
-		.addOptionItem(OPTIONS_VSYNC, minecraft)
-		.addOptionItem(OPTIONS_RENDER_DEBUG, minecraft)
-		.addOptionItem(OPTIONS_ANAGLYPH_3D, minecraft)
-		.addOptionItem(OPTIONS_VIEW_BOBBING, minecraft)
-		.addOptionItem(OPTIONS_AMBIENT_OCCLUSION, minecraft)
-		.addOptionItem(OPTIONS_SMOOTH_LIGHTNING, minecraft)
-		.addOptionItem(OPTIONS_FOV, minecraft)
-		.addOptionItem(OPTIONS_BRIGHTNESS, minecraft);
-	
-	optionPanes[4]->addOptionItem(OPTIONS_ALLOW_SPRINT, minecraft)
-		.addOptionItem(OPTIONS_BAR_ON_TOP, minecraft)
-		.addOptionItem(OPTIONS_RPI_CURSOR, minecraft);
-
-	// Language Pane - Add language selection buttons manually
-	int langIndex = minecraft->options.getIntValue(OPTIONS_LANGUAGE);
-	const char* langKeys[] = {"options.language.0", "options.language.1"};
-
-	for(int i = 0; i < 2; i++) {
-		Button* langBtn = new Button(100 + i, I18n::get(langKeys[i]));
-		langBtn->selected = (i == langIndex);
-		languageButtons.push_back(langBtn);
-		optionPanes[5]->addChild(langBtn);
-	}
-
-	// Add apply button
-	btnApplyLanguage = new Button(200, I18n::get("options.applyLanguage"));
-	optionPanes[5]->addChild(btnApplyLanguage);
-	optionPanes[5]->setupPositions();
-}
-
-void OptionsScreen::mouseClicked(int x, int y, int buttonNum) {
-	if (currentOptionsGroup != NULL)
-		currentOptionsGroup->mouseClicked(minecraft, x, y, buttonNum);
-
-	if (selectedCategory == 5) {
-		int translatedY = y + optionPanes[5]->getScrollOffset();
-		for(int i = 0; i < languageButtons.size(); i++) {
-			if (languageButtons[i]->clicked(minecraft, x, translatedY)) {
-				minecraft->soundEngine->playUI("random.click", 1.0f, 1.0f);
-				buttonClicked(languageButtons[i]);
-				return;
-			}
-		}
-		if (btnApplyLanguage && btnApplyLanguage->clicked(minecraft, x, translatedY)) {
-			minecraft->soundEngine->playUI("random.click", 1.0f, 1.0f);
-			buttonClicked(btnApplyLanguage);
-			return;
-		}
-	}
-
-	super::mouseClicked(x, y, buttonNum);
-}
-
-void OptionsScreen::mouseWheel(int dx, int dy, int xm, int ym) {
-    if (currentOptionsGroup != NULL)
-        currentOptionsGroup->mouseWheel(dx, dy, xm, ym);
-    super::mouseWheel(dx, dy, xm, ym);
-}
-
-void OptionsScreen::mouseReleased(int x, int y, int buttonNum) {
-	if (currentOptionsGroup != NULL)
-		currentOptionsGroup->mouseReleased(minecraft, x, y, buttonNum);
-
-	super::mouseReleased(x, y, buttonNum);
-}
-
-void OptionsScreen::keyPressed(int eventKey) {
-	if (currentOptionsGroup != NULL)
-		currentOptionsGroup->keyPressed(minecraft, eventKey);
-	if (eventKey == Keyboard::KEY_ESCAPE) 
-		minecraft->options.save();
-	
-	super::keyPressed(eventKey);
-}
-
-void OptionsScreen::charPressed(char inputChar) {
-	if (currentOptionsGroup != NULL)
-		currentOptionsGroup->charPressed(minecraft, inputChar);
-
-	super::keyPressed(inputChar);
+void OptionsScreen::renderBackground() {
+    Screen::renderBackground();
 }
 
 void OptionsScreen::tick() {
+    
+}
 
-	if (currentOptionsGroup != NULL)
-		currentOptionsGroup->tick(minecraft);
-
-	super::tick();
+void OptionsScreen::keyPressed(int eventKey) {
+    if (eventKey == Keyboard::KEY_ESCAPE) {
+        minecraft->popScreen();
+    }
 }

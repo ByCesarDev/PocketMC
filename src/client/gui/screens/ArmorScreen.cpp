@@ -1,4 +1,4 @@
-#include "ArmorScreen.h"
+﻿#include "ArmorScreen.h"
 #include "../../../locale/I18n.h"
 #include "../Screen.h"
 #include "../components/NinePatch.h"

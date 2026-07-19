@@ -1,4 +1,4 @@
-#include "RenameSkinScreen.h"
+﻿#include "RenameSkinScreen.h"
 #include "SkindexScreen.h"
 #include "../../Minecraft.h"
 #include "../../player/LocalPlayer.h"

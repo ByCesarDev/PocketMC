@@ -60,36 +60,47 @@ void I18n::fillTranslations( AppPlatform* platform, const std::string& filename,
 
 	std::string data((const char*)blob.data, blob.size);
 	
+	// The font texture (default8.png) uses CP437 encoding for the extended range.
+	// We must convert UTF-8 input to the correct CP437 byte for each character.
 	std::string cp437_data;
 	cp437_data.reserve(data.length());
 	for (size_t i = 0; i < data.length(); ) {
 		unsigned char c = data[i];
-		if (i == 0 && c == 0xEF && i + 2 < data.length() && (unsigned char)data[i+1] == 0xBB && (unsigned char)data[i+2] == 0xBF) {
-			i += 3; // skip BOM
+		// Skip UTF-8 BOM (EF BB BF)
+		if (i == 0 && c == 0xEF && i + 2 < data.length() &&
+		    (unsigned char)data[i+1] == 0xBB && (unsigned char)data[i+2] == 0xBF) {
+			i += 3;
+		// U+00A0..U+00BF: encoded as 0xC2 XX
 		} else if (c == 0xC2 && i + 1 < data.length()) {
 			unsigned char c2 = data[i+1];
-			if (c2 == 0xBF) cp437_data += (char)0xA8; // ¿
+			if      (c2 == 0xBF) cp437_data += (char)0xA8; // ¿
 			else if (c2 == 0xA1) cp437_data += (char)0xAD; // ¡
-			else cp437_data += '?';
+			else                 cp437_data += '?';
 			i += 2;
+		// U+00C0..U+00FF: encoded as 0xC3 XX
 		} else if (c == 0xC3 && i + 1 < data.length()) {
 			unsigned char c2 = data[i+1];
-			if (c2 == 0xA1) cp437_data += (char)0xA0; // á
-			else if (c2 == 0xA9) cp437_data += (char)0x82; // é
-			else if (c2 == 0xAD) cp437_data += (char)0xA1; // í
-			else if (c2 == 0xB3) cp437_data += (char)0xA2; // ó
-			else if (c2 == 0xBA) cp437_data += (char)0xA3; // ú
-			else if (c2 == 0xB1) cp437_data += (char)0xA4; // ñ
-			else if (c2 == 0x91) cp437_data += (char)0xA5; // Ñ
-			else if (c2 == 0x89) cp437_data += (char)0x90; // É
-			else if (c2 == 0x81) cp437_data += 'A'; // Á
-			else if (c2 == 0x8D) cp437_data += 'I'; // Í
-			else if (c2 == 0x93) cp437_data += 'O'; // Ó
-			else if (c2 == 0x9A) cp437_data += 'U'; // Ú
-			else if (c2 == 0xBC) cp437_data += (char)0x81; // ü
-			else if (c2 == 0x9C) cp437_data += (char)0x9A; // Ü
-			else cp437_data += '?';
+			if      (c2 == 0xA1) cp437_data += (char)0xA0; // á  CP437=0xA0
+			else if (c2 == 0xA9) cp437_data += (char)0x82; // é  CP437=0x82
+			else if (c2 == 0xAD) cp437_data += (char)0xA1; // í  CP437=0xA1
+			else if (c2 == 0xB3) cp437_data += (char)0xA2; // ó  CP437=0xA2
+			else if (c2 == 0xBA) cp437_data += (char)0xA3; // ú  CP437=0xA3
+			else if (c2 == 0xB1) cp437_data += (char)0xA4; // ñ  CP437=0xA4
+			else if (c2 == 0x91) cp437_data += (char)0xA5; // Ñ  CP437=0xA5
+			else if (c2 == 0x89) cp437_data += (char)0x90; // É  CP437=0x90
+			else if (c2 == 0x81) cp437_data += (char)0xB5; // Á  CP437=0xB5
+			else if (c2 == 0x8D) cp437_data += (char)0xD6; // Í  CP437=0xD6
+			else if (c2 == 0x93) cp437_data += (char)0xE0; // Ó  CP437=0xE0
+			else if (c2 == 0x9A) cp437_data += (char)0xE9; // Ú  CP437=0xE9
+			else if (c2 == 0xBC) cp437_data += (char)0x81; // ü  CP437=0x81
+			else if (c2 == 0x9C) cp437_data += (char)0x9A; // Ü  CP437=0x9A
+			else                 cp437_data += '?';
 			i += 2;
+		// 3-byte and 4-byte UTF-8 (outside Latin-1 range, unlikely in game text)
+		} else if ((c & 0xF0) == 0xE0 && i + 2 < data.length()) {
+			cp437_data += '?'; i += 3;
+		} else if ((c & 0xF8) == 0xF0 && i + 3 < data.length()) {
+			cp437_data += '?'; i += 4;
 		} else {
 			cp437_data += c;
 			i++;

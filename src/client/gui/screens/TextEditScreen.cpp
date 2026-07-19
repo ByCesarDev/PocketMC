@@ -1,4 +1,4 @@
-#include "TextEditScreen.h"
+﻿#include "TextEditScreen.h"
 #include "../../../world/level/tile/entity/SignTileEntity.h"
 #include "../../../AppPlatform.h"
 #include "../../Minecraft.h"

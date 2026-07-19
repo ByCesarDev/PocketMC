@@ -89,6 +89,105 @@ OptionBool firstLaunch("firstLaunch", true);
 
 OptionString lastIp("lastip");
 
+// Skin Customization
+OptionBool skinCape("skinCape", true);
+OptionBool skinJacket("skinJacket", true);
+OptionBool skinLeftSleeve("skinLeftSleeve", true);
+OptionBool skinRightSleeve("skinRightSleeve", true);
+OptionBool skinLeftPants("skinLeftPants", true);
+OptionBool skinRightPants("skinRightPants", true);
+OptionBool skinHat("skinHat", true);
+OptionBool skinMainHand("skinMainHand", true);
+
+// Graphics additions
+OptionBool reduceFpsIdle("reduceFpsIdle", false);
+OptionBool fullscreenOpt("fullscreen", false);
+OptionInt graphicsApi("graphicsApi", 0, 0, 2);
+OptionBool biomeTransition("biomeTransition", true);
+OptionBool chunkRender("chunkRender", true);
+OptionBool chunkGenerate("chunkGenerate", true);
+OptionBool chunkSimulation("chunkSimulation", true);
+OptionBool clouds("clouds", true);
+OptionBool particles("particles", true);
+OptionInt mipmapLevel("mipmapLevel", 4, 0, 4);
+OptionBool entityShadows("entityShadows", true);
+OptionFloat entityDistance("entityDistance", 1.0f, 0.0f, 2.0f);
+OptionBool menuBlur("menuBlur", true);
+OptionFloat cloudDistance("cloudDistance", 1.0f, 0.0f, 2.0f);
+OptionBool seeThroughLeaves("seeThroughLeaves", true);
+OptionBool enhancedTransparency("enhancedTransparency", true);
+OptionBool textureFiltering("textureFiltering", true);
+OptionBool anisotropicFiltering("anisotropicFiltering", false);
+OptionInt weatherRadius("weatherRadius", 2, 0, 4);
+OptionBool autosaveIndicator("autosaveIndicator", true);
+OptionBool showVignette("showVignette", true);
+OptionBool attackIndicator("attackIndicator", true);
+OptionBool chunkBlur("chunkBlur", false);
+
+// Music/Sound Additions
+OptionFloat musicBlocksVolume("musicBlocksVolume", 1.0f, 0.0f, 1.0f);
+OptionFloat weatherVolume("weatherVolume", 1.0f, 0.0f, 1.0f);
+OptionFloat blocksVolume("blocksVolume", 1.0f, 0.0f, 1.0f);
+OptionFloat hostileVolume("hostileVolume", 1.0f, 0.0f, 1.0f);
+OptionFloat passiveVolume("passiveVolume", 1.0f, 0.0f, 1.0f);
+OptionFloat playerVolume("playerVolume", 1.0f, 0.0f, 1.0f);
+OptionFloat ambientVolume("ambientVolume", 1.0f, 0.0f, 1.0f);
+OptionFloat narratorVolume("narratorVolume", 1.0f, 0.0f, 1.0f);
+OptionFloat uiVolume("uiVolume", 1.0f, 0.0f, 1.0f);
+OptionString soundDevice("soundDevice", "Default");
+OptionBool showSubtitles("showSubtitles", false);
+OptionBool directionalAudio("directionalAudio", false);
+OptionBool defaultMusic("defaultMusic", true);
+OptionBool musicWarning("musicWarning", true);
+
+// Controls Additions
+OptionFloat sprintInterval("sprintInterval", 0.5f, 0.0f, 1.0f);
+OptionBool adminTab("adminTab", false);
+
+// Mouse Additions
+OptionBool discreteScroll("discreteScroll", false);
+OptionBool directInput("directInput", false);
+OptionFloat wheelSensitivity("wheelSensitivity", 1.0f, 0.0f, 2.0f);
+OptionBool invertXMouse("invertXMouse", false);
+OptionBool allowCursorChanges("allowCursorChanges", true);
+
+// Chat Settings
+OptionBool chatVisible("chatVisible", true);
+OptionBool chatColors("chatColors", true);
+OptionBool webLinks("webLinks", true);
+OptionBool warnWebLinks("warnWebLinks", true);
+OptionFloat chatOpacity("chatOpacity", 1.0f, 0.0f, 1.0f);
+OptionFloat chatBgOpacity("chatBgOpacity", 0.5f, 0.0f, 1.0f);
+OptionFloat chatSize("chatSize", 1.0f, 0.0f, 2.0f);
+OptionFloat chatLineSpacing("chatLineSpacing", 0.0f, 0.0f, 1.0f);
+OptionBool chatSlowdown("chatSlowdown", false);
+OptionFloat chatWidth("chatWidth", 1.0f, 0.0f, 2.0f);
+OptionFloat chatMaxHeightOpen("chatMaxHeightOpen", 1.0f, 0.0f, 2.0f);
+OptionFloat chatMaxHeightClosed("chatMaxHeightClosed", 1.0f, 0.0f, 2.0f);
+OptionBool suggestCommands("suggestCommands", true);
+OptionBool highlightMatchingNames("highlightMatchingNames", true);
+OptionBool reduceF3("reduceF3", false);
+OptionBool onlySecureMsgs("onlySecureMsgs", false);
+OptionBool showUnsentMsgs("showUnsentMsgs", true);
+
+// Accessibility Additions
+OptionBool highContrast("highContrast", false);
+OptionFloat warningDuration("warningDuration", 1.0f, 0.0f, 2.0f);
+OptionBool bobbingOpt("bobbingOpt", true);
+OptionBool distortionEffects("distortionEffects", true);
+OptionBool fovEffects("fovEffects", true);
+OptionBool darknessPulse("darknessPulse", true);
+OptionBool damageTilt("damageTilt", true);
+OptionFloat flashSpeed("flashSpeed", 1.0f, 0.0f, 2.0f);
+OptionFloat flashIntensity("flashIntensity", 1.0f, 0.0f, 2.0f);
+OptionBool hideLightning("hideLightning", false);
+OptionBool monochromeLogo("monochromeLogo", false);
+OptionFloat panoramaSpeed("panoramaSpeed", 1.0f, 0.0f, 2.0f);
+OptionBool hideSplashTexts("hideSplashTexts", false);
+OptionBool narratorShortcut("narratorShortcut", false);
+OptionBool spinWithMinecarts("spinWithMinecarts", true);
+OptionBool highContrastBorders("highContrastBorders", false);
+
 void Options::initTable() {
     m_options[OPTIONS_DIFFICULTY] = &difficulty;
     m_options[OPTIONS_HIDEGUI] = &hidegui;
@@ -174,6 +273,92 @@ void Options::initTable() {
 
 	m_options[OPTIONS_AUTOJUMP] = &autoJump;
 	m_options[OPTIONS_LAST_IP] = &lastIp;
+
+    m_options[OPTIONS_SKIN_CAPE] = &skinCape;
+    m_options[OPTIONS_SKIN_JACKET] = &skinJacket;
+    m_options[OPTIONS_SKIN_LEFT_SLEEVE] = &skinLeftSleeve;
+    m_options[OPTIONS_SKIN_RIGHT_SLEEVE] = &skinRightSleeve;
+    m_options[OPTIONS_SKIN_LEFT_PANTS] = &skinLeftPants;
+    m_options[OPTIONS_SKIN_RIGHT_PANTS] = &skinRightPants;
+    m_options[OPTIONS_SKIN_HAT] = &skinHat;
+    m_options[OPTIONS_SKIN_MAIN_HAND] = &skinMainHand;
+    m_options[OPTIONS_REDUCE_FPS_IDLE] = &reduceFpsIdle;
+    m_options[OPTIONS_FULLSCREEN] = &fullscreenOpt;
+    m_options[OPTIONS_GRAPHICS_API] = &graphicsApi;
+    m_options[OPTIONS_BIOME_TRANSITION] = &biomeTransition;
+    m_options[OPTIONS_CHUNK_RENDER] = &chunkRender;
+    m_options[OPTIONS_CHUNK_GENERATE] = &chunkGenerate;
+    m_options[OPTIONS_CHUNK_SIMULATION] = &chunkSimulation;
+    m_options[OPTIONS_CLOUDS] = &clouds;
+    m_options[OPTIONS_PARTICLES] = &particles;
+    m_options[OPTIONS_MIPMAP_LEVEL] = &mipmapLevel;
+    m_options[OPTIONS_ENTITY_SHADOWS] = &entityShadows;
+    m_options[OPTIONS_ENTITY_DISTANCE] = &entityDistance;
+    m_options[OPTIONS_MENU_BLUR] = &menuBlur;
+    m_options[OPTIONS_CLOUD_DISTANCE] = &cloudDistance;
+    m_options[OPTIONS_SEE_THROUGH_LEAVES] = &seeThroughLeaves;
+    m_options[OPTIONS_ENHANCED_TRANSPARENCY] = &enhancedTransparency;
+    m_options[OPTIONS_TEXTURE_FILTERING] = &textureFiltering;
+    m_options[OPTIONS_ANISOTROPIC_FILTERING] = &anisotropicFiltering;
+    m_options[OPTIONS_WEATHER_RADIUS] = &weatherRadius;
+    m_options[OPTIONS_AUTOSAVE_INDICATOR] = &autosaveIndicator;
+    m_options[OPTIONS_SHOW_VIGNETTE] = &showVignette;
+    m_options[OPTIONS_ATTACK_INDICATOR] = &attackIndicator;
+    m_options[OPTIONS_CHUNK_BLUR] = &chunkBlur;
+    m_options[OPTIONS_MUSIC_BLOCKS_VOLUME] = &musicBlocksVolume;
+    m_options[OPTIONS_WEATHER_VOLUME] = &weatherVolume;
+    m_options[OPTIONS_BLOCKS_VOLUME] = &blocksVolume;
+    m_options[OPTIONS_HOSTILE_VOLUME] = &hostileVolume;
+    m_options[OPTIONS_PASSIVE_VOLUME] = &passiveVolume;
+    m_options[OPTIONS_PLAYER_VOLUME] = &playerVolume;
+    m_options[OPTIONS_AMBIENT_VOLUME] = &ambientVolume;
+    m_options[OPTIONS_NARRATOR_VOLUME] = &narratorVolume;
+    m_options[OPTIONS_UI_VOLUME] = &uiVolume;
+    m_options[OPTIONS_SOUND_DEVICE] = &soundDevice;
+    m_options[OPTIONS_SHOW_SUBTITLES] = &showSubtitles;
+    m_options[OPTIONS_DIRECTIONAL_AUDIO] = &directionalAudio;
+    m_options[OPTIONS_DEFAULT_MUSIC] = &defaultMusic;
+    m_options[OPTIONS_MUSIC_WARNING] = &musicWarning;
+    m_options[OPTIONS_SPRINT_INTERVAL] = &sprintInterval;
+    m_options[OPTIONS_ADMIN_TAB] = &adminTab;
+    m_options[OPTIONS_DISCRETE_SCROLL] = &discreteScroll;
+    m_options[OPTIONS_DIRECT_INPUT] = &directInput;
+    m_options[OPTIONS_WHEEL_SENSITIVITY] = &wheelSensitivity;
+    m_options[OPTIONS_INVERT_X_MOUSE] = &invertXMouse;
+    m_options[OPTIONS_ALLOW_CURSOR_CHANGES] = &allowCursorChanges;
+    m_options[OPTIONS_CHAT_VISIBLE] = &chatVisible;
+    m_options[OPTIONS_CHAT_COLORS] = &chatColors;
+    m_options[OPTIONS_WEB_LINKS] = &webLinks;
+    m_options[OPTIONS_WARN_WEB_LINKS] = &warnWebLinks;
+    m_options[OPTIONS_CHAT_OPACITY] = &chatOpacity;
+    m_options[OPTIONS_CHAT_BG_OPACITY] = &chatBgOpacity;
+    m_options[OPTIONS_CHAT_SIZE] = &chatSize;
+    m_options[OPTIONS_CHAT_LINE_SPACING] = &chatLineSpacing;
+    m_options[OPTIONS_CHAT_SLOWDOWN] = &chatSlowdown;
+    m_options[OPTIONS_CHAT_WIDTH] = &chatWidth;
+    m_options[OPTIONS_CHAT_MAX_HEIGHT_OPEN] = &chatMaxHeightOpen;
+    m_options[OPTIONS_CHAT_MAX_HEIGHT_CLOSED] = &chatMaxHeightClosed;
+    m_options[OPTIONS_SUGGEST_COMMANDS] = &suggestCommands;
+    m_options[OPTIONS_HIGHLIGHT_MATCHING_NAMES] = &highlightMatchingNames;
+    m_options[OPTIONS_REDUCE_F3] = &reduceF3;
+    m_options[OPTIONS_ONLY_SECURE_MSGS] = &onlySecureMsgs;
+    m_options[OPTIONS_SHOW_UNSENT_MSGS] = &showUnsentMsgs;
+    m_options[OPTIONS_HIGH_CONTRAST] = &highContrast;
+    m_options[OPTIONS_WARNING_DURATION] = &warningDuration;
+    m_options[OPTIONS_BOBBING] = &bobbingOpt;
+    m_options[OPTIONS_DISTORTION_EFFECTS] = &distortionEffects;
+    m_options[OPTIONS_FOV_EFFECTS] = &fovEffects;
+    m_options[OPTIONS_DARKNESS_PULSE] = &darknessPulse;
+    m_options[OPTIONS_DAMAGE_TILT] = &damageTilt;
+    m_options[OPTIONS_FLASH_SPEED] = &flashSpeed;
+    m_options[OPTIONS_FLASH_INTENSITY] = &flashIntensity;
+    m_options[OPTIONS_HIDE_LIGHTNING] = &hideLightning;
+    m_options[OPTIONS_MONOCHROME_LOGO] = &monochromeLogo;
+    m_options[OPTIONS_PANORAMA_SPEED] = &panoramaSpeed;
+    m_options[OPTIONS_HIDE_SPLASH_TEXTS] = &hideSplashTexts;
+    m_options[OPTIONS_NARRATOR_SHORTCUT] = &narratorShortcut;
+    m_options[OPTIONS_SPIN_WITH_MINECARTS] = &spinWithMinecarts;
+    m_options[OPTIONS_HIGH_CONTRAST_BORDERS] = &highContrastBorders;
 }
 
 void Options::set(OptionId key, const std::string& value) {

@@ -1,4 +1,4 @@
-#include "FurnaceScreen.h"
+﻿#include "FurnaceScreen.h"
 #include "crafting/PaneCraftingScreen.h"
 #include "../Screen.h"
 #include "../components/NinePatch.h"

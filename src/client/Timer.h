@@ -9,6 +9,8 @@ class Timer
 public:
 	Timer(float ticksPerSecond)
 	:	ticksPerSecond(ticksPerSecond),
+		ticks(0),
+		a(0.0f),
 		adjustTime(1.0f),
 		timeScale(1.0f),
 		passedTime(0)
@@ -108,17 +110,17 @@ public:
 
 public:
 	float ticksPerSecond;
-	int ticks;
-	float a;
-	float timeScale;
-	float passedTime;
+	int ticks = 0;
+	float a = 0.0f;
+	float timeScale = 1.0f;
+	float passedTime = 0.0f;
 private:
 	static const int MAX_TICKS_PER_UPDATE = 10;
 
-	float lastTime;
-	long lastMs;
-	long lastMsSysTime;
-	float adjustTime;
+	float lastTime = 0.0f;
+	long lastMs = 0;
+	long lastMsSysTime = 0;
+	float adjustTime = 1.0f;
 };
 
 #endif /*NET_MINECRAFT_CLIENT__Timer_H__*/

@@ -1,4 +1,4 @@
-#include "EditWorldScreen.h"
+﻿#include "EditWorldScreen.h"
 #include "SelectWorldScreen.h"
 #include "../../Minecraft.h"
 #include "../../../locale/I18n.h"

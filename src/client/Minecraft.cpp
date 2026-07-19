@@ -154,6 +154,9 @@ Minecraft::Minecraft() :
 #ifndef STANDALONE_SERVER
 	scheduledScreen(NULL),
 	hasScheduledScreen(false),
+	hasScheduledPushScreen(false),
+	scheduledPushScreen(NULL),
+	hasScheduledPopScreen(false),
 	soundEngine(NULL),
 #endif
 	ticks(0),
@@ -642,6 +645,15 @@ void Minecraft::tickInput() {
 			setScreen(scheduledScreen);
 			scheduledScreen = NULL;
 			hasScheduledScreen = false;
+		}
+		if (hasScheduledPopScreen) {
+			hasScheduledPopScreen = false;
+			popScreen();
+		}
+		if (hasScheduledPushScreen) {
+			pushScreen(scheduledPushScreen);
+			scheduledPushScreen = NULL;
+			hasScheduledPushScreen = false;
 		}
 		return;
 	}
@@ -1133,6 +1145,70 @@ void Minecraft::forceSetScreen( Screen* screen )
 #endif
 }
 
+void Minecraft::pushScreen( Screen* newScreen )
+{
+#ifndef	STANDALONE_SERVER
+	Mouse::reset();
+	Multitouch::reset();
+	Multitouch::resetThisUpdate();
+
+	if (screenMutex) {
+		LOGI("[Minecraft::pushScreen] Deferring screen=%p because screenMutex=1\n", newScreen);
+		hasScheduledPushScreen = true;
+		scheduledPushScreen = newScreen;
+		return;
+	}
+
+	if (this->screen != NULL) {
+		this->screen->removed();
+		screenStack.push_back(this->screen);
+	}
+
+	this->screen = newScreen;
+	if (newScreen != NULL) {
+		releaseMouse();
+		int screenWidth = (int)(width * Gui::InvGuiScale);
+		int screenHeight = (int)(height * Gui::InvGuiScale);
+		newScreen->init(this, screenWidth, screenHeight);
+	}
+#endif
+}
+
+void Minecraft::popScreen()
+{
+#ifndef	STANDALONE_SERVER
+	Mouse::reset();
+	Multitouch::reset();
+	Multitouch::resetThisUpdate();
+
+	if (screenMutex) {
+		LOGI("[Minecraft::popScreen] Deferring pop because screenMutex=1\n");
+		hasScheduledPopScreen = true;
+		return;
+	}
+
+	if (this->screen != NULL) {
+		this->screen->removed();
+		delete this->screen;
+		this->screen = NULL;
+	}
+
+	if (!screenStack.empty()) {
+		this->screen = screenStack.back();
+		screenStack.pop_back();
+
+		if (this->screen != NULL) {
+			releaseMouse();
+			int screenWidth = (int)(width * Gui::InvGuiScale);
+			int screenHeight = (int)(height * Gui::InvGuiScale);
+			this->screen->init(this, screenWidth, screenHeight);
+		}
+	} else {
+		setScreen(NULL);
+	}
+#endif
+}
+
 void Minecraft::setScreen( Screen* screen )
 {
 #ifndef	STANDALONE_SERVER
@@ -1162,6 +1238,12 @@ void Minecraft::setScreen( Screen* screen )
 		this->screen->removed();
 		delete this->screen;
 	}
+	
+	for (size_t i = 0; i < screenStack.size(); i++) {
+		screenStack[i]->removed();
+		delete screenStack[i];
+	}
+	screenStack.clear();
 
 	this->screen = screen;
 	if (screen != NULL) {

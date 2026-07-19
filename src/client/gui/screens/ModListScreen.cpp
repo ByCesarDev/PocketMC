@@ -1,4 +1,4 @@
-#include "ModListScreen.h"
+﻿#include "ModListScreen.h"
 
 #include "../../Minecraft.h"
 #include "../../renderer/Textures.h"

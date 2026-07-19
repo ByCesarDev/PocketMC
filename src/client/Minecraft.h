@@ -2,6 +2,7 @@
 #define NET_MINECRAFT_CLIENT__Minecraft_H__
 
 #include <string>
+#include <vector>
 #include "Options.h"
 #ifndef STANDALONE_SERVER
 #include "MouseHandler.h"
@@ -69,6 +70,8 @@ public:
 	void setIsCreativeMode(bool isCreative);
 	void setScreen(Screen*);
 	void forceSetScreen(Screen*);
+	void pushScreen(Screen* screen);
+	void popScreen();
 
 	virtual void selectLevel(const std::string& levelId, const std::string& levelName, const LevelSettings& settings);
 	virtual void setLevel(Level* level, const std::string& message = "", LocalPlayer* forceInsertPlayer = NULL);
@@ -183,6 +186,7 @@ public:
 #endif
 	CThread* generateLevelThread;
 	Screen* screen;
+	std::vector<Screen*> screenStack;
 	static int customDebugId;
 
 	static const int CDI_NONE = 0;
@@ -221,6 +225,9 @@ private:
 	bool screenMutex;
 	bool hasScheduledScreen;
 	Screen* scheduledScreen;
+	bool hasScheduledPushScreen;
+	Screen* scheduledPushScreen;
+	bool hasScheduledPopScreen;
 
 	int _licenseId;
 	bool _supportsNonTouchscreen;

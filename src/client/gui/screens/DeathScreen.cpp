@@ -1,4 +1,4 @@
-#include "DeathScreen.h"
+﻿#include "DeathScreen.h"
 #include "ScreenChooser.h"
 #include "../components/Button.h"
 #include "../../Minecraft.h"

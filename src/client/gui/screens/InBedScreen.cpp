@@ -1,4 +1,4 @@
-#include "InBedScreen.h"
+﻿#include "InBedScreen.h"
 #include "ScreenChooser.h"
 #include "../components/Button.h"
 #include "../../Minecraft.h"

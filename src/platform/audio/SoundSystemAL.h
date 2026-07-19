@@ -40,11 +40,11 @@ private:
     class Buffer {
     public:
         Buffer()
-        :   inited(false)
+        :   inited(false), bufferID(0), framePtr(nullptr)
         {}
-        bool inited;
-        ALuint bufferID;
-        char* framePtr;
+        bool inited = false;
+        ALuint bufferID = 0;
+        char* framePtr = nullptr;
     };
     
 	void removeStoppedSounds();

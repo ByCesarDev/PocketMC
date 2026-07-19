@@ -1,4 +1,4 @@
-#include "SelectWorldScreen.h"
+﻿#include "SelectWorldScreen.h"
 #include "StartMenuScreen.h"
 #include "ProgressScreen.h"
 #include "SimpleChooseLevelScreen.h"
@@ -17,7 +17,7 @@
 #include <set>
 #include <sstream>
 
-// ─── helpers ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 static bool strContainsCI(const std::string& haystack, const std::string& needle)
 {
@@ -28,7 +28,7 @@ static bool strContainsCI(const std::string& haystack, const std::string& needle
     return h.find(n) != std::string::npos;
 }
 
-// ─── WorldListWidget ────────────────────────────────────────────────────────
+// â”€â”€â”€ WorldListWidget â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 WorldListWidget::WorldListWidget(Minecraft* mc, int x, int y, int w, int h)
     : _mc(mc), _x(x), _y(y), _w(w), _h(h),
@@ -143,7 +143,7 @@ void WorldListWidget::drawSlot(int idx, int slotY, bool isSelected, int /*xm*/, 
         fill(_x, slotY, _x + _w, slotY + SLOT_H, shade);
     }
 
-    // World thumbnail (32×32 inside a 34×34 border)
+    // World thumbnail (32Ã—32 inside a 34Ã—34 border)
     const int THUMB = 32;
     const int imgX = _x + 2;
     const int imgY = slotY + (SLOT_H - THUMB) / 2;
@@ -167,7 +167,7 @@ void WorldListWidget::drawSlot(int idx, int slotY, bool isSelected, int /*xm*/, 
                tx, ty + 20, 0xFFAAAAAA);
 }
 
-// ─── SelectWorldScreen ──────────────────────────────────────────────────────
+// â”€â”€â”€ SelectWorldScreen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 SelectWorldScreen::SelectWorldScreen()
     : bPlay    (1, I18n::get("selectWorld.select")),
@@ -400,7 +400,7 @@ void SelectWorldScreen::mouseClicked(int x, int y, int buttonNum)
     }
 }
 
-// ─── DeleteWorldScreen ──────────────────────────────────────────────────────
+// â”€â”€â”€ DeleteWorldScreen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 DeleteWorldScreen::DeleteWorldScreen(const LevelSummary& level)
     : ConfirmScreen(nullptr,

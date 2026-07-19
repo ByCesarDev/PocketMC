@@ -63,14 +63,7 @@ DerivedData/
 *.ap_
 local.properties
 .gradle/
-project/.gradle/
-project/android/bin/
-project/android/gen/
-project/android/obj/
-project/android_java/bin/
-project/android_java/gen/
-project/android_java/obj/
-project/android/libs/*.so
+project/
 
 # macOS
 .DS_Store

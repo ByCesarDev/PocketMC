@@ -1,4 +1,4 @@
-#include "ChestScreen.h"
+﻿#include "ChestScreen.h"
 #include "touch/TouchStartMenuScreen.h"
 #include "../Screen.h"
 #include "../components/NinePatch.h"

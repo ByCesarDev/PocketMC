@@ -1,4 +1,4 @@
-#include "StartMenuScreen.h"
+﻿#include "StartMenuScreen.h"
 #include <algorithm>
 #include "UsernameScreen.h"
 #include "SelectWorldScreen.h"
@@ -113,21 +113,21 @@ void StartMenuScreen::setupPositions() {
 	int yBase  = (height - totalH) / 2;
 	int cx     = width / 2;
 
-	// Row 1 – Singleplayer
+	// Row 1 â€“ Singleplayer
 	bHost.x = cx - fullW / 2;
 	bHost.y = yBase;
 
-	// Row 2 – Multiplayer
+	// Row 2 â€“ Multiplayer
 	bJoin.x = cx - fullW / 2;
 	bJoin.y = bHost.y + btnH + gap;
 
-	// Row 3 – Mods (left) | Options (right), same combined width as full-width buttons
+	// Row 3 â€“ Mods (left) | Options (right), same combined width as full-width buttons
 	bMods.x    = cx - fullW / 2;
 	bMods.y    = bJoin.y + btnH + gap;
 	bOptions.x = bMods.x + bMods.width + halfGap;
 	bOptions.y = bMods.y;
 
-	// Row 4 – Save and Quit
+	// Row 4 â€“ Save and Quit
 	bQuit.x = cx - fullW / 2;
 	bQuit.y = bMods.y + btnH + gap;
 
