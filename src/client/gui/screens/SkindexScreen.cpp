@@ -146,8 +146,8 @@ void SkindexScreen::init() {
 	currentSkinIndex = 0;
 
 	bool found = false;
-	for (size_t p = 0; p < skinPacks.size(); ++p) {
-		for (size_t s = 0; s < skinPacks[p].skins.size(); ++s) {
+	for (int p = 0; p < (int)skinPacks.size(); ++p) {
+		for (int s = 0; s < (int)skinPacks[p].skins.size(); ++s) {
 			if (skinPacks[p].skins[s] == currentSkin) {
 				currentPackIndex = p;
 				currentSkinIndex = s;
@@ -278,7 +278,7 @@ void SkindexScreen::render(int xm, int ym, float a) {
 
 		glColor4f2(1.0f, 1.0f, 1.0f, 1.0f);
 		HumanoidModel model(0.0f, 0.0f, skinW, skinH);
-		model.render(nullptr, 0, 0, 0, 0, 0, 0.0625f);
+		model.render(nullptr, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0625f);
 
 		glPopMatrix();
 		glDisable2(GL_DEPTH_TEST);
@@ -305,21 +305,21 @@ void SkindexScreen::buttonClicked(Button* button) {
 		SkinPack& activePack = skinPacks[currentPackIndex];
 		if (!activePack.skins.empty()) {
 			currentSkinIndex--;
-			if (currentSkinIndex < 0) currentSkinIndex = activePack.skins.size() - 1;
+			if (currentSkinIndex < 0) currentSkinIndex = (int)activePack.skins.size() - 1;
 		}
 	} else if (button->id == btnNext.id) {
 		SkinPack& activePack = skinPacks[currentPackIndex];
 		if (!activePack.skins.empty()) {
 			currentSkinIndex++;
-			if (currentSkinIndex >= activePack.skins.size()) currentSkinIndex = 0;
+			if (currentSkinIndex >= (int)activePack.skins.size()) currentSkinIndex = 0;
 		}
 	} else if (button->id == btnPackPrev.id) {
 		currentPackIndex--;
-		if (currentPackIndex < 0) currentPackIndex = skinPacks.size() - 1;
+		if (currentPackIndex < 0) currentPackIndex = (int)skinPacks.size() - 1;
 		currentSkinIndex = 0;
 	} else if (button->id == btnPackNext.id) {
 		currentPackIndex++;
-		if (currentPackIndex >= skinPacks.size()) currentPackIndex = 0;
+		if (currentPackIndex >= (int)skinPacks.size()) currentPackIndex = 0;
 		currentSkinIndex = 0;
 	} else if (button->id == btnImport.id) {
 #ifdef _WIN32
@@ -345,7 +345,7 @@ void SkindexScreen::buttonClicked(Button* button) {
 			std::string dest = "games\\com.mojang\\skins\\" + skinPacks[currentPackIndex].name + "\\" + filename;
 			if (CopyFileA(src.c_str(), dest.c_str(), FALSE) || GetLastError() == ERROR_ALREADY_EXISTS) {
 				scanSkins();
-				for (size_t i = 0; i < skinPacks[currentPackIndex].skins.size(); ++i) {
+				for (int i = 0; i < (int)skinPacks[currentPackIndex].skins.size(); ++i) {
 					if (skinPacks[currentPackIndex].skins[i] == "games/com.mojang/skins/" + skinPacks[currentPackIndex].name + "/" + filename) {
 						currentSkinIndex = i;
 						break;
