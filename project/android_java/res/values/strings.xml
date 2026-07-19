@@ -1,6 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Minecraft Pocket Edition</string>
+    <string name="app_name_short">Minecraft PE</string>
+    <string name="xperiaplayoptimized_content">true</string>
+
+    <!-- Game mode -->
     <string name="gamemode_survival_summary">Survive and thrive in a blocky world.</string>
     <string name="gamemode_creative_summary">Unlimited resources and free flight.</string>
+
+    <!-- Create world -->
+    <string name="createworld_new_world">New World</string>
+    <string name="createworld_seed">Seed (optional)</string>
+    <string name="createworld_seed_info">Leave blank for a random seed</string>
+
+    <!-- Rename world -->
+    <string name="renameworld_title">Rename World</string>
+    <string name="renameworld_saved_world">Saved World</string>
+
+    <!-- Options: Multiplayer -->
+    <string name="mmoptions_mp_username_title">Username</string>
+    <string name="mmoptions_mp_username_dialog">Enter your username</string>
+    <string name="mmoptions_mp_server_visible_default_title">Visible to LAN players</string>
+
+    <!-- Options: Graphics -->
+    <string name="mmoptions_gfx_fancygraphics_title">Fancy Graphics</string>
+    <string name="mmoptions_gfx_fancygraphics_summary">Enable fancy graphics (slower)</string>
+    <string name="mmoptions_gfx_lowquality_title">Low Quality</string>
+    <string name="mmoptions_gfx_lowquality_summary">Reduce texture quality for better performance</string>
+
+    <!-- Options: Controls -->
+    <string name="mmoptions_ctrl_sensitivity_title">Sensitivity</string>
+    <string name="mmoptions_ctrl_invertmouse_title">Invert Camera</string>
+    <string name="mmoptions_ctrl_islefthanded_title">Left-Handed</string>
+    <string name="mmoptions_ctrl_usetouchscreen_title">Touch Screen</string>
+    <string name="mmoptions_ctrl_usetouchjoypad_title">Touch Joypad</string>
+
+    <!-- Options: Feedback -->
+    <string name="mmoptions_feedback_vibration_title">Vibration</string>
+    <string name="mmoptions_feedback_vibration_summary">Vibrate on game events</string>
+
+    <!-- Options: Game -->
+    <string name="mmoptions_game_difficultypeaceful_title">Peaceful Mode</string>
+    <string name="mmoptions_game_difficultypeaceful_summary">No hostile mobs will spawn</string>
 </resources>
