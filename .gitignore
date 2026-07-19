@@ -45,6 +45,8 @@ Release/
 RelWithDebInfo/
 MinSizeRel/
 
+minecraft-pe-0.6.1/
+
 # Xcode
 *.xcworkspace
 xcuserdata/
