@@ -16,6 +16,7 @@ import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -162,6 +163,12 @@ public class MainActivity extends Activity {
         glSurfaceView.setRenderer(new GLRenderer(this));
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         glSurfaceView.setZOrderMediaOverlay(false);
+        glSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return MainActivity.this.handleTouch(event);
+            }
+        });
 
         container.addView(glSurfaceView, 0);
 
@@ -209,6 +216,33 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         nativeOnDestroy();
         super.onDestroy();
+    }
+
+    private boolean handleTouch(MotionEvent event) {
+        int action = event.getActionMasked();
+        int pointerIndex = event.getActionIndex();
+        int pointerId = event.getPointerId(pointerIndex);
+        float x = event.getX(pointerIndex);
+        float y = event.getY(pointerIndex);
+
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+                nativeMouseDown(pointerId, 0, x, y);
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_CANCEL:
+                nativeMouseUp(pointerId, 0, x, y);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                // Forward all active pointers on MOVE
+                for (int i = 0; i < event.getPointerCount(); i++) {
+                    nativeMouseMove(event.getPointerId(i), event.getX(i), event.getY(i));
+                }
+                break;
+        }
+        return true;
     }
 
     @Override
