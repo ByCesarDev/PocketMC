@@ -21,6 +21,7 @@
 
 // References for JNI
 static jobject g_pActivity  = 0;
+static JavaVM* g_jvm        = 0;
 static AppPlatform_android appPlatform;
 
 static void setupExternalPath(JNIEnv* env, MAIN_CLASS* app)
@@ -99,6 +100,7 @@ JNIEXPORT jint JNICALL
 JNI_OnLoad( JavaVM * vm, void * reserved )
 {
     LOGI("Entering OnLoad\n");
+    g_jvm = vm;
     return appPlatform.init(vm);
 }
 
@@ -142,8 +144,8 @@ Java_com_mojang_minecraftpe_MainActivity_nativeOnCreate(JNIEnv* env, jobject thi
 }
 
 void pickImage_JNI() {
-    if (!g_pActivity) return;
-    JVMAttacher ta(appPlatform._vm);
+    if (!g_pActivity || !g_jvm) return;
+    JVMAttacher ta(g_jvm);
     JNIEnv* env = ta.getEnv();
     jclass cls = env->GetObjectClass(g_pActivity);
     jmethodID mid = env->GetMethodID(cls, "pickImage", "()V");
@@ -153,8 +155,8 @@ void pickImage_JNI() {
 }
 
 void extractAsset_JNI(const char* asset, const char* dest) {
-    if (!g_pActivity) return;
-    JVMAttacher ta(appPlatform._vm);
+    if (!g_pActivity || !g_jvm) return;
+    JVMAttacher ta(g_jvm);
     JNIEnv* env = ta.getEnv();
     jclass cls = env->GetObjectClass(g_pActivity);
     jmethodID mid = env->GetMethodID(cls, "extractAsset", "(Ljava/lang/String;Ljava/lang/String;)V");
