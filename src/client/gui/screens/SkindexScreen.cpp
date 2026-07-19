@@ -1,4 +1,4 @@
-﻿#include "SkindexScreen.h"
+#include "SkindexScreen.h"
 #include "RenameSkinScreen.h"
 #include "NewPackScreen.h"
 #include <algorithm>
@@ -56,6 +56,11 @@ void SkindexScreen::scanSkins() {
 	CopyFileA("data/images/skins/steve.png", "games/com.mojang/skins/Default/steve.png", FALSE);
 	CopyFileA("data/images/skins/cesar.png", "games/com.mojang/skins/Default/cesar.png", FALSE);
 	CopyFileA("data/images/skins/cesar malo.png", "games/com.mojang/skins/Default/cesar malo.png", FALSE);
+#elif defined(ANDROID)
+	extern void extractAsset_JNI(const char* asset, const char* dest);
+	extractAsset_JNI("images/skins/steve.png", "games/com.mojang/skins/Default/steve.png");
+	extractAsset_JNI("images/skins/cesar.png", "games/com.mojang/skins/Default/cesar.png");
+	extractAsset_JNI("images/skins/cesar malo.png", "games/com.mojang/skins/Default/cesar malo.png");
 #else
 	auto copyFile = [](const std::string& src, const std::string& dest) {
 		std::ifstream source(src, std::ios::binary);
@@ -252,7 +257,7 @@ void SkindexScreen::render(int xm, int ym, float a) {
 	if (!activePack.skins.empty()) {
 		std::string newTexture = currentSkin;
 		
-		TextureId textureId = minecraft->textures->loadTexture(newTexture);
+		TextureId textureId = minecraft->textures->loadTexture(newTexture, false);
 		minecraft->textures->bind(textureId);
 
 		int skinW = 64, skinH = 64;
@@ -348,6 +353,10 @@ void SkindexScreen::buttonClicked(Button* button) {
 				}
 			}
 		}
+#elif defined(ANDROID)
+		extern void pickImage_JNI();
+		pickImage_JNI();
+		// scanSkins will need to be reloaded later by the user opening the screen again for now.
 #endif
 	} else if (button->id == btnRename.id) {
 		SkinPack& activePack = skinPacks[currentPackIndex];
@@ -369,7 +378,7 @@ void SkindexScreen::buttonClicked(Button* button) {
 }
 
 bool SkindexScreen::handleBackEvent(bool isDown) {
-	if (isDown) return false;
+	if (isDown) return true;
 	minecraft->setScreen(nullptr);
 	return true;
 }

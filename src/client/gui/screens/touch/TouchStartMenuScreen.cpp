@@ -135,9 +135,9 @@ void StartMenuScreen::setupPositions() {
 	bSkindex.width = (std::max)(60, font->width(bSkindex.msg) + 16);
 	bProfile.height = 20;  bSkindex.height = 20;
 	bProfile.x = 2;
-	bProfile.y = height - bProfile.height - 2;
+	bProfile.y = height - bProfile.height - 14;
 	bSkindex.x = width - bSkindex.width - 2;
-	bSkindex.y = height - bSkindex.height - 2;
+	bSkindex.y = height - bSkindex.height - 14;
 }
 
 void StartMenuScreen::buttonClicked(::Button* button) {
@@ -263,14 +263,8 @@ void StartMenuScreen::render( int xm, int ym, float a )
 		glRotatef(180.0f, 0, 1, 0);
 		glRotatef(10.0f, 1, 0, 0); // Pitch
 		glRotatef(20.0f, 0, 1, 0); // Yaw for 3D effect
-		float diffX = (float)(centerX - xm);
-		float diffY = (float)((centerY - 35) - ym);
-		float headYaw = diffX * 0.5f;
-		float headPitch = -diffY * 0.5f;
-		if (headYaw > 45.0f) headYaw = 45.0f;
-		if (headYaw < -45.0f) headYaw = -45.0f;
-		if (headPitch > 45.0f) headPitch = 45.0f;
-		if (headPitch < -45.0f) headPitch = -45.0f;
+		float headYaw = 0.0f;
+		float headPitch = 0.0f;
 
 		glColor4f2(1.0f, 1.0f, 1.0f, 1.0f);
 		HumanoidModel skinModel(0.0f, 0.0f, skinW, skinH);

@@ -237,7 +237,7 @@ void NinecraftApp::updateStats()
 void NinecraftApp::initGLStates()
 {
 #ifndef STANDALONE_SERVER
-	//glShadeModel2(GL_SMOOTH);
+	glShadeModel2(GL_SMOOTH);
 	//glClearDepthf(1.0f);
 	glEnable2(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);

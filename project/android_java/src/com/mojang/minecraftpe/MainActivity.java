@@ -79,9 +79,9 @@ public class MainActivity extends Activity {
         _screenHeight = Math.min(_dm.widthPixels, _dm.heightPixels);
 
         _glView = new GLView(getApplication(), this);
-        //_glView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+        _glView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 
-        _glView.setEGLConfigChooser(true);
+        //_glView.setEGLConfigChooser(true);
         //_glView
 
         _glView.commit();
@@ -352,24 +352,26 @@ public class MainActivity extends Activity {
     }
 
     public int[] getImageData(String filename) {
-    	AssetManager assets = getAssets();
-
-        try {
-        	/*String[] filenames = */assets.list("images");
-        } catch (IOException e) {
-        	System.err.println("getImageData: Could not list directory");
-        	return null;
-        }
-
         InputStream inputStream = null;
         try {
-        	inputStream = assets.open(filename);
-        } catch (IOException e) {
-        	System.err.println("getImageData: Could not open image " + filename);
-        	return null;
+            if (filename.startsWith("games/") || filename.startsWith("/storage/") || filename.contains("games/com.mojang/skins/")) {
+                java.io.File f = new java.io.File(android.os.Environment.getExternalStorageDirectory(), filename);
+                if (f.exists()) inputStream = new java.io.FileInputStream(f);
+                else {
+                    f = new java.io.File(filename);
+                    if (f.exists()) inputStream = new java.io.FileInputStream(f);
+                }
+            }
+            if (inputStream == null) {
+                inputStream = getAssets().open(filename);
+            }
+        } catch (Exception e) {
+            System.err.println("getImageData: Could not open image " + filename);
+            return null;
         }
 
         Bitmap bm = BitmapFactory.decodeStream(inputStream);
+        if (bm == null) return null;
         int w = bm.getWidth();
         int h = bm.getHeight();
 
@@ -377,6 +379,7 @@ public class MainActivity extends Activity {
         pixels[0] = w;
         pixels[1] = h;
         bm.getPixels(pixels, 2, w, 0, 0, w, h);
+        bm.recycle();
 
         return pixels;
     }
@@ -442,9 +445,50 @@ public class MainActivity extends Activity {
 
     	if (requestCode == DialogDefinitions.DIALOG_MAINMENU_OPTIONS) {
     		_userInputStatus = 1;
-    	}
+    	} else if (requestCode == 999 && resultCode == RESULT_OK && data != null) {
+            try {
+                InputStream in = getContentResolver().openInputStream(data.getData());
+                java.io.File customSkin = new java.io.File(android.os.Environment.getExternalStorageDirectory(), "games/com.mojang/skins/Default/custom.png");
+                customSkin.getParentFile().mkdirs();
+                FileOutputStream out = new FileOutputStream(customSkin);
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                in.close();
+                out.close();
+                // Send back to C++ by simulating an event or C++ will reload
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void pickImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, 999);
     }
     
+    public void extractAsset(String assetPath, String destPath) {
+        try {
+            InputStream in = getAssets().open(assetPath);
+            java.io.File dest = new java.io.File(android.os.Environment.getExternalStorageDirectory(), destPath);
+            dest.getParentFile().mkdirs();
+            FileOutputStream out = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void quit() {
 		runOnUiThread(new Runnable() {
 			public void run() { finish(); } });

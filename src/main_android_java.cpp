@@ -141,6 +141,28 @@ Java_com_mojang_minecraftpe_MainActivity_nativeOnCreate(JNIEnv* env, jobject thi
     //gApp->init(gContext);
 }
 
+void pickImage_JNI() {
+    if (!g_pActivity) return;
+    JVMAttacher ta(appPlatform._vm);
+    JNIEnv* env = ta.getEnv();
+    jclass cls = env->GetObjectClass(g_pActivity);
+    jmethodID mid = env->GetMethodID(cls, "pickImage", "()V");
+    if (mid) {
+        env->CallVoidMethod(g_pActivity, mid);
+    }
+}
+
+void extractAsset_JNI(const char* asset, const char* dest) {
+    if (!g_pActivity) return;
+    JVMAttacher ta(appPlatform._vm);
+    JNIEnv* env = ta.getEnv();
+    jclass cls = env->GetObjectClass(g_pActivity);
+    jmethodID mid = env->GetMethodID(cls, "extractAsset", "(Ljava/lang/String;Ljava/lang/String;)V");
+    if (mid) {
+        env->CallVoidMethod(g_pActivity, mid, env->NewStringUTF(asset), env->NewStringUTF(dest));
+    }
+}
+
 static int s_surfaceCreatedCount = 0;
 
 JNIEXPORT void JNICALL
