@@ -65,6 +65,7 @@ local.properties
 .gradle/
 .project
 
+
 # macOS
 .DS_Store
 .AppleDouble
