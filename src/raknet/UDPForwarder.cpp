@@ -242,7 +242,7 @@ void UDPForwarder::UpdateThreaded_Old(void)
 						NULL, dwIOError, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),  // Default language
 						( LPTSTR ) & messageBuffer, 0, NULL );
 					// something has gone wrong here...
-					RAKNET_DEBUG_PRINTF( "recvfrom failed:Error code - %d\n%s", dwIOError, messageBuffer );
+					RAKNET_DEBUG_PRINTF( "recvfrom failed:Error code - %d\n%s", dwIOError, (char*) messageBuffer );
 
 					//Free the buffer.
 					LocalFree( messageBuffer );
@@ -422,7 +422,7 @@ void UDPForwarder::UpdateThreaded(void)
 						NULL, dwIOError, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ),  // Default language
 						( LPTSTR ) & messageBuffer, 0, NULL );
 					// something has gone wrong here...
-					RAKNET_DEBUG_PRINTF( "recvfrom failed:Error code - %d\n%s", dwIOError, messageBuffer );
+					RAKNET_DEBUG_PRINTF( "recvfrom failed:Error code - %d\n%s", dwIOError, (char*) messageBuffer );
 
 					//Free the buffer.
 					LocalFree( messageBuffer );

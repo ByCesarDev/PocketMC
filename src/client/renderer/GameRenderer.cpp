@@ -295,9 +295,7 @@ void GameRenderer::renderLevel(float a) {
         glEnable2(GL_FOG);
         setupFog(1);
 
-        if (mc->options.getBooleanValue(OPTIONS_AMBIENT_OCCLUSION) || mc->options.getBooleanValue(OPTIONS_SMOOTH_LIGHTNING)) {
-            glShadeModel2(GL_SMOOTH);
-        }
+        glShadeModel2(GL_SMOOTH);
         
 		TIMER_POP_PUSH("frustrum");
 		FrustumCuller frustum;
@@ -307,9 +305,7 @@ void GameRenderer::renderLevel(float a) {
         mc->levelRenderer->cull(&frustum, a);
         mc->levelRenderer->updateDirtyChunks(cameraEntity, false);
 
-		if(mc->options.getBooleanValue(OPTIONS_FANCY_GRAPHICS)) {
-			prepareAndRenderClouds(levelRenderer, a);
-		}
+		prepareAndRenderClouds(levelRenderer, a);
 
         setupFog(0);
         glEnable2(GL_FOG);
@@ -960,7 +956,7 @@ void GameRenderer::prepareAndRenderClouds( LevelRenderer* levelRenderer, float a
 	if (mc->level && mc->level->dimension && mc->level->dimension->id == -1) {
 		return;
 	}
-	//if(mc->options.isCloudsOn()) {
+	if(mc->options.getBooleanValue(OPTIONS_CLOUDS)) {
 	TIMER_PUSH("clouds");
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix2();
@@ -987,5 +983,5 @@ void GameRenderer::prepareAndRenderClouds( LevelRenderer* levelRenderer, float a
 	glPopMatrix2();
 	glMatrixMode(GL_MODELVIEW);
 	TIMER_POP();
-	//}
+	}
 }

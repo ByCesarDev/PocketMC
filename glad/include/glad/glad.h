@@ -31,9 +31,7 @@
 
 #if defined(_WIN32) && !defined(APIENTRY) && !defined(__CYGWIN__) && !defined(__SCITECH_SNAP__)
 #define APIENTRY __stdcall
-#endif
-
-#ifndef APIENTRY
+#elif !defined(APIENTRY)
 #define APIENTRY
 #endif
 #ifndef APIENTRYP

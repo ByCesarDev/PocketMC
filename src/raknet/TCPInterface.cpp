@@ -994,7 +994,7 @@ RAK_THREAD_DECLARATION(RakNet::UpdateTCPInterfaceLoop)
 				int err;
 				int errlen = sizeof(err);
 				getsockopt__(sts->listenSocket, SOL_SOCKET, SO_ERROR,(char*)&err, &errlen);
-				RAKNET_DEBUG_PRINTF("Socket error %s on listening socket\n", err);
+				RAKNET_DEBUG_PRINTF("Socket error %d on listening socket\n", err);
 #endif
 			}
 			

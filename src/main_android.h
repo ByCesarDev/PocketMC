@@ -69,7 +69,7 @@ engine_init_display( struct ENGINE* engine )
             //0x3098, 1,
             //EGL_TRANSPARENT_TYPE, EGL_TRANSPARENT_RGB,
             //EGL_ALPHA_SIZE, 8,//5,
-            EGL_DEPTH_SIZE, 16, //8
+            EGL_DEPTH_SIZE, 24,
             //EGL_STENCIL_SIZE, 8,
             //EGL_DEPTH_SIZE, 16,
             //EGL_CONFIG_CAVEAT,   EGL_NONE,
