@@ -46,6 +46,8 @@
 #endif
 #include "world/item/crafting/Recipes.h"
 #include "world/level/tile/entity/TileEntity.h"
+#include "behavior_packs/vanilla/VanillaBehaviorBootstrap.h"
+#include "resource_packs/vanilla/VanillaResourceBootstrap.h"
 #ifndef STANDALONE_SERVER
 #include "client/renderer/EntityTileRenderer.h"
 #endif
@@ -88,6 +90,8 @@ void NinecraftApp::init()
 		Item::initItems();
 		Biome::initBiomes();
 		TileEntity::initTileEntities();
+		VanillaBehaviorBootstrap::registerContent(GameRegistry::getInstance());
+		VanillaResourceBootstrap::registerResources();
 
 	#ifdef ANDROID
 	}

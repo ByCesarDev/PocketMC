@@ -28,6 +28,8 @@ class ModRegistry; // Forward declaration for friend access
 class Tile
 {
     friend class ModRegistry; // Allow ModRegistry to access private/protected members
+    friend class BlockRegistry; // Allow BlockRegistry to access protected setters
+    friend class VanillaBehaviorBootstrap;
 
     static const std::string TILE_DESCRIPTION_PREFIX;
 
@@ -399,7 +401,9 @@ protected:
     virtual int getSpawnResourcesAuxValue(int data);
 
 private:
+public:
 	Tile* init();
+private:
 	Tile* setCategory(int category);
 
 	bool containsX(const Vec3& v);

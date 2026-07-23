@@ -14,9 +14,11 @@ class Player;
 class ItemInstance;
 
 class ShearsItem;
+class ItemRegistry;
 
 class Item
 {
+    friend class ItemRegistry;
     static const int MAX_STACK_SIZE = 64;//Container::LARGE_MAX_STACK_SIZE;
 public:
 	static const int MAX_ITEMS = 512;//32000;

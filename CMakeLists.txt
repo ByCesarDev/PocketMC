@@ -178,6 +178,10 @@ file(GLOB SERVER_SOURCES
     "${PROJECT_ROOT}/src/util/Mth.cpp"
     "${PROJECT_ROOT}/src/util/PerfTimer.cpp"
     "${PROJECT_ROOT}/src/util/StringUtils.cpp"
+    "${PROJECT_ROOT}/src/util/ResourceLocation.cpp"
+
+    "${PROJECT_ROOT}/src/behavior_packs/vanilla/*.cpp"
+    "${PROJECT_ROOT}/src/resource_packs/vanilla/*.cpp"
 
     "${PROJECT_ROOT}/src/world/Direction.cpp"
 
@@ -260,6 +264,9 @@ file(GLOB CLIENT_SOURCES
     "${PROJECT_ROOT}/src/mods/*.cpp"
 
     "${PROJECT_ROOT}/src/nbt/*.cpp"
+
+    "${PROJECT_ROOT}/src/behavior_packs/vanilla/*.cpp"
+    "${PROJECT_ROOT}/src/resource_packs/vanilla/*.cpp"
 
     "${PROJECT_ROOT}/src/network/*.cpp"
     "${PROJECT_ROOT}/src/network/command/*.cpp"
