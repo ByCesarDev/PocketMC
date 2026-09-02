@@ -1,0 +1,457 @@
+/* ============================================================
+   PocketMC Accounts — Custom Dark Design System (Vela Powered)
+   ============================================================ */
+
+:root {
+  --pmc-bg: #07090e;
+  --pmc-bg-surface: #0e121a;
+  --pmc-bg-card: #131822;
+  --pmc-bg-card-hover: #181f2c;
+  --pmc-bg-input: #0a0d14;
+  
+  --pmc-border: rgba(255, 255, 255, 0.08);
+  --pmc-border-hover: rgba(255, 255, 255, 0.16);
+  --pmc-border-focus: #10b981;
+
+  --pmc-emerald: #10b981;
+  --pmc-emerald-dark: #059669;
+  --pmc-emerald-light: #34d399;
+  --pmc-emerald-glow: rgba(16, 185, 129, 0.25);
+
+  --pmc-text-main: #f8fafc;
+  --pmc-text-secondary: #94a3b8;
+  --pmc-text-muted: #64748b;
+  
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --primary-light: #34d399;
+}
+
+/* Reset & Dark Baseline */
+html, body {
+  background-color: var(--pmc-bg) !important;
+  color: var(--pmc-text-main) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.04) 0%, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+  background-attachment: fixed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ─── NAVBAR ────────────────────────────────────────────────── */
+.pmc-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  background: rgba(7, 9, 14, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--pmc-border);
+}
+
+.pmc-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.pmc-logo-icon {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--pmc-emerald) 0%, var(--pmc-emerald-dark) 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #032b1a;
+  font-weight: 900;
+  font-size: 1.1rem;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.pmc-logo-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--pmc-emerald-light);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pmc-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pmc-nav-link {
+  color: var(--pmc-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 150ms ease;
+}
+
+.pmc-nav-link:hover {
+  color: #ffffff;
+}
+
+/* ─── LANGUAGE DROPDOWN ─────────────────────────────────────── */
+.pmc-lang-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.pmc-lang-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--pmc-border);
+  color: #f1f5f9;
+  transition: all 150ms ease;
+}
+
+.pmc-lang-trigger:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: var(--pmc-border-hover);
+}
+
+.pmc-chevron {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  transition: transform 150ms ease;
+}
+
+.pmc-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 145px;
+  background: #0f131c;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  padding: 0.35rem;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
+  display: none;
+  z-index: 100;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pmc-dropdown-menu.open {
+  display: flex;
+  animation: pmcDropdownIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pmcDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.pmc-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  transition: all 120ms ease;
+}
+
+.pmc-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.pmc-dropdown-item.active {
+  color: #34d399;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.pmc-check {
+  font-size: 0.85rem;
+  opacity: 0;
+}
+
+.pmc-dropdown-item.active .pmc-check {
+  opacity: 1;
+}
+
+/* ─── BUTTONS ───────────────────────────────────────────────── */
+.pmc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.925rem;
+  font-weight: 600;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1.25;
+}
+
+.pmc-btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #022315 !important;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
+}
+
+.pmc-btn-primary:hover:not(:disabled) {
+  box-shadow: 0 8px 28px rgba(16, 185, 129, 0.55);
+  transform: translateY(-1px);
+}
+
+.pmc-btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--pmc-border);
+  color: #f1f5f9;
+}
+
+.pmc-btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: var(--pmc-border-hover);
+  color: #ffffff;
+}
+
+.pmc-btn-danger {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.pmc-btn-danger:hover:not(:disabled) {
+  background: #ef4444;
+  color: #ffffff !important;
+}
+
+.pmc-btn-lg {
+  padding: 0.85rem 1.75rem;
+  font-size: 1.05rem;
+  border-radius: 0.75rem;
+}
+
+.pmc-btn-sm {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  border-radius: 0.5rem;
+}
+
+.pmc-btn-full {
+  width: 100%;
+}
+
+.pmc-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── CARDS & CONTAINERS ────────────────────────────────────── */
+.pmc-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.25rem;
+}
+
+.pmc-card {
+  background: var(--pmc-bg-card);
+  border: 1px solid var(--pmc-border);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2.25rem;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 24px 60px -15px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(20px);
+  animation: pmcCardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.pmc-card-wide {
+  max-width: 680px;
+}
+
+@keyframes pmcCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─── FORMS ─────────────────────────────────────────────────── */
+.pmc-field {
+  margin-bottom: 1.25rem;
+}
+
+.pmc-label {
+  display: block;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--pmc-text-secondary);
+  margin-bottom: 0.45rem;
+  letter-spacing: 0.01em;
+}
+
+.pmc-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background-color: var(--pmc-bg-input);
+  border: 1px solid var(--pmc-border);
+  border-radius: 0.75rem;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 150ms ease;
+  box-sizing: border-box;
+}
+
+.pmc-input:focus {
+  border-color: var(--pmc-emerald);
+  background-color: #0d111a;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.pmc-input::placeholder {
+  color: var(--pmc-text-muted);
+}
+
+/* Alert Boxes */
+.pmc-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.65rem;
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pmc-alert-danger {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.pmc-alert-success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+/* Monospace UUID Pill */
+.pmc-uuid {
+  font-family: 'JetBrains Mono', monospace, Consolas, sans-serif;
+  font-size: 0.85rem;
+  background: #090c13;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--pmc-border);
+  color: var(--pmc-emerald-light);
+  word-break: break-all;
+  user-select: all;
+}
+
+/* Feature grid items on Landing */
+.pmc-feature {
+  background: var(--pmc-bg-card);
+  border: 1px solid var(--pmc-border);
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  transition: all 250ms ease;
+}
+
+.pmc-feature:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.6);
+}
+
+.pmc-feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+/* Stats counter card */
+.pmc-stat {
+  background: rgba(19, 24, 34, 0.6);
+  border: 1px solid var(--pmc-border);
+  border-radius: 1rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+/* Footer */
+.pmc-footer {
+  padding: 2rem 1.5rem;
+  border-top: 1px solid var(--pmc-border);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--pmc-text-muted);
+}

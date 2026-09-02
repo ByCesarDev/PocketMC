@@ -1,0 +1,316 @@
+/* ============================================================
+   PocketMC Accounts — Landing Page Exact Design System
+   ============================================================ */
+
+/* 1. Body & Fixed Background */
+html, body.landing-body {
+  background-color: #050910 !important;
+  background-image: 
+    linear-gradient(to bottom, rgba(4, 8, 15, 0.25) 0%, rgba(4, 8, 15, 0.45) 50%, rgba(4, 8, 15, 0.85) 100%),
+    url('/images/bg.png') !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
+  color: #f5f7fa !important;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+.landing-bg {
+  display: none;
+}
+
+
+/* 2. Floating Navbar */
+.landing-navbar {
+  position: sticky;
+  top: 1.25rem;
+  margin: 0 auto;
+  max-width: 1200px;
+  width: calc(100% - 2.5rem);
+  height: 60px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  background: rgba(10, 17, 27, 0.60) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  z-index: 50;
+  box-sizing: border-box;
+}
+
+/* 3. Hero Section */
+.landing-hero-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.landing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #34e6b1;
+  background: rgba(19, 198, 149, 0.08);
+  border: 1px solid rgba(19, 198, 149, 0.25);
+  border-radius: 9999px;
+  margin-bottom: 1.75rem;
+}
+
+.landing-hero-pretitle {
+  color: #ffffff;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.landing-hero-title {
+  font-size: clamp(3rem, 7vw, 4.8rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin-top: 0.1rem;
+  margin-bottom: 1.5rem;
+  color: #10b981;
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.landing-hero-desc {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  line-height: 1.65;
+  max-width: 620px;
+  margin: 0 auto 3rem;
+}
+
+/* 4. Action Buttons */
+.landing-hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 4.5rem;
+}
+
+.btn-hero-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #032317 !important;
+  font-weight: 700;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+  padding: 0.85rem 1.75rem;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: none;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-hero-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.45);
+}
+
+.btn-hero-secondary {
+  background: rgba(10, 17, 27, 0.55);
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.85rem 1.75rem;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+.btn-hero-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* 5. Cards Grids */
+.landing-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  max-width: 980px;
+  width: 100%;
+  margin: 0 auto 1.25rem;
+}
+
+.landing-card {
+  background: rgba(10, 17, 27, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+  box-sizing: border-box;
+}
+.landing-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Stats Cards */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.25rem 1.5rem;
+}
+.stat-icon {
+  margin-bottom: 0.85rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stat-icon svg {
+  width: 100%;
+  height: 100%;
+}
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.02em;
+}
+.stat-label {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Feature Cards */
+.feature-card {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  text-align: left;
+  gap: 1.1rem;
+  position: relative;
+  padding: 1.6rem 1.5rem;
+}
+.feature-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.feature-icon-box svg {
+  width: 22px;
+  height: 22px;
+}
+.feature-content {
+  flex: 1;
+}
+.feature-content h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  color: #ffffff;
+}
+.feature-content p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.55;
+  margin: 0;
+  padding-right: 1.25rem;
+}
+.feature-arrow {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  color: #34d399;
+  opacity: 0.5;
+  transition: opacity 200ms ease, transform 200ms ease;
+  font-size: 1.1rem;
+}
+.feature-card:hover .feature-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* Footer */
+.landing-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 2.5rem 1.5rem;
+  margin-top: 3rem;
+  text-align: center;
+  background: rgba(5, 9, 16, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 960px) {
+  .landing-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-navbar {
+    top: 0;
+    margin: 0;
+    width: 100%;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    height: auto !important;
+    padding: 0.75rem 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .landing-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .landing-hero-actions {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .btn-hero-primary, .btn-hero-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}
