@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PocketMC Accounts — Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/custom.css">
+  <link rel="stylesheet" href="../assets/css/landing.css">
+  <script src="../assets/js/index.js" defer></script>
+  <script src="../assets/js/config.js"></script>
+  <script type="module" src="../assets/js/i18n.js"></script>
+</head>
+<body class="landing-body">
+
+  <!-- NAVBAR -->
+  <header class="landing-navbar">
+    <a href="../index.html" class="pmc-logo">
+      <div class="pmc-logo-icon">P</div>
+      <span>PocketMC</span>
+      <span class="pmc-logo-badge" style="margin-left: 0.2rem; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; font-size: 0.65rem;">ACCOUNTS</span>
+    </a>
+    <nav class="pmc-nav-links">
+      
+<div class="pmc-lang-dropdown">
+  <button class="pmc-lang-trigger" id="btn-lang-trigger" aria-haspopup="true" data-vela-ripple>
+    <span id="current-lang-label">🇪🇸 Español</span>
+    <span class="pmc-chevron">▾</span>
+  </button>
+  <div class="pmc-dropdown-menu" id="lang-dropdown-menu">
+    <button class="pmc-dropdown-item" data-lang-option="es">
+      <span>🇪🇸 Español</span>
+      <span class="pmc-check">✓</span>
+    </button>
+    <button class="pmc-dropdown-item" data-lang-option="en">
+      <span>🇺🇸 English</span>
+      <span class="pmc-check">✓</span>
+    </button>
+  </div>
+</div>
+
+      <a href="../index.html" class="pmc-nav-link" data-i18n="nav.home">Inicio</a>
+      <button id="btn-signout" class="pmc-btn pmc-btn-danger pmc-btn-sm" data-i18n="prof.signOut" data-vela-ripple>Cerrar sesión</button>
+    </nav>
+  </header>
+
+  <!-- PROFILE WRAPPER -->
+  <main class="pmc-wrapper">
+    <div class="pmc-card pmc-card-wide">
+
+      <!-- Profile Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 1.5rem; border-bottom: 1px solid var(--pmc-border); margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div id="avatar" style="width: 64px; height: 64px; border-radius: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); display: flex; align-items: center; justify-content: center; color: #022315; font-weight: 900; font-size: 1.8rem; box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);">
+            P
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+              <h2 id="display-name" style="font-size: 1.45rem; font-weight: 800; color: #ffffff; margin: 0;">Loading...</h2>
+              <span class="pmc-logo-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;" data-i18n="prof.online">● Online</span>
+            </div>
+            <div id="username-handle" style="font-size: 0.95rem; color: var(--pmc-text-secondary); font-weight: 500;">@loading</div>
+          </div>
+        </div>
+
+        <a href="edit-profile.html" class="pmc-btn pmc-btn-ghost pmc-btn-sm" data-i18n="prof.editBtn" data-vela-ripple>
+          ✏️ Editar perfil
+        </a>
+      </div>
+
+      <!-- Detail Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.75rem;">
+        <div style="background: var(--pmc-bg-surface); padding: 1.1rem; border-radius: 0.85rem; border: 1px solid var(--pmc-border);">
+          <div style="font-size: 0.8rem; color: var(--pmc-text-muted); margin-bottom: 0.25rem;" data-i18n="prof.username">Nombre de usuario</div>
+          <div id="grid-username" style="font-weight: 700; font-size: 1.05rem; color: #ffffff;">-</div>
+        </div>
+
+        <div style="background: var(--pmc-bg-surface); padding: 1.1rem; border-radius: 0.85rem; border: 1px solid var(--pmc-border);">
+          <div style="font-size: 0.8rem; color: var(--pmc-text-muted); margin-bottom: 0.25rem;" data-i18n="prof.displayName">Nombre para mostrar</div>
+          <div id="grid-displayname" style="font-weight: 700; font-size: 1.05rem; color: #ffffff;">-</div>
+        </div>
+
+        <!-- Full width UUID -->
+        <div style="background: var(--pmc-bg-surface); padding: 1.1rem; border-radius: 0.85rem; border: 1px solid var(--pmc-border); grid-column: 1 / -1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span style="font-size: 0.8rem; color: var(--pmc-text-muted); font-weight: 600;" data-i18n="prof.uuid">PocketMC Player ID (UUID Permanente)</span>
+            <button id="btn-copy-uuid" style="font-size: 0.75rem; font-weight: 700; color: #34d399; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;" data-i18n="prof.copyBtn" data-vela-ripple>
+              📋 Copiar ID
+            </button>
+          </div>
+          <div id="grid-uuid" class="pmc-uuid">-</div>
+        </div>
+
+        <div style="background: var(--pmc-bg-surface); padding: 1.1rem; border-radius: 0.85rem; border: 1px solid var(--pmc-border);">
+          <div style="font-size: 0.8rem; color: var(--pmc-text-muted); margin-bottom: 0.25rem;" data-i18n="prof.memberSince">Miembro desde</div>
+          <div id="grid-created" style="font-weight: 600; font-size: 0.95rem; color: #ffffff;">-</div>
+        </div>
+
+        <div style="background: var(--pmc-bg-surface); padding: 1.1rem; border-radius: 0.85rem; border: 1px solid var(--pmc-border);">
+          <div style="font-size: 0.8rem; color: var(--pmc-text-muted); margin-bottom: 0.25rem;" data-i18n="prof.email">Correo de la cuenta</div>
+          <div id="grid-email" style="font-weight: 600; font-size: 0.95rem; color: #ffffff;">-</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display: flex; justify-content: flex-end;">
+        <button id="btn-signout-bottom" class="pmc-btn pmc-btn-danger pmc-btn-sm" data-i18n="prof.signOut" data-vela-ripple>
+          Cerrar sesión
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══ FOOTER ════════════════════════════════════════════ -->
+  <footer class="landing-footer">
+    <div style="max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; color: #ffffff;">
+        <div class="pmc-logo-icon" style="width: 22px; height: 22px; font-size: 0.8rem;">P</div>
+        <span>PocketMC Accounts</span>
+      </div>
+      <p style="font-size: 0.85rem; margin: 0; color: #94a3b8;"><span data-i18n="footer.builtWith">Powered by</span> <a href="https://github.com/ByCesarDev/vela" target="_blank" style="color: #34d399; font-weight: 600;">♡ Vela Framework</a></p>
+      <p style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.6; color: #64748b;" data-i18n="footer.disclaimer">PocketMC is an open-source project. Not affiliated with Mojang or Microsoft.</p>
+    </div>
+  </footer>
+
+
+  <script type="module">
+    import { getCurrentSession, getProfile, logoutAccount } from '../assets/js/auth.js';
+    import { t, getLanguage } from '../assets/js/i18n.js';
+
+    async function load() {
+      const session = await getCurrentSession();
+      if (!session?.user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = session.user;
+      const profile = await getProfile(user.id);
+
+      const username = profile?.username || user.email.split('@')[0];
+      const displayName = profile?.display_name || username;
+
+      document.getElementById('avatar').textContent = username.charAt(0).toUpperCase();
+      document.getElementById('display-name').textContent = displayName;
+      document.getElementById('username-handle').textContent = '@' + username;
+      document.getElementById('grid-username').textContent = '@' + username;
+      document.getElementById('grid-displayname').textContent = displayName;
+      document.getElementById('grid-uuid').textContent = user.id;
+      document.getElementById('grid-email').textContent = user.email;
+
+      const lang = getLanguage();
+      const dateStr = profile?.created_at
+        ? new Date(profile.created_at).toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { year: 'numeric', month: 'long' })
+        : 'Recent';
+      document.getElementById('grid-created').textContent = dateStr;
+
+      // Copy UUID button
+      document.getElementById('btn-copy-uuid').addEventListener('click', () => {
+        navigator.clipboard.writeText(user.id);
+        Vela.toast({
+          title: t('prof.toastCopyTitle'),
+          message: t('prof.toastCopyMsg'),
+          type: 'success'
+        });
+      });
+
+      const handleLogout = async () => {
+        await logoutAccount();
+        window.location.href = '../index.html';
+      };
+
+      document.getElementById('btn-signout').addEventListener('click', handleLogout);
+      document.getElementById('btn-signout-bottom').addEventListener('click', handleLogout);
+    }
+
+    load();
+  </script>
+</body>
+</html>
